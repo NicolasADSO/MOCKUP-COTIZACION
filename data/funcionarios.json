@@ -1,0 +1,17 @@
+[
+  { "tipo": "Coordinador", "nivel": 3, "pagoHora": 25000 },
+  { "tipo": "Coordinador", "nivel": 2, "pagoHora": 20000 },
+  { "tipo": "Coordinador", "nivel": 1, "pagoHora": 15000 },
+
+  { "tipo": "Líder", "nivel": 3, "pagoHora": 18000 },
+  { "tipo": "Líder", "nivel": 2, "pagoHora": 16000 },
+  { "tipo": "Líder", "nivel": 1, "pagoHora": 12000 },
+
+  { "tipo": "Analista", "nivel": 3, "pagoHora": 20000 },
+  { "tipo": "Analista", "nivel": 2, "pagoHora": 18000 },
+  { "tipo": "Analista", "nivel": 1, "pagoHora": 15000 },
+
+  { "tipo": "Auxiliar", "nivel": 3, "pagoHora": 18000 },
+  { "tipo": "Auxiliar", "nivel": 2, "pagoHora": 12000 },
+  { "tipo": "Auxiliar", "nivel": 1, "pagoHora": 10000 }
+]

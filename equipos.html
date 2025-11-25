@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚙️ Gestión de Equipos - Gadier Sistemas</title>
+
+  <!-- === ESTILOS === -->
+  <link rel="stylesheet" href="./assets/css/layout.css" />
+  <link rel="stylesheet" href="./assets/css/sidebar.css" />
+  <link rel="stylesheet" href="./assets/css/equipos.css" />
+</head>
+
+<body>
+  <!-- === CONTENEDOR DE SIDEBAR === -->
+  <div id="sidebar-container"></div>
+
+  <!-- === ENCABEZADO === -->
+  <header class="navbar-fija">
+    <h1>⚙️ Gestión de Equipos</h1>
+  </header>
+
+  <!-- === CONTENIDO PRINCIPAL === -->
+  <main class="main-content">
+    <section class="equipos-container">
+      <h2>Registro de Equipos</h2>
+
+      <!-- === FORMULARIO AGREGAR EQUIPO === -->
+      <form id="formAgregarEquipo" class="form-agregar-equipo">
+        <div class="campo">
+          <label>Nombre del equipo</label>
+          <input type="text" id="nombreEquipo" placeholder="Ej: Escáner Kodak i3200" required />
+        </div>
+
+        <div class="campo">
+          <label>Denominación</label>
+          <select id="denominacionEquipo" required>
+            <option value="">Seleccione...</option>
+            <option value="Básico">Básico</option>
+            <option value="Medio">Medio</option>
+            <option value="Especializado">Especializado</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label>Precio base</label>
+          <input type="number" id="precioEquipo" min="0" placeholder="Ej: 250000" required />
+        </div>
+
+        <button type="submit" class="btn-agregar">➕ Agregar equipo</button>
+      </form>
+
+      <!-- === TABLA DE EQUIPOS === -->
+      <div class="tabla-equipos">
+        <h3> Equipos registrados</h3>
+        <table id="tablaEquipos">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Denominación</th>
+              <th>Precio Base</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- === LÓGICA PRINCIPAL === -->
+  <script src="./assets/js/equipos.js"></script>
+
+  <!-- === CARGA ASÍNCRONA DEL SIDEBAR === -->
+  <script>
+    async function loadSidebar() {
+      try {
+        const container = document.getElementById("sidebar-container");
+        const res = await fetch("./includes/sidebar.html");
+        const html = await res.text();
+
+        container.innerHTML = html;
+
+        const s = document.createElement("script");
+        s.src = "./assets/js/sidebar.js";
+        s.onload = () => {
+          if (window.initSidebar) window.initSidebar();
+        };
+        document.body.appendChild(s);
+
+        // Marcar link activo
+        const current = window.location.pathname.split("/").pop();
+        document.querySelectorAll(".sidebar-link").forEach(a => {
+          a.classList.toggle("active", a.getAttribute("href") === current);
+        });
+      } catch (err) {
+        console.error("Error cargando sidebar:", err);
+      }
+    }
+
+    window.addEventListener("load", loadSidebar);
+  </script>
+</body>
+</html>

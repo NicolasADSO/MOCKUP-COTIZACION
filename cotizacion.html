@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mock1 - Cotización Gadier</title>
+
+  <!-- === ESTILOS PRINCIPALES === -->
+  <link rel="stylesheet" href="./assets/css/layout.css" />
+  <link rel="stylesheet" href="./assets/css/sidebar.css" />
+  <link rel="stylesheet" href="./assets/css/cotizacion.css" />
+
+  <!-- === Librerías locales jsPDF === -->
+  <script src="./assets/js/libs/jspdf.umd.min.js"></script>
+  <script src="./assets/js/libs/jspdf.plugin.autotable.min.js"></script>
+
+  <!-- ✅ Librería PowerPoint -->
+  <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+</head>
+
+<body>
+  <!-- ========== SIDEBAR REAL (VACÍO, LUEGO SE LLENA) ========== -->
+  <div id="sidebar"></div>
+
+  <!-- ========== CONTENIDO PRINCIPAL MOVERÁNDOSE ========== -->
+  <main class="main-content">
+
+  <!-- === HEADER === -->
+    <header class="navbar-fija">
+      <h1>📂 Generador de Cotización (Mockup Gadier)</h1>
+    </header>
+
+  <!-- === CONTENIDO === -->
+    <div class="cotizacion-layout">
+      
+      <!-- ============================================================
+           🧩 COLUMNA IZQUIERDA: FORMULARIO DE DATOS
+      ============================================================ -->
+      <section class="columna-form">
+        <h2>🧩 Datos de Cotización</h2>
+
+        <!-- Selección de Área -->
+        <div class="form-group">
+          <label for="areaSelect">Área:</label>
+          <select id="areaSelect">
+            <option value="">Seleccione área...</option>
+            <option value="Archivístico">Archivístico</option>
+            <option value="Bibliotecología">Bibliotecología</option>
+          </select>
+        </div>
+
+        <!-- Selección de Proceso -->
+        <div class="form-group">
+          <label for="procesoSelect">Proceso:</label>
+          <select id="procesoSelect">
+            <option value="">Seleccione proceso...</option>
+          </select>
+        </div>
+
+        <!-- Subprocesos -->
+        <div id="subprocesosContainer" class="form-group" style="display:none;">
+          <label>Subprocesos:</label>
+          <div id="subprocesosList" class="checkbox-list"></div>
+        </div>
+
+        <!-- Proceso personalizado -->
+        <div id="otroProcesoContainer" class="form-group" style="display:none;">
+          <label>Nuevo proceso personalizado:</label>
+          <input type="text" id="nombreOtroProceso" placeholder="Nombre del nuevo proceso" />
+          <div class="form-subproc-manual">
+            <input type="text" id="nombreSubproceso" placeholder="Nombre del subproceso" />
+            <input type="number" id="precioSubproceso" placeholder="Precio" min="0" />
+          </div>
+          <ul id="listaSubprocesosManuales" class="lista-subprocesos"></ul>
+          <button id="btnAgregarProcesoManual" type="button" class="btn-agregar-proceso">
+            Agregar proceso al resumen
+          </button>
+        </div>
+
+        <!-- ============================================================
+        📦 SUMINISTROS — BLOQUE
+        ============================================================ -->
+        <div class="bloque-extra">
+          <h3 class="titulo-extra">📦 Suministros</h3>
+
+          <select id="selectSuministro" class="input-extra">
+              <option value="">Seleccione suministro...</option>
+          </select>
+
+          <div class="fila-extra">
+              <input id="cantidadSuministro" type="number" class="input-extra"
+                    placeholder="Cantidad de unidades" min="1">
+              <input id="valorSuministro" type="text" class="input-extra"
+                    placeholder="Valor unitario ($)" readonly>
+          </div>
+
+          <button id="btnAgregarSuministro" class="btn-extra">
+              ➕ Agregar suministro
+          </button>
+        </div>
+
+        <!-- ============================================================
+        ⚙️ EQUIPOS — BLOQUE
+        ============================================================ -->
+        <div class="bloque-extra">
+          <h3 class="titulo-extra">⚙️ Equipos</h3>
+
+          <select id="selectEquipo" class="input-extra">
+              <option value="">Seleccione equipo...</option>
+          </select>
+
+          <div class="fila-extra">
+              <input id="cantidadEquipo" type="number" class="input-extra"
+                    placeholder="Cantidad de equipos" min="1">
+              <input id="valorEquipo" type="text" class="input-extra"
+                    placeholder="Valor unitario ($)" readonly>
+          </div>
+
+          <button id="btnAgregarEquipo" class="btn-extra">
+              ➕ Agregar equipo
+          </button>
+        </div>
+
+
+
+
+        <!-- ============================================================
+            👥 FUNCIONARIOS — BLOQUE DENTRO DE COTIZACIÓN (NUEVO ORDEN)
+        ============================================================ -->
+        <div class="bloque-funcionarios bloque-extra">
+            <h3 class="titulo-extra">👥 Funcionarios</h3>
+
+            <!-- 1️⃣ SELECT PRINCIPAL (ARRIBA) -->
+            <select id="selectFuncionario" class="input-extra">
+                <option value="">Seleccione funcionario...</option>
+            </select>
+
+            <!-- 2️⃣ PLANIFICACIÓN AUTOMÁTICA -->
+            <div class="fila-extra" style="margin-top:10px; margin-bottom:6px;">
+                <input id="totalFuncionariosProyecto" type="number" class="input-extra"
+                      placeholder="Total funcionarios del proyecto" min="1" />
+
+                <input id="diasHabilesProyecto" type="number" class="input-extra"
+                      placeholder="Días hábiles del funcionario" min="1" />
+            </div>
+
+            <button id="btnDistribuirFuncionarios" class="btn-extra" style="margin-bottom:14px;">
+                ⚙️ Calcular distribución automática
+            </button>
+
+            <!-- 📊 MINI-TABLA — EDITABLE -->
+            <div id="tablaDistribucionContainer" style="display:none;margin:10px 0;">
+                <h4 style="margin-bottom:6px;color:#990f0c;font-size:15px;">
+                    📊 Distribución estimada del personal
+                </h4>
+
+                <table id="tablaDistribucion" style="width:100%;border-collapse:collapse;font-size:13px;">
+                    <thead>
+                        <tr style="background:#990f0c;color:white;">
+                            <th style="padding:6px;border:1px solid #bbb;">Funcionario</th>
+                            <th style="padding:6px;border:1px solid #bbb;">Días asignados</th>
+                            <th style="padding:6px;border:1px solid #bbb;">Horas/día</th>
+
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+
+            <!-- VALOR POR HORA (AUTOCARGADO) -->
+            <input id="valorHoraFuncionario" type="text" class="input-extra" placeholder="Valor por hora ($)" readonly />
+
+            <!-- BOTÓN AGREGAR -->
+            <button id="btnAgregarFuncionarioCot" class="btn-extra" disabled>
+                ➕ Agregar funcionario
+            </button>
+        </div>
+
+        <!-- ============================================================
+        🤝 ALIADOS ESTRATÉGICOS — BLOQUE
+        ============================================================ -->
+        <div class="bloque-extra">
+          <h3 class="titulo-extra">🤝 Aliados Estratégicos</h3>
+
+          <!-- Seleccionar aliado -->
+          <select id="selectAliado" class="input-extra">
+              <option value="">Seleccione aliado...</option>
+          </select>
+
+          <!-- Seleccionar servicio del aliado -->
+          <select id="selectServicioAliado" class="input-extra" style="margin-top:8px;">
+              <option value="">Seleccione servicio...</option>
+          </select>
+
+          <button id="btnAgregarAliado" class="btn-extra" style="margin-top:10px;">
+              ➕ Agregar servicio del aliado
+          </button>
+        </div>
+
+
+      </section>
+
+      <!-- ============================================================
+           📊 COLUMNA DERECHA: TABLA DE RESUMEN
+      ============================================================ -->
+      <section class="columna-resumen">
+        <h2>📊 Resumen de Cotización</h2>
+
+        <!-- ✅ TABLA DE RESUMEN (sin switch de vista) -->
+        <table id="tablaResumen">
+          <thead>
+            <tr>
+              <th>Proceso</th>
+              <th>Cantidad</th>
+              <th>Valor Unitario</th>
+              <th>Costo Estimado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+
+        <!-- Total general -->
+        <div class="total-box">
+          <strong>Total General:</strong>
+          <span id="totalGeneral">$0</span>
+        </div>
+
+        <!-- Descuento -->
+        <div class="form-group descuento-box">
+          <label for="descuentoInput">Descuento (%)</label>
+          <input
+            type="number"
+            id="descuentoInput"
+            placeholder="Ej: 10"
+            min="0"
+            max="100"
+            style="width:100%;padding:6px;border-radius:6px;border:1px solid #ccc;text-align:center;"
+          />
+        </div>
+
+        <!-- ⚙️ Checkbox IVA: será insertado dinámicamente por JS -->
+        
+        <!-- === BOTONES PRINCIPALES === -->
+        <button id="btnPDF" class="btn-secundario">📄 Generar PDF Corporativo</button>
+
+        <button
+          id="btnPropuestaValor"
+          style="margin-top:10px;background:#7d0c0a;color:white;border:none;
+                 padding:10px 16px;border-radius:8px;font-weight:600;cursor:pointer;width:100%;">
+          🎨 Generar Propuesta de Valor (PPT)
+        </button>
+
+        <button id="btnVaciar" class="btn-terciario" disabled>🗑️ Vaciar Tabla</button>
+      </section>
+    </div>
+  </main>
+
+  <!-- ============================================================
+       🧩 SCRIPTS PRINCIPALES DE MÓDULOS
+  ============================================================ -->
+  <script src="./assets/js/plantillasProcesos.js"></script>
+  <script src="./assets/js/procesos_data.js"></script>
+  <script src="./assets/js/tabla_resumen.js"></script>
+  <script src="./assets/js/modulos_extras.js"></script>
+  <script src="./assets/js/propuesta_valor.js"></script>
+  <script src="./assets/js/pdf_gadier.js"></script>
+  <script src="./assets/js/cotizacion.js"></script>
+ 
+
+  <!-- ============================================================
+       📦 CARGA ASÍNCRONA DEL SIDEBAR
+  ============================================================ -->
+  <script>
+    async function loadSidebar() {
+      try {
+        const container = document.getElementById("sidebar");
+        const res = await fetch("./includes/sidebar.html");
+        const html = await res.text();
+
+        container.innerHTML = html;
+
+        const s = document.createElement("script");
+        s.src = "./assets/js/sidebar.js";
+        s.onload = () => { if (window.initSidebar) window.initSidebar(); };
+        document.body.appendChild(s);
+
+        const current = window.location.pathname.split("/").pop();
+        document.querySelectorAll(".sidebar-link").forEach(a => {
+          a.classList.toggle("active", a.getAttribute("href") === current);
+        });
+      } catch (e) {
+        console.error("Error cargando sidebar:", e);
+      }
+    }
+    window.addEventListener("load", loadSidebar);
+  </script>
+
+
+  <!-- ============================================================
+  📌 MODAL ELEGANTE — DATOS DEL CLIENTE (NUEVA VERSIÓN)
+  ============================================================== -->
+  <div id="modalCliente" class="modal-cliente-overlay" style="display:none;">
+    <div class="modal-cliente-contenedor">
+      <h2>📄 Datos de la propuesta</h2>
+
+      <label for="inputCliente">¿A quién va dirigida la propuesta?</label>
+      <input type="text" id="inputCliente" placeholder="Ej: Alcaldía de Bogotá" />
+
+      <div class="modal-botones">
+        <button id="btnCancelarCliente" class="btn-cancelar">Cancelar</button>
+        <button id="btnGuardarCliente" class="btn-guardar">Continuar</button>
+      </div>
+    </div>
+  </div>
+
+   <!-- ============================================================
+       🟥 MODAL DATOS PARA PDF (NUEVO)
+  ============================================================ -->
+  <div id="modalPDF" class="modal-cliente-overlay" style="display:none;">
+    <div class="modal-cliente-contenedor" style="max-width:420px;">
+      
+      <h2 style="color:#990f0c;margin-bottom:10px;">📋 Datos del Cliente</h2>
+
+      <label>Nombre del cliente:</label>
+      <input type="text" id="pdfNombre" placeholder="Ej: Gadier Sistemas" />
+
+      <label>Correo electrónico:</label>
+      <input type="email" id="pdfCorreo" placeholder="Ej: cliente@correo.com" />
+
+      <label>Teléfono:</label>
+      <input type="text" id="pdfTelefono" placeholder="Ej: 320 555 8296" />
+
+      <div class="modal-botones">
+        <button id="btnPDFCancelar" class="btn-cancelar">Cancelar</button>
+        <button id="btnPDFAceptar" class="btn-guardar">Generar PDF</button>
+      </div>
+    </div>
+  </div>
+
+
+
+</body>
+</html>

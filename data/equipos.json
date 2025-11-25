@@ -1,0 +1,17 @@
+[
+  { "nombre": "Computador", "denominacion": "Básico", "precio": 400000 },
+  { "nombre": "Computador", "denominacion": "Medio", "precio": 600000 },
+  { "nombre": "Computador", "denominacion": "Especializado", "precio": 1200000 },
+
+  { "nombre": "Scanner", "denominacion": "Básico", "precio": 80000 },
+  { "nombre": "Scanner", "denominacion": "Medio", "precio": 150000 },
+  { "nombre": "Scanner", "denominacion": "Especializado", "precio": 230000 },
+
+  { "nombre": "Lector", "denominacion": "Básico", "precio": 26000 },
+  { "nombre": "Lector", "denominacion": "Medio", "precio": 50000 },
+  { "nombre": "Lector", "denominacion": "Especializado", "precio": 95000 },
+
+  { "nombre": "Impresora rotuladora", "denominacion": "Básico", "precio": 42000 },
+  { "nombre": "Impresora rotuladora", "denominacion": "Medio", "precio": 86000 },
+  { "nombre": "Impresora rotuladora", "denominacion": "Especializado", "precio": 107000 }
+]

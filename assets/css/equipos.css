@@ -1,0 +1,209 @@
+/* ===========================================================
+   ⚙️ GESTIÓN DE EQUIPOS - ESTILO CORPORATIVO GADIER SISTEMAS
+   =========================================================== */
+
+:root {
+  --rojo: #990f0c;
+  --rojo-oscuro: #80110f;
+  --gris-fondo: #f5f5f5;
+  --gris-borde: #ddd;
+  --gris-texto: #333;
+  --blanco: #fff;
+  --sombra: 0 2px 6px rgba(0, 0, 0, 0.15);
+  --fuente: "Poppins", "Helvetica", sans-serif;
+}
+
+/* === GENERAL === */
+body {
+  font-family: var(--fuente);
+  background: var(--gris-fondo);
+  color: var(--gris-texto);
+  margin: 0;
+}
+
+/* === HEADER === */
+.navbar-fija {
+  background: var(--rojo);
+  color: var(--blanco);
+  padding: 14px 24px;
+  font-size: 20px;
+  font-weight: 600;
+  box-shadow: var(--sombra);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.navbar-fija h1 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+}
+
+/* === CONTENEDOR PRINCIPAL === */
+.equipos-container {
+  background: var(--blanco);
+  border-radius: 10px;
+  box-shadow: var(--sombra);
+  padding: 25px;
+  margin: 30px auto;
+  max-width: 1000px;
+}
+
+/* === TÍTULO PRINCIPAL === */
+.equipos-container h2 {
+  font-size: 18px;
+  color: var(--rojo);
+  font-weight: 600;
+  margin-bottom: 15px;
+  border-left: 5px solid var(--rojo);
+  padding-left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.equipos-container h2::before {
+  content: "📋";
+}
+
+/* === FORMULARIO DE AGREGAR EQUIPO === */
+.form-agregar-equipo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  background: #fff8f8;
+  border: 1px solid var(--gris-borde);
+  border-radius: 10px;
+  padding: 18px 22px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.campo {
+  flex: 1 1 240px;
+  display: flex;
+  flex-direction: column;
+}
+
+.campo label {
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: var(--gris-texto);
+  font-size: 14px;
+}
+
+.campo input,
+.campo select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--gris-borde);
+  border-radius: 6px;
+  font-size: 14px;
+  transition: 0.25s;
+  background: #fff;
+}
+
+.campo input:focus,
+.campo select:focus {
+  border-color: var(--rojo);
+  box-shadow: 0 0 0 2px #990f0c30;
+  outline: none;
+}
+
+/* === BOTÓN AGREGAR === */
+.btn-agregar {
+  flex: 1 1 100%;
+  background: var(--rojo);
+  color: var(--blanco);
+  border: none;
+  border-radius: 6px;
+  padding: 10px 0;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: var(--sombra);
+  transition: 0.25s;
+}
+
+.btn-agregar:hover {
+  background: var(--rojo-oscuro);
+  transform: scale(1.01);
+}
+
+/* === SECCIÓN TABLA === */
+.tabla-equipos {
+  margin-top: 25px;
+}
+
+.tabla-equipos h3 {
+  font-size: 16px;
+  color: var(--rojo);
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tabla-equipos h3::before {
+  content: "📦";
+}
+
+/* === TABLA === */
+#tablaEquipos {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--sombra);
+}
+
+#tablaEquipos th {
+  background: var(--rojo);
+  color: var(--blanco);
+  padding: 10px;
+  font-size: 14px;
+  text-align: center;
+}
+
+#tablaEquipos td {
+  padding: 8px 6px;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+  text-align: center;
+}
+
+#tablaEquipos tr:hover td {
+  background: #fff5f5;
+}
+
+/* === BOTÓN ELIMINAR === */
+.btn-eliminar {
+  background: #ddd;
+  color: var(--rojo);
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.btn-eliminar:hover {
+  background: #ffeaea;
+  transform: scale(1.03);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 900px) {
+  .equipos-container {
+    padding: 18px;
+  }
+
+  .form-agregar-equipo {
+    flex-direction: column;
+  }
+
+  .campo {
+    flex: 1 1 100%;
+  }
+}

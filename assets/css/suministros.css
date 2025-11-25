@@ -1,0 +1,451 @@
+/* ===========================================================
+   🎨 ESTILO CORPORATIVO GADIER SISTEMAS - MÓDULO SUMINISTROS
+   =========================================================== */
+
+:root {
+  --rojo: #990f0c;
+  --rojo-oscuro: #7d0c0a;
+  --gris-fondo: #f6f6f6;
+  --gris-borde: #ddd;
+  --gris-texto: #333;
+  --blanco: #ffffff;
+  --sombra: 0 3px 10px rgba(0, 0, 0, 0.12);
+  --fuente: "Poppins", "Helvetica", sans-serif;
+}
+
+/* === GENERAL === */
+body {
+  font-family: var(--fuente);
+  background: var(--gris-fondo);
+  color: var(--gris-texto);
+  margin: 0;
+}
+
+/* === HEADER === */
+.navbar-fija {
+  background: var(--rojo);
+  color: var(--blanco);
+  padding: 14px 24px;
+  font-size: 20px;
+  font-weight: 600;
+  box-shadow: var(--sombra);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.navbar-fija h1 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+}
+
+/* === ENCABEZADO LOCAL === */
+.page-header {
+  background: linear-gradient(90deg, var(--rojo) 0%, var(--rojo-oscuro) 100%);
+  color: var(--blanco);
+  padding: 14px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 12px;
+  box-shadow: var(--sombra);
+  margin-bottom: 24px;
+}
+
+.page-header h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* === BOTÓN AGREGAR === */
+.btn-agregar {
+  background: var(--blanco);
+  color: var(--rojo);
+  border: 2px solid var(--blanco);
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.25s ease;
+  box-shadow: var(--sombra);
+}
+
+.btn-agregar:hover {
+  background: #fff3f3;
+  border-color: #ffdcdc;
+  transform: scale(1.05);
+}
+
+/* === CONTENEDOR PRINCIPAL === */
+main {
+  padding: 20px 25px;
+}
+
+/* === TABLA DE SUMINISTROS (DISEÑO CENTRADO Y EQUILIBRADO) === */
+.tabla-suministros {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--blanco);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--sombra);
+  border: 1px solid #eee;
+  text-align: center;
+}
+
+/* ENCABEZADO */
+.tabla-suministros thead {
+  background: var(--rojo);
+  color: var(--blanco);
+}
+
+.tabla-suministros th {
+  padding: 12px 14px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 3px solid var(--rojo-oscuro);
+}
+
+/* FILAS */
+.tabla-suministros td {
+  padding: 10px 14px;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+  transition: all 0.25s ease;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Alternancia de filas */
+.tabla-suministros tbody tr:nth-child(even) td {
+  background: #fdfdfd;
+}
+
+/* Hover elegante */
+.tabla-suministros tbody tr:hover td {
+  background: linear-gradient(90deg, #fff4f4 0%, #ffffff 100%);
+  color: #000;
+  font-weight: 500;
+}
+
+/* ÍNDICE (#) */
+.tabla-suministros td:first-child {
+  width: 70px;
+  color: #555;
+  font-weight: 600;
+  border-right: 1px solid #f3f3f3;
+}
+
+/* Bordes redondeados */
+.tabla-suministros thead tr:first-child th:first-child {
+  border-top-left-radius: 12px;
+}
+.tabla-suministros thead tr:first-child th:last-child {
+  border-top-right-radius: 12px;
+}
+.tabla-suministros tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 12px;
+}
+.tabla-suministros tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 12px;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 900px) {
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .btn-agregar {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tabla-suministros th,
+  .tabla-suministros td {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+}
+
+/* =======================================================
+   🧾 FORMULARIO DE AGREGAR SUMINISTRO (Actualizado)
+   ======================================================= */
+
+.form-agregar {
+  background: var(--blanco);
+  border-radius: 14px;
+  box-shadow: var(--sombra);
+  padding: 28px 32px;
+  margin: 25px auto 35px;
+  max-width: 620px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border-top: 5px solid var(--rojo);
+  border-left: 1px solid #f5f5f5;
+  border-right: 1px solid #f5f5f5;
+}
+
+.form-agregar h3 {
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--rojo);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.form-agregar h3::before {
+  content: "🧾";
+  font-size: 20px;
+}
+
+.form-agregar label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gris-texto);
+  margin-bottom: 3px;
+}
+
+.form-agregar input,
+.form-agregar select {
+  width: 100%;
+  padding: 11px 13px;
+  border-radius: 8px;
+  border: 1px solid var(--gris-borde);
+  font-size: 14px;
+  background: #fdfdfd;
+  transition: all 0.25s ease;
+}
+
+.form-agregar input:focus,
+.form-agregar select:focus {
+  border-color: var(--rojo);
+  box-shadow: 0 0 0 3px #990f0c20;
+  outline: none;
+  background: #fff;
+}
+
+/* === BOTÓN GUARDAR (Rediseñado) === */
+.btn-guardar {
+  background: linear-gradient(90deg, var(--rojo) 0%, var(--rojo-oscuro) 100%);
+  color: var(--blanco);
+  border: none;
+  border-radius: 10px;
+  padding: 12px 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(153, 15, 12, 0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-guardar::before {
+  content: "💾";
+  font-size: 17px;
+}
+
+.btn-guardar:hover {
+  background: linear-gradient(90deg, #b0120e 0%, #7d0c0a 100%);
+  transform: scale(1.03);
+  box-shadow: 0 4px 14px rgba(153, 15, 12, 0.4);
+}
+
+.btn-guardar:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+/* =======================================================
+   💬 MODAL EMERGENTE (Diseño Corporativo Gadier)
+   ======================================================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 5000; /* 🔥 MÁS ALTO QUE EL SIDEBAR */
+}
+
+.modal-overlay.activo {
+  visibility: visible;
+  opacity: 1;
+}
+
+
+.modal-container {
+  background: var(--blanco);
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  padding: 24px 28px;
+  width: 90%;
+  max-width: 480px;
+  transform: translateY(-30px);
+  animation: slideIn 0.3s ease forwards;
+}
+
+@keyframes slideIn {
+  to {
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--rojo);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-body label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gris-texto);
+}
+
+.modal-body input {
+  padding: 10px 12px;
+  border: 1px solid var(--gris-borde);
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.modal-body input:focus {
+  border-color: var(--rojo);
+  outline: none;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.btn-cerrar-modal,
+.btn-cancelar {
+  background: #ddd;
+  color: #333;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-cerrar-modal:hover,
+.btn-cancelar:hover {
+  background: #ccc;
+}
+/* ===========================================================
+   🧩 NUEVO DISEÑO: ORGANIGRAMA POR TIPO DE CARGO
+   =========================================================== */
+.grupo-cargo {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: var(--sombra);
+  padding: 20px 25px;
+  margin-bottom: 25px;
+  border-left: 5px solid var(--rojo);
+}
+
+.titulo-grupo {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--rojo);
+  margin: 0 0 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.grupo-cargo .nivel {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.grupo-cargo .cargo {
+  min-width: 160px;
+  max-width: 200px;
+  border-left: 4px solid var(--rojo);
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: var(--sombra);
+  padding: 10px 12px;
+  text-align: center;
+  transition: 0.3s;
+}
+.grupo-cargo .cargo:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.grupo-cargo .cargo h3 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--rojo);
+  font-weight: 600;
+}
+.grupo-cargo .cargo small {
+  font-size: 12px;
+  color: #555;
+}
+
+/* Ajuste visual para separación general */
+.organigrama {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: stretch;
+}

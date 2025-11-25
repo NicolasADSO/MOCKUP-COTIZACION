@@ -1,0 +1,9 @@
+[
+  { "nombre": "Caja x100", "precio": 3000 },
+  { "nombre": "Cajas x200", "precio": 6000 },
+  { "nombre": "Cajas x300", "precio": 9000 },
+  { "nombre": "Rótulos", "precio": 500 },
+  { "nombre": "Carpetas", "precio": 1500 },
+  { "nombre": "Ganchos", "precio": 200 },
+  { "nombre": "Multifolders", "precio": 5000 }
+]

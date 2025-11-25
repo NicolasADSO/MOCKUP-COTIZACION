@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📦 Suministros - Gadier Mockup</title>
+
+  <!-- === ESTILOS === -->
+  <link rel="stylesheet" href="./assets/css/layout.css" />
+  <link rel="stylesheet" href="./assets/css/sidebar.css" />
+  <link rel="stylesheet" href="./assets/css/suministros.css" />
+</head>
+
+<body>
+  <!-- === CONTENEDOR DE SIDEBAR === -->
+  <div id="sidebar-container"></div>
+
+  <!-- === ENCABEZADO === -->
+  <header class="navbar-fija">
+    <h1>📦 Gestión de Suministros (Mockup Gadier)</h1>
+  </header>
+
+  <!-- === CONTENIDO PRINCIPAL === -->
+  <main class="main-content">
+    <div class="page-header">
+      <h2>📋 Inventario de Suministros</h2>
+      <button class="btn-agregar" id="btnMostrarModal">➕ Agregar suministro</button>
+    </div>
+
+    <!-- === TABLA DE SUMINISTROS === -->
+    <table class="tabla-suministros" id="tablaSuministros">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nombre del suministro</th>
+          <th>Precio base</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="4" style="text-align:center;color:#777;">Cargando...</td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+
+  <!-- === MODAL EMERGENTE === -->
+  <div id="modalOverlay" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>➕ Agregar nuevo suministro</h3>
+        <button id="btnCerrarModal" class="btn-cerrar-modal">✖</button>
+      </div>
+
+      <div class="modal-body">
+        <label for="nombreSuministro">Nombre del suministro:</label>
+        <input type="text" id="nombreSuministro" placeholder="Ej. Cajas x500" />
+        <!-- El campo de precio se inserta dinámicamente -->
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-guardar" id="btnGuardarSuministro">Guardar</button>
+        <button class="btn-cancelar" id="btnCancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- === LÓGICA PRINCIPAL === -->
+  <script src="./assets/js/suministros.js"></script>
+
+  <!-- === CARGA ASÍNCRONA DEL SIDEBAR === -->
+    <script>
+    async function loadSidebar() {
+      try {
+        const container = document.getElementById("sidebar-container");
+        const res = await fetch("./includes/sidebar.html");
+        container.innerHTML = await res.text();
+
+        // Inyectar y activar sidebar.js
+        const s = document.createElement("script");
+        s.src = "./assets/js/sidebar.js";
+        s.onload = () => window.initSidebar && window.initSidebar();
+        document.body.appendChild(s);
+      } catch (e) {
+        console.error("Error cargando sidebar:", e);
+      }
+    }
+
+    window.addEventListener("load", loadSidebar);
+  </script>
+</body>
+</html>

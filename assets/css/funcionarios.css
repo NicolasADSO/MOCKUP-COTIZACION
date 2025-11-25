@@ -1,0 +1,345 @@
+/* ===========================================================
+   👥 FUNCIONARIOS - ORGANIGRAMA GADIER SISTEMAS (Versión Compacta)
+   =========================================================== */
+
+:root {
+  --rojo: #990f0c;
+  --rojo-oscuro: #7d0d0b;
+  --gris-fondo: #f5f5f5;
+  --gris-borde: #ddd;
+  --gris-texto: #333;
+  --blanco: #fff;
+  --sombra: 0 2px 6px rgba(0, 0, 0, 0.15);
+  --fuente: "Poppins", "Helvetica", sans-serif;
+}
+
+/* === GENERAL === */
+body {
+  font-family: var(--fuente);
+  background: var(--gris-fondo);
+  color: var(--gris-texto);
+  margin: 0;
+}
+
+/* === CONTENIDO PRINCIPAL === */
+.main-content {
+  margin-left: var(--sidebar-width, 230px);
+  padding: 25px;
+  transition: margin-left 0.3s ease;
+}
+body.sidebar-collapsed .main-content {
+  margin-left: 90px;
+}
+
+/* ===========================================================
+   🧱 ORGANIGRAMA CONTAINER
+   =========================================================== */
+.organigrama-container {
+  background: var(--blanco);
+  border-radius: 10px;
+  box-shadow: var(--sombra);
+  padding: 25px 30px;
+  border-top: 4px solid var(--rojo);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.organigrama-container h2 {
+  font-size: 18px;
+  color: var(--rojo);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+}
+.organigrama-container h2::before {
+  
+  font-size: 20px;
+}
+
+.organigrama-container .descripcion {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* ===========================================================
+   🧩 ESTRUCTURA JERÁRQUICA
+   =========================================================== */
+.organigrama {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+  position: relative;
+}
+
+.nivel {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 25px;
+  position: relative;
+}
+
+.nivel-1 .cargo { border-color: var(--rojo); }
+.nivel-2 .cargo { border-color: #b22d2d; }
+.nivel-3 .cargo { border-color: #d77777; }
+
+/* === TARJETAS DE CARGO === */
+.cargo {
+  position: relative;
+  background: var(--blanco);
+  border-left: 4px solid var(--rojo);
+  border-radius: 8px;
+  padding: 10px 14px;
+  box-shadow: var(--sombra);
+  min-width: 180px;
+  max-width: 200px;
+  transition: all 0.25s ease;
+  text-align: center;
+}
+.cargo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+}
+.cargo h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--rojo);
+}
+.cargo span {
+  font-size: 12px;
+  color: #666;
+  display: block;
+  margin-top: 3px;
+}
+.cargo small {
+  font-size: 11px;
+  color: #999;
+}
+
+/* === CONECTORES === */
+.linea-vertical {
+  width: 2px;
+  height: 20px;
+  background: #ccc;
+  margin: 0 auto;
+}
+.nivel:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  bottom: -15px;
+  left: 10%;
+  width: 80%;
+  height: 2px;
+  background: #ddd;
+}
+
+/* ===========================================================
+   ➕ BOTONES DE AÑADIR / ELIMINAR CARGO
+   =========================================================== */
+.btn-agregar-cargo {
+  background: var(--rojo);
+  color: var(--blanco);
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 6px auto 15px;
+  display: block;
+  cursor: pointer;
+  transition: 0.25s ease;
+  box-shadow: var(--sombra);
+}
+.btn-agregar-cargo:hover {
+  background: var(--rojo-oscuro);
+  transform: scale(1.03);
+}
+
+.btn-borrar-cargo {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  background: #fff5f5;
+  border: 1px solid #f0d0d0;
+  color: var(--rojo);
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+  padding: 2px 6px;
+}
+.btn-borrar-cargo:hover {
+  background: var(--rojo);
+  color: white;
+}
+
+/* ===========================================================
+   🧭 AJUSTE DE HEADER SOLO PARA FUNCIONARIOS
+   =========================================================== */
+body.page-funcionarios .navbar-fija {
+  background: var(--rojo);
+  color: var(--blanco);
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: 600;
+  box-shadow: var(--sombra);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+body.page-funcionarios .navbar-fija h1 {
+  margin: 0;
+  font-size: 18px;
+}
+
+/* === Ajuste del main para mantener proporción === */
+body.page-funcionarios .main-content {
+  margin-top: 0;
+  padding-top: 20px; /* 🔹 deja respiro sin franja grande */
+}
+
+/* ===========================================================
+   📱 RESPONSIVE DESIGN
+   =========================================================== */
+@media (max-width: 900px) {
+  .main-content {
+    padding: 15px;
+  }
+  .organigrama-container {
+    padding: 20px;
+  }
+  .nivel {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .cargo {
+    min-width: 160px;
+    width: 100%;
+  }
+}
+/* === TARJETAS DE CARGO CON VALORES === */
+.cargo small {
+  display: block;
+  margin-top: 4px;
+  color: #555;
+}
+
+/* === MODAL === */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+.modal-container {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px 25px;
+  width: 340px;
+  box-shadow: var(--sombra);
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.modal-body label {
+  font-weight: 500;
+  display: block;
+  margin-top: 8px;
+  font-size: 14px;
+}
+.modal-body input,
+.modal-body select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+.btn-guardar {
+  background: var(--rojo);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.btn-guardar:hover {
+  background: var(--rojo-oscuro);
+}
+.btn-cancelar {
+  background: #ddd;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+/* ===========================================================
+   🧹 CORRECCIÓN VISUAL ENTRE TARJETAS Y BOTONES
+   =========================================================== */
+
+/* Elimina posibles bordes o líneas entre grupos */
+.grupo-cargo .nivel {
+  border-bottom: none !important;
+  margin-bottom: 10px; /* controla espacio limpio entre cards y botón */
+  padding-bottom: 0;
+}
+
+/* Asegura que las tarjetas no generen sombras al alinearse */
+.grupo-cargo .cargo {
+  margin-bottom: 0;
+}
+
+/* El botón quede pegado al grupo, pero con un respiro controlado */
+.btn-agregar-cargo {
+  margin-top: 0;
+  margin-bottom: 10px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Elimina cualquier pseudo-elemento residual */
+.nivel::after {
+  content: none !important;
+}
+.campo-editar {
+  margin-top: 8px;
+}
+
+.campo-editar label {
+  display: block;
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.campo-editar input {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.campo-editar input:focus {
+  border-color: var(--rojo);
+  outline: none;
+  box-shadow: 0 0 0 2px #990f0c25;
+}

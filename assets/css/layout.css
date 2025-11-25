@@ -1,0 +1,51 @@
+/* =======================================================
+   LAYOUT GENERAL GADIER SISTEMAS
+   ======================================================= */
+
+:root {
+  --rojo: #990f0c;
+  --rojo-osc: #7d0c0a;
+  --gris-fondo: #f6f6f6;
+  --gris-borde: #e5e5e5;
+  --texto: #2d2d2d;
+  --blanco: #ffffff;
+}
+
+/* === HEADER FIJO === */
+.navbar-fija {
+  background: var(--rojo);
+  color: #fff;
+  padding: 12px 25px;
+  font-size: 20px;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* === CONTENEDOR PRINCIPAL === */
+.main-content {
+  margin-left: 250px; /* se ajusta según el sidebar */
+  transition: margin-left 0.3s ease;
+  background: var(--gris-fondo);
+  min-height: calc(100vh - 60px);
+  padding: 25px;
+}
+/* margen cuando sidebar está colapsado */
+.main-content.collapsed {
+  margin-left: 75px !important;
+}
+
+
+
+
+@media (max-width: 900px) {
+  .main-content {
+    margin-left: 0 !important;
+  }
+
+  .cotizacion-layout {
+    grid-template-columns: 1fr;
+  }
+}

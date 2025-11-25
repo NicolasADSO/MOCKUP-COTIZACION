@@ -1,0 +1,296 @@
+/* ============================================================
+   🎨 ESTILOS BÁSICOS GADIER (copiados desde cotización)
+   ============================================================ */
+
+:root {
+  --rojo: #990f0c;
+  --rojo-oscuro: #7d0d0b;
+  --gris-fondo: #f5f5f5;
+  --gris-borde: #ddd;
+  --gris-texto: #333;
+  --blanco: #fff;
+  --sombra: 0 2px 6px rgba(0,0,0,0.15);
+  --fuente: "Poppins", sans-serif;
+}
+
+body {
+  font-family: var(--fuente);
+  background: var(--gris-fondo);
+  margin: 0;
+  color: var(--gris-texto);
+}
+
+/* HEADER FIJO */
+.navbar-fija {
+  background: var(--rojo);
+  color: var(--blanco);
+  padding: 14px 24px;
+  font-size: 20px;
+  font-weight: 600;
+  box-shadow: var(--sombra);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.navbar-fija h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+/* INPUTS */
+.input-extra {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--gris-borde);
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+.input-extra:focus {
+  border-color: var(--rojo);
+  box-shadow: 0 0 0 2px #990f0c30;
+  outline: none;
+}
+
+/* FORM GROUP */
+.form-group {
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+}
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* BOTÓN PRINCIPAL */
+.btn-extra {
+  width: 100%;
+  padding: 12px;
+  background: var(--rojo);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-extra:hover {
+  background: var(--rojo-oscuro);
+}
+
+
+
+/* ============================================================
+   📐 LAYOUT EXCLUSIVO DE ALIADOS
+============================================================ */
+.aliados-layout {
+  display: grid;
+  grid-template-columns: 0.6fr 1.4fr; /* MÁS ESPACIO PARA CARDS */
+  gap: 30px;
+  align-items: flex-start;
+}
+
+@media (max-width: 1000px) {
+  .aliados-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ============================================================
+   🚫 ANULAR ESTILOS DE COTIZACIÓN QUE DAÑAN EL DISEÑO
+============================================================ */
+
+/* Quitar sticky y cuadro blanco del panel derecho */
+.columna-listado {
+  background: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  position: relative !important;
+  top: unset !important;
+  max-height: unset !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+
+/* Quitar estilo de panel flotante del resumen */
+.columna-listado h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 20px;
+  color: var(--rojo);
+}
+
+
+/* ============================================================
+   🃏 GRID DE TARJETAS
+============================================================ */
+
+.aliados-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+/* TARJETAS */
+.aliado-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: var(--sombra);
+  border-top: 4px solid var(--rojo);
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+}
+
+.aliado-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(153, 15, 12, 0.25);
+}
+
+.aliado-card h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--rojo);
+  font-weight: 600;
+}
+
+.aliado-card p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #555;
+}
+
+
+/* ============================================================
+   🔍 ACCIONES EN TARJETA (EDITAR/ELIMINAR)
+============================================================ */
+.acciones-card {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.btn-mini-editar,
+.btn-mini-eliminar {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn-mini-editar:hover {
+  background: #e8f1ff;
+}
+.btn-mini-eliminar:hover {
+  background: #ffe8e8;
+}
+
+
+/* ============================================================
+   📄 PANEL DE DETALLE
+============================================================ */
+.aliado-detalle {
+  background: #fff;
+  padding: 22px;
+  border-radius: 12px;
+  box-shadow: var(--sombra);
+  margin-top: 25px;
+}
+
+.aliado-detalle.oculto {
+  display: none !important;
+}
+
+.detalle-titulo {
+  margin: 0;
+  font-size: 22px;
+  color: var(--rojo);
+}
+
+.detalle-sub {
+  font-size: 15px;
+  margin: 6px 0;
+}
+
+
+/* BOTÓN VOLVER */
+.btn-volver {
+  background: #eee;
+  color: #333;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+.btn-volver:hover {
+  background: #ddd;
+}
+
+
+/* ============================================================
+   📦 LISTA DE SERVICIOS OFRECIDOS
+============================================================ */
+.lista-servicios {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+}
+
+.lista-servicios li {
+  background: #fff6f6;
+  padding: 8px 10px;
+  border: 1px solid #f0dede;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+/* Formulario propio de Aliados */
+.columna-form-aliados {
+  background: #fff;
+  border-radius: 12px;
+  padding: 22px;
+  box-shadow: var(--sombra);
+  margin-top: 10px;
+}
+.titulo-aliados {
+  font-size: 20px;
+  color: var(--rojo);
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+.columna-listado {
+  padding-top: 15px;
+}
+.form-servicio {
+  background: #fff6f6;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #f0dede;
+  margin-top: 12px;
+}
+/* 🔥 Fuerza que cualquier elemento con .oculto NO se vea */
+.oculto {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+.form-servicio.oculto {
+    transform: scaleY(0);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.form-servicio {
+    transform-origin: top;
+    transition: all .25s ease;
+}

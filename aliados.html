@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aliados Estratégicos - Gadier Sistemas</title>
+
+  <!-- === ESTILOS PRINCIPALES === -->
+  <link rel="stylesheet" href="./assets/css/layout.css" />
+  <link rel="stylesheet" href="./assets/css/sidebar.css" />
+  <link rel="stylesheet" href="./assets/css/aliados.css" />
+
+  <!-- Iconos opcionales -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+  <!-- ========== SIDEBAR DINÁMICO ========== -->
+  <div id="sidebar"></div>
+
+  <!-- ========== CONTENIDO PRINCIPAL ========== -->
+  <main class="main-content">
+
+    <!-- === HEADER SUPERIOR FIJO === -->
+    <header class="navbar-fija">
+      <h1>🤝 Aliados Estratégicos</h1>
+    </header>
+
+    <!-- === LAYOUT GENERAL — 2 Columnas === -->
+    <div class="aliados-layout">
+
+      <!-- ============================================================
+            📋 COLUMNA IZQUIERDA — FORMULARIO DE REGISTRO
+      ============================================================ -->
+      <section class="columna-form-aliados">
+        <h2 class="titulo-aliados">📋 Registrar Aliado</h2>
+
+        <div class="form-group">
+          <label>Nombre del aliado:</label>
+          <input id="inputNombre" class="input-extra" type="text" placeholder="Ej: ArchiSoft, LogiCorp..." />
+        </div>
+
+        <div class="form-group">
+          <label>Tipo de alianza:</label>
+          <input id="inputTipo" class="input-extra" type="text" placeholder="Comercial, Técnica, Académica..." />
+        </div>
+
+        <div class="form-group">
+          <label>Correo de contacto:</label>
+          <input id="inputCorreo" class="input-extra" type="email" placeholder="correo@empresa.com" />
+        </div>
+
+        <div class="form-group">
+          <label>Teléfono:</label>
+          <input id="inputTelefono" class="input-extra" type="text" placeholder="+57 300 000 0000" />
+        </div>
+
+        <button id="btnGuardarAliado" class="btn-extra" style="margin-top:10px;">
+          💾 Guardar aliado
+        </button>
+      </section>
+
+
+      <!-- ============================================================
+            🃏 COLUMNA DERECHA — CARDS + PANEL DETALLE
+      ============================================================ -->
+      <section class="columna-listado">
+    
+        <h2>🃏 Aliados Registrados</h2>
+
+        <!-- 🟦 GRID DE TARJETAS -->
+        <div id="gridAliados" class="aliados-grid">
+            <!-- Las cards se insertan por JS -->
+        </div>
+
+        <!-- 🟧 PANEL DE DETALLE DEL ALIADO -->
+        <div id="detalleAliado" class="aliado-detalle oculto">
+
+            <button id="btnVolver" class="btn-volver">← Volver</button>
+
+            <h2 id="detalleNombre" class="detalle-titulo"></h2>
+
+            <p class="detalle-sub"><strong>Tipo de alianza:</strong> 
+              <span id="detalleTipo"></span>
+            </p>
+
+            <p class="detalle-sub"><strong>Correo:</strong> 
+              <span id="detalleCorreo"></span>
+            </p>
+
+            <p class="detalle-sub"><strong>Teléfono:</strong> 
+              <span id="detalleTelefono"></span>
+            </p>
+
+            <hr>
+
+            <h3>📦 Productos o servicios ofrecidos</h3>
+
+            <ul id="listaServicios" class="lista-servicios"></ul>
+
+            <button id="btnAgregarServicio" class="btn-extra" style="margin-top:15px;">
+                ➕ Agregar servicio
+            </button>
+
+            <!-- === FORMULARIO PARA AÑADIR SERVICIO (OCULTO POR DEFECTO) === -->
+            <div id="formServicio" class="oculto form-servicio">
+            <input id="servicioNombre" class="input-extra" 
+                    type="text" 
+                    placeholder="Nombre del servicio o producto" />
+
+            <input id="servicioValor" class="input-extra" 
+                    type="number" 
+                    placeholder="Valor ($)" 
+                    min="0" />
+
+            <button id="btnGuardarServicio" class="btn-extra" style="margin-top:10px;">
+                💾 Guardar servicio
+            </button>
+            </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+
+  <!-- ============================================================
+       📦 CARGA ASÍNCRONA DEL SIDEBAR (MISMO MÉTODO GADIER)
+  ============================================================ -->
+  <script>
+    async function loadSidebar() {
+      try {
+        const container = document.getElementById("sidebar");
+        const res = await fetch("./includes/sidebar.html");
+        const html = await res.text();
+
+        container.innerHTML = html;
+
+        const s = document.createElement("script");
+        s.src = "./assets/js/sidebar.js";
+        s.onload = () => { if (window.initSidebar) window.initSidebar(); };
+        document.body.appendChild(s);
+
+        const current = window.location.pathname.split("/").pop();
+        document.querySelectorAll(".sidebar-link").forEach(a => {
+          a.classList.toggle("active", a.getAttribute("href") === current);
+        });
+
+      } catch (e) {
+        console.error("Error cargando sidebar:", e);
+      }
+    }
+    window.addEventListener("load", loadSidebar);
+  </script>
+
+  <!-- === JS DEL MÓDULO === -->
+  <script src="./assets/js/aliados.js"></script>
+
+</body>
+</html>
