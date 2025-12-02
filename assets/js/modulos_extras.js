@@ -211,16 +211,25 @@ document.addEventListener("DOMContentLoaded", () => {
                 const fila = `
                     <tr>
                         <td style="padding:6px;border:1px solid #ccc;">${cargoSeleccionado} — ${i}</td>
+
                         <td style="padding:6px;border:1px solid #ccc;text-align:center;">
                             <input class="dias-edit" type="number" value="${diasPorFuncionario}" min="1"
                                 style="width:70px;text-align:center;">
                         </td>
+
                         <td style="padding:6px;border:1px solid #ccc;text-align:center;">
                             <input class="horas-edit" type="number" value="${horasPorDia}" min="1" max="8"
                                 style="width:70px;text-align:center;">
                         </td>
+
+                        <!-- 🆕 NUEVA COLUMNA: GASTOS EXTRAS -->
+                        <td style="padding:6px;border:1px solid #ccc;text-align:center;">
+                            <input class="extras-edit" type="number" value="0" min="0"
+                                style="width:90px;text-align:center;">
+                        </td>
                     </tr>
                 `;
+
 
                 tabla.insertAdjacentHTML("beforeend", fila);
             }
@@ -243,61 +252,64 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnAgregarFuncionarioCot) {
         btnAgregarFuncionarioCot.addEventListener("click", () => {
 
-            const funcionario = selectFuncionario.value;
-            const valorHora = Number(valorHoraFuncionario.dataset.real || 0);
+        const funcionario = selectFuncionario.value;
+        const valorHora = Number(valorHoraFuncionario.dataset.real || 0);
 
-            // --- Validación mínima ---
-            if (!funcionario) {
-                return alert("⚠️ Debe seleccionar un funcionario.");
-            }
-            if (valorHora <= 0) {
-                return alert("⚠️ El funcionario no tiene valor por hora asignado.");
-            }
+        if (!funcionario) {
+            return alert("⚠️ Debe seleccionar un funcionario.");
+        }
+        if (valorHora <= 0) {
+            return alert("⚠️ El funcionario no tiene valor por hora asignado.");
+        }
 
-            // --- Tomar datos desde la tabla editable ---
-            const filas = document.querySelectorAll("#tablaDistribucion tbody tr");
+        const filas = document.querySelectorAll("#tablaDistribucion tbody tr");
 
-            if (filas.length === 0) {
-                return alert("⚠️ Primero calcule la distribución automática.");
-            }
+        if (filas.length === 0) {
+            return alert("⚠️ Primero calcule la distribución automática.");
+        }
 
-            const cant = filas.length; // número de funcionarios
+        // 🔥 Recorrer cada funcionario y registrarlo como fila independiente
+        filas.forEach((fila, index) => {
 
-            // siempre tomamos la primera fila (todas tienen mismos valores)
-            const f0 = filas[0];
+            const dias = Number(fila.querySelector(".dias-edit").value);
+            const horas = Number(fila.querySelector(".horas-edit").value);
+            const extras = Number(fila.querySelector(".extras-edit")?.value || 0);
 
-            const dias = Number(f0.querySelector(".dias-edit").value);
-            const horas = Number(f0.querySelector(".horas-edit").value);
+            // Costo individual
+            const costoBase = dias * horas * valorHora;
+            const costoTotal = costoBase + extras;
 
-            // --- Cálculo del costo ---
-            const costo = cant * horas * dias * valorHora;
+            // Nombre único por funcionario
+            const nombreProceso = `${funcionario} — ${index + 1}`;
 
-            // --- Agregar al resumen ---
             window.agregarOActualizarResumen({
                 area: "Funcionarios",
-                proceso: funcionario,
-                cantidad: cant,
+                proceso: nombreProceso,
+                cantidad: 1,
                 dias,
                 horas,
+                extras,
                 valor: valorHora,
-                costo
-                });
-
-            if (typeof window.renderTabla === "function") window.renderTabla();
-
-            // --- Limpiar tabla ---
-            document.getElementById("tablaDistribucionContainer").style.display = "none";
-            document.querySelector("#tablaDistribucion tbody").innerHTML = "";
-
-            // --- Limpiar selects e inputs del módulo ---
-            selectFuncionario.value = "";
-            valorHoraFuncionario.value = "";
-            valorHoraFuncionario.dataset.real = "";
-
-            totalFuncProy.value = "";
-            diasHabilesProy.value = "";
+                costo: costoTotal
+            });
 
         });
+
+        if (typeof window.renderTabla === "function") window.renderTabla();
+
+        // Limpiar
+        document.getElementById("tablaDistribucionContainer").style.display = "none";
+        document.querySelector("#tablaDistribucion tbody").innerHTML = "";
+
+        selectFuncionario.value = "";
+        valorHoraFuncionario.value = "";
+        valorHoraFuncionario.dataset.real = "";
+
+        totalFuncProy.value = "";
+        diasHabilesProy.value = "";
+
+    });
+
     }
 
 

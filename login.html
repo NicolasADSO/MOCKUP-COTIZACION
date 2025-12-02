@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Contrato - Gadier Sistemas</title>
+
+  <link rel="stylesheet" href="./assets/css/login-contrato.css">
+</head>
+
+<body class="login-body">
+
+  <script>
+    if (localStorage.getItem("usuario_logueado")) {
+        window.location.href = "cotizacion.html";
+    }
+  </script>
+
+  <div class="login-wrapper">
+    
+    <!-- HEADER: logo centrado arriba -->
+    <header class="login-header">
+      <img src="./assets/img/logo-blanco-sin-fondo.png" alt="Gadier Sistemas" class="login-logo">
+    </header>
+
+    <!-- CONTENIDO: tarjeta glass con el contrato -->
+    <main class="contenedor">
+      <div class="formulario">
+
+        <h2 class="titulo">Contrato de Acceso</h2>
+        <p class="sub">Complete los campos para validar su identidad</p>
+
+        <!-- Usuario -->
+        <div class="grupo">
+          <label>Yo,</label>
+          <input type="text" id="usuario" placeholder="Escriba su nombre de usuario">
+        </div>
+
+        <!-- Contraseña -->
+        <div class="grupo">
+          <label>Con contraseña</label>
+          <input type="password" id="password" placeholder="••••••••••">
+        </div>
+
+        <!-- Botón -->
+        <button id="btnLogin" class="btn">Validar</button>
+
+               <!-- SELLO -->
+        <div id="selloWrapper" style="display:none;">
+          <img id="sello" src="./assets/img/logo-blanco-sin-fondo.png" alt="Logo">
+        </div>
+        <p id="msg" class="msg"></p>
+      </div>
+    </main>
+  </div>
+
+  <!-- ============================================================
+     📦 PANTALLA DE CARGA GADIER — CAJA + SELLO
+  =============================================================== -->
+  <div id="pantallaCarga" style="
+    display:none;
+    position:fixed;
+    inset:0;
+    background:#000000d8;
+    backdrop-filter:blur(4px);
+    z-index:99999;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    color:white;
+    font-family:'Arial', sans-serif;
+">
+
+
+    <!-- Caja flotante -->
+    <div style="position:relative; animation:flotar 1.8s ease-in-out infinite;">
+        <img src='./assets/img/caja.png' 
+            style="width:170px; filter:drop-shadow(0 0 6px #000);" />
+        
+        <!-- Sello encima -->
+        <img src='./assets/img/LOGO-NEGRO-Y-BLANCO.png' 
+            style="
+              width:85px;
+              position:absolute;
+              top:55%;
+              left:50%;
+              transform:translate(-50%, -50%);
+              animation: selloPop 0.9s ease-out forwards;
+            " />
+    </div>
+
+    <!-- Texto -->
+    <div style="margin-top:20px;font-size:20px;font-weight:600;">
+      Cargando...
+    </div>
+
+    <!-- Barra -->
+    <div style="
+      margin-top:14px;
+      width:210px;
+      height:6px;
+      border-radius:6px;
+      background:#ffffff33;
+      overflow:hidden;
+    ">
+        <div id="barraCarga" style="
+          width:0%;
+          height:100%;
+          background:#990f0c;
+          transition:width 2s linear;
+        "></div>
+    </div>
+  </div>
+
+  <!-- Animaciones -->
+  <style>
+  @keyframes flotar {
+    0%   { transform:translateY(0px); }
+    50%  { transform:translateY(-10px); }
+    100% { transform:translateY(0px); }
+  }
+
+  @keyframes selloPop {
+    0%   { transform:translate(-50%, -50%) scale(0.4); opacity:0; }
+    70%  { transform:translate(-50%, -50%) scale(1.1); opacity:1; }
+    100% { transform:translate(-50%, -50%) scale(1);   opacity:1; }
+  }
+  </style>
+
+  <script>
+  // Si no existe sesión, asegurar que la pantalla de carga esté oculta
+  document.addEventListener("DOMContentLoaded", () => {
+      if (!localStorage.getItem("usuario_logueado")) {
+          const pantalla = document.getElementById("pantallaCarga");
+          const barra = document.getElementById("barraCarga");
+
+          if (pantalla) pantalla.style.display = "none";
+          if (barra) barra.style.width = "0%";
+      }
+  });
+</script>
+
+
+  <script src="./assets/js/login-contrato.js"></script>
+</body>
+</html>

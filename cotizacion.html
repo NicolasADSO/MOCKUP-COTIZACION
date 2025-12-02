@@ -19,6 +19,15 @@
 </head>
 
 <body>
+
+  <script>
+    // Si NO hay sesión → enviar al login
+    if (!localStorage.getItem("usuario_logueado")) {
+        window.location.href = "login.html";
+    }
+  </script>
+
+
   <!-- ========== SIDEBAR REAL (VACÍO, LUEGO SE LLENA) ========== -->
   <div id="sidebar"></div>
 
@@ -160,7 +169,8 @@
                             <th style="padding:6px;border:1px solid #bbb;">Funcionario</th>
                             <th style="padding:6px;border:1px solid #bbb;">Días asignados</th>
                             <th style="padding:6px;border:1px solid #bbb;">Horas/día</th>
-
+                            <!-- 🆕 NUEVO CAMPO -->
+                            <th style="padding:6px;border:1px solid #bbb;">Gastos extras</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -207,17 +217,23 @@
       <section class="columna-resumen">
         <h2>📊 Resumen de Cotización</h2>
 
+        <button id="btnColumnas" class="btn-terciario" style="margin-bottom:10px;">
+          ⚙️ Configurar columnas
+        </button>
+
+
         <!-- ✅ TABLA DE RESUMEN (sin switch de vista) -->
         <table id="tablaResumen">
           <thead>
-            <tr>
-              <th>Proceso</th>
-              <th>Cantidad</th>
-              <th>Valor Unitario</th>
-              <th>Costo Estimado</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
+          <tr>
+            <th>Proceso</th>
+            <th>Unidad</th>
+            <th>Cantidad</th>
+            <th>Valor Unitario</th>
+            <th>Costo Estimado</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
           <tbody></tbody>
         </table>
 
@@ -281,6 +297,28 @@
 
         container.innerHTML = html;
 
+        // ================================
+        // 🔥 ACTIVAR BOTÓN LOGOUT CON MODAL
+        // ================================
+        const btnLogout = container.querySelector(".logout-btn");
+
+        if (btnLogout) {
+            btnLogout.addEventListener("click", () => {
+                document.getElementById("modalLogout").style.display = "flex";
+            });
+        }
+
+        // Botón cancelar
+        document.getElementById("btnLogoutCancelar").addEventListener("click", () => {
+            document.getElementById("modalLogout").style.display = "none";
+        });
+
+        // Botón confirmar cierre
+        document.getElementById("btnLogoutConfirmar").addEventListener("click", () => {
+            localStorage.removeItem("usuario_logueado");
+            window.location.href = "login.html";
+        });
+
         const s = document.createElement("script");
         s.src = "./assets/js/sidebar.js";
         s.onload = () => { if (window.initSidebar) window.initSidebar(); };
@@ -295,6 +333,13 @@
       }
     }
     window.addEventListener("load", loadSidebar);
+
+    document.getElementById("modalLogout").addEventListener("click", (e) => {
+      if (e.target.id === "modalLogout") {
+          document.getElementById("modalLogout").style.display = "none";
+      }
+  });
+
   </script>
 
 
@@ -339,6 +384,67 @@
     </div>
   </div>
 
+    <div id="modalColumnas" class="modal-cliente-overlay" style="display:none;">
+    <div class="modal-cliente-contenedor" style="max-width:380px;">
+      <h2 style="color:#990f0c;">⚙️ Columnas visibles</h2>
+
+      <label><input type="checkbox" class="col-toggle" data-col="0" checked> Proceso</label>
+      <label><input type="checkbox" class="col-toggle" data-col="1" checked> Unidad</label>
+      <label><input type="checkbox" class="col-toggle" data-col="2" checked> Cantidad</label>
+      <label><input type="checkbox" class="col-toggle" data-col="3" checked> Valor Unitario</label>
+      <label><input type="checkbox" class="col-toggle" data-col="4" checked> Costo Estimado</label>
+      <label><input type="checkbox" class="col-toggle" data-col="5" checked> Acción</label>
+
+      <div class="modal-botones" style="margin-top:20px;">
+        <button id="btnCerrarColumnas" class="btn-cancelar">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const btnColumnas = document.getElementById("btnColumnas");
+      const modalColumnas = document.getElementById("modalColumnas");
+      const btnCerrarColumnas = document.getElementById("btnCerrarColumnas");
+
+      // Abrir modal
+      btnColumnas.addEventListener("click", () => {
+        modalColumnas.style.display = "flex";
+      });
+
+      // Cerrar modal
+      btnCerrarColumnas.addEventListener("click", () => {
+        modalColumnas.style.display = "none";
+      });
+
+      // Cerrar al hacer clic afuera
+      modalColumnas.addEventListener("click", (e) => {
+        if (e.target === modalColumnas) {
+          modalColumnas.style.display = "none";
+        }
+      });
+    });
+  </script>
+
+  <!-- ============================================================
+     🔴 MODAL CONFIRMACIÓN DE CIERRE DE SESIÓN
+  =============================================================== -->
+  <div id="modalLogout" class="modal-cliente-overlay" style="display:none;">
+    <div class="modal-cliente-contenedor" style="max-width:360px;text-align:center;">
+
+      <h2 style="color:#990f0c;margin-bottom:10px;">⏻ Cerrar sesión</h2>
+      <p style="font-size:15px;line-height:1.4;color:#333;">
+        ¿Seguro que deseas cerrar tu sesión en Gadier Sistemas?
+      </p>
+
+      <div class="modal-botones" style="margin-top:20px;">
+        <button id="btnLogoutCancelar" class="btn-cancelar">Cancelar</button>
+        <button id="btnLogoutConfirmar" class="btn-guardar" style="background:#990f0c;color:white;">
+          Sí, cerrar sesión
+        </button>
+      </div>
+    </div>
+  </div>
 
 
 </body>

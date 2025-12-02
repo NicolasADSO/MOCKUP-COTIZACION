@@ -9,6 +9,13 @@ document.addEventListener("DOMContentLoaded", () => {
     "color:#990f0c;font-weight:bold;"
   );
 
+  // 🚫 PROCESOS QUE NO DEBEN MOSTRAR "UNIDAD" EN LA TABLA RESUMEN
+  const PROCESOS_SIN_UNIDAD = [
+  "Diagnóstico",
+  "Administración in house",
+  "Elaboración de Instrumentos Archivísticos"
+];
+
   // ============================================================
   // 💰 FORMATEO COP AUXILIAR (solo para inputs de subprocesos)
   // ============================================================
@@ -20,6 +27,23 @@ document.addEventListener("DOMContentLoaded", () => {
       maximumFractionDigits: 0,
     });
   }
+
+  // ============================================================
+  // 🧩 Normalización corporativa de nombres de subprocesos
+  // ============================================================
+  const nombreSubprocesoEstandar = {
+    "areas": "Áreas",
+    "áreas": "Áreas",
+    "alistamiento": "Alistamiento",
+    "indexacion": "Indexación",
+    "indexación": "Indexación",
+    "clasificacion": "Clasificación",
+    "ordenacion": "Ordenación",
+    "descripcion": "Descripción",
+    "básicos": "Básicos",
+    "medios": "Medios",
+    "especializados": "Especializados"
+  };
 
   // Helper para centralizar cómo agregamos al resumen,
   // usando agregarOActualizarResumen si existe (tabla_resumen.js)
@@ -34,117 +58,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ============================================================
-  // 📚 CATÁLOGO DE PROCESOS Y SUBPROCESOS — ÁREA ARCHIVÍSTICO
-  // ============================================================
+  // 🔧 Variables globales por carga de proceso
+  let chkTodoProcesoRef = null;
+  let cantidadGeneralProcesoRef = null;
+  let valorGeneralProcesoRef = null;
 
-  const procesosConCantidadIndividual = [
-    "Diagnóstico",
-    "Elaboración de Instrumentos Archivísticos",
-  ];
-
-  // 🔹 Puedes extender esto luego con más áreas (Bibliotecología, etc.)
-  const dataProcesos = {
-    Archivístico: [
-      "Diagnóstico",
-      "Actualización de Archivos Electrónicos",
-      "Administración In House",
-      "Alquiler de Equipos",
-      "Asesoría y cumplimiento de la ley",
-      "Consultoría",
-      "Elaboración de Instrumentos Archivísticos",
-      "Organización",
-      "Depuración y Eliminación",
-      "Custodia",
-      "Proceso personalizado", // Para activar el bloque manual
-    ],
-    Bibliotecología: [
-      // Por ahora solo dejamos el proceso personalizado
-      "Proceso personalizado",
-    ],
-  };
-
-  const dataSubprocesos = {
-    Diagnóstico: [{ nombre: "areas", valor: 18000 }],
-
-    "Actualización de Archivos Electrónicos": [
-      { nombre: "Alistamiento", valor: 18000 },
-      { nombre: "Indexación", valor: 25000 },
-    ],
-
-    "Administración In House": [
-      { nombre: "Tiempo completo", valor: 35000 },
-      { nombre: "Parcial", valor: 22000 },
-    ],
-
-    "Alquiler de Equipos": [
-      { nombre: "Básicos", valor: 12000 },
-      { nombre: "Medios", valor: 18000 },
-      { nombre: "Especializados", valor: 25000 },
-    ],
-
-    "Asesoría y cumplimiento de la ley": [
-      { nombre: "Registro de activos de información", valor: 40000 },
-      { nombre: "Índice de información clasificada y reservada", valor: 45000 },
-      { nombre: "Esquema de publicación de infomración", valor: 50000 },
-    ],
-
-    Consultoría: [
-      { nombre: "Análisis de Requerimientos", valor: 42000 },
-      { nombre: "Diseño de Políticas Documentales", valor: 48000 },
-      { nombre: "Gestión de Riesgos Archivísticos", valor: 46000 },
-      { nombre: "Evaluación de Cumplimiento", valor: 44000 },
-    ],
-
-    "Elaboración de Instrumentos Archivísticos": [
-      { nombre: "PINAR", valor: 18000 },
-      { nombre: "TRD", valor: 25000 },
-      { nombre: "INVENTARIOS", valor: 20000 },
-      { nombre: "TVD", valor: 22000 },
-      { nombre: "PGD", valor: 30000 },
-      { nombre: "ID", valor: 27000 },
-      { nombre: "RGD", valor: 25000 },
-      { nombre: "MPA", valor: 32000 },
-      { nombre: "CCD", valor: 28000 },
-    ],
-
-    Organización: [
-      { nombre: "Clasificacion", valor: 22000 },
-      { nombre: "Ordenación", valor: 24000 },
-      { nombre: "Descripción", valor: 28000 },
-    ],
-
-    "Depuración y Eliminación": [
-      { nombre: "Revisión de series documentales", valor: 20000 },
-      { nombre: "Aplicación de Tablas de Retención Documental (TRD)", valor: 23000 },
-      { nombre: "Identificación de expedientes para eliminación", valor: 22000 },
-      { nombre: "Elaboración de actas de eliminación", valor: 24000 },
-      { nombre: "Gestión de aprobación ante comité evaluador", valor: 26000 },
-      { nombre: "Destrucción física o digital controlada", valor: 28000 },
-      { nombre: "Informe final de eliminación documental", valor: 25000 },
-    ],
-
-    Custodia: [
-      { nombre: "Recepción y verificación de fondos documentales", valor: 20000 },
-      {
-        nombre: "Clasificación por series y unidades de conservación",
-        valor: 22000,
-      },
-      { nombre: "Rotulación y codificación de cajas o contenedores", valor: 21000 },
-      { nombre: "Ingreso en sistema de control de depósitos", valor: 23000 },
-      { nombre: "Ubicación física en estantería o depósito", valor: 20000 },
-      {
-        nombre: "Seguimiento y control periódico de conservación",
-        valor: 24000,
-      },
-      { nombre: "Entrega o retiro bajo acta de custodia", valor: 25000 },
-    ],
-  };
+  const dataProcesos = window.dataProcesos;
+  const dataSubprocesos = window.dataSubprocesos;
 
   // ============================================================
   // 🌍 VARIABLES GLOBALES Y ELEMENTOS UI
   // ============================================================
-
   const areaSelect = document.getElementById("areaSelect");
   const procesoSelect = document.getElementById("procesoSelect");
   const subprocesosContainer = document.getElementById("subprocesosContainer");
@@ -162,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ============================================================
   // 🧮 FUNCIÓN BASE64 AUXILIAR (usada por PDF / PPT)
-// ============================================================
+  // ============================================================
   window.toBase64 = function (url) {
     return fetch(url)
       .then((r) => r.blob())
@@ -180,7 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // ============================================================
   // 🧭 SELECCIÓN DE ÁREA Y PROCESO
   // ============================================================
-
   if (areaSelect && procesoSelect) {
     areaSelect.addEventListener("change", () => {
       const area = areaSelect.value?.trim();
@@ -206,6 +129,15 @@ document.addEventListener("DOMContentLoaded", () => {
           opt.textContent = proc;
           procesoSelect.appendChild(opt);
         });
+
+        // 🔥 Insertar opción destacada al final
+        const optPers = document.createElement("option");
+        optPers.value = "Proceso personalizado";
+        optPers.textContent = "➕ Crear proceso personalizado";
+        optPers.style.fontWeight = "bold";
+        optPers.style.color = "#990f0c";
+        procesoSelect.appendChild(optPers);
+
         procesoSelect.disabled = false;
       } else {
         console.warn(`⚠️ No hay procesos definidos para el área: ${area}`);
@@ -214,238 +146,393 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ============================================================
-  // 📂 CARGA DE SUBPROCESOS SEGÚN PROCESO SELECCIONADO
+  // 📂 CARGA DE SUBPROCESOS — UNIVERSAL + MODO GLOBAL "TODO"
   // ============================================================
+  procesoSelect.addEventListener("change", () => {
+    const proceso = procesoSelect.value;
+    if (!subprocesosList || !subprocesosContainer) return;
 
-  if (procesoSelect) {
-    procesoSelect.addEventListener("change", () => {
-      const proceso = procesoSelect.value;
-      if (!subprocesosList || !subprocesosContainer) return;
+    // Reset
+    subprocesosList.innerHTML = "";
+    subprocesosContainer.style.display = "none";
+    if (otroProcesoContainer) otroProcesoContainer.style.display = "none";
 
-      // Limpiar vistas
-      subprocesosList.innerHTML = "";
-      subprocesosContainer.style.display = "none";
-      if (otroProcesoContainer) {
-        otroProcesoContainer.style.display = "none";
-      }
+    // Caso: Proceso personalizado
+    if (proceso === "Proceso personalizado" || proceso === "Otro") {
+      otroProcesoContainer.style.display = "block";
+      return;
+    }
+    if (!proceso) return;
 
-      // Caso: Proceso personalizado → mostramos el bloque manual
-      if (proceso === "Proceso personalizado") {
-        if (otroProcesoContainer) {
-          otroProcesoContainer.style.display = "block";
-        }
-        return;
-      }
+    const subps = dataSubprocesos[proceso] || [];
+    if (subps.length === 0) {
+      return;
+    }
 
-      if (!proceso) return;
+    subprocesosContainer.style.display = "block";
 
-      const subps = dataSubprocesos[proceso] || [];
+    // ============================================================
+    // 🚫 CASO ESPECIAL — ALQUILER DE EQUIPOS (HORAS / DÍAS / MESES)
+    // ============================================================
+    if (proceso === "Alquiler de Equipos") {
+      subps.forEach((sp) => {
+        const div = document.createElement("div");
+        div.className = "subproceso-row";
 
-      // === CASO ESPECIAL: Elaboración de Instrumentos Archivísticos ===
-      if (proceso === "Elaboración de Instrumentos Archivísticos") {
-        if (!subps.length) return;
-        subprocesosContainer.style.display = "block";
+        div.innerHTML = `
+          <div style="flex:2;display:flex;align-items:center;gap:6px;">
+            <input type="checkbox" value="${sp.nombre}" class="chk-subproceso">
+            <span>${sp.nombre}</span>
+          </div>
 
-        subps.forEach((sp) => {
-          const div = document.createElement("div");
-          div.className = "subproceso-row";
-          div.innerHTML = `
-            <div style="flex:2;display:flex;align-items:center;gap:6px;">
-              <input type="checkbox" value="${sp.nombre}" class="chk-subproceso">
-              <span>${sp.nombre}</span>
-            </div>
-            <input type="number" class="cantidad-area" placeholder="Cant. áreas" min="1"
-              style="width:90px;text-align:center;">
-            <input type="text" class="valor-subproceso"
-              value="${formatoCOP(sp.valor)}"
-              data-real="${sp.valor}"
-              style="width:100px;text-align:right;">
-          `;
-          div.style.cssText =
-            "display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;margin-bottom:6px;background:#fafafa;";
-          subprocesosList.appendChild(div);
-        });
+          <input type="number" class="cantidad-sub"
+            placeholder="Cant." min="1"
+            style="width:90px;text-align:center;">
 
-        const btn = document.createElement("button");
-        btn.textContent = "➕ Agregar seleccionados al resumen";
-        btn.style.cssText =
-          "background:#990f0c;color:white;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:600;margin-top:10px;float:right;";
-        subprocesosList.appendChild(btn);
+          <input type="text" class="valor-subproceso"
+            value="${formatoCOP(sp.valor)}"
+            data-real="${sp.valor}"
+            style="width:100px;text-align:right;">
+        `;
 
-        btn.addEventListener("click", () => {
-          const area = areaSelect.value;
-          const seleccionados = Array.from(
-            subprocesosList.querySelectorAll(".chk-subproceso:checked")
-          )
-            .map((chk) => {
-              const fila = chk.closest(".subproceso-row");
-              const inputValor = fila.querySelector(".valor-subproceso");
-              const valor = parseFloat(inputValor.dataset.real || inputValor.value || 0);
-              const cantidad =
-                parseInt(fila.querySelector(".cantidad-area").value, 10) || 0;
-              return { nombre: chk.value, valor, cantidad };
-            })
-            .filter((sp) => sp.cantidad > 0 && sp.valor > 0);
-
-          if (!seleccionados.length) {
-            return alert("⚠️ Debe seleccionar al menos un subproceso válido.");
+        // Click en fila para alternar selección
+        div.addEventListener("click", (e) => {
+          if (
+            e.target.classList.contains("cantidad-sub") ||
+            e.target.classList.contains("valor-subproceso") ||
+            e.target.classList.contains("unidad-sub")
+          ) {
+            return;
           }
+          const chk = div.querySelector(".chk-subproceso");
+          chk.checked = !chk.checked;
+          div.classList.toggle("selected", chk.checked);
+        });
 
-          seleccionados.forEach((sp) => {
-            const procesoCompuesto = `${proceso} - ${sp.nombre}`;
-            const costo = sp.valor * sp.cantidad;
+        div.style.cssText =
+          "display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;margin-bottom:6px;background:#fafafa;";
+        subprocesosList.appendChild(div);
+      });
 
-            agregarAlResumen({
-              area,
-              proceso: procesoCompuesto,
-              cantidad: sp.cantidad,
-              valor: sp.valor,
-              costo,
-              subprocesos: [sp.nombre],
-            });
+      // Botón agregar
+      const acciones = document.createElement("div");
+      acciones.style.cssText = `
+        display:flex;
+        justify-content:flex-end;
+        margin-top:15px;
+        padding-top:10px;
+        border-top:2px solid #990f0c;
+      `;
+
+      acciones.innerHTML = `
+        <button id="btnAgregarUniversal"
+          style="background:#990f0c;color:white;border:none;padding:10px 18px;
+          border-radius:6px;cursor:pointer;font-weight:600;">
+          ➕ Agregar al resumen
+        </button>
+      `;
+
+      subprocesosList.appendChild(acciones);
+
+      const btn = acciones.querySelector("#btnAgregarUniversal");
+
+      btn.addEventListener("click", () => {
+        const area = areaSelect.value;
+
+        const seleccionados = Array.from(
+          subprocesosList.querySelectorAll(".chk-subproceso:checked")
+        )
+          .map((chk) => {
+            const fila = chk.closest(".subproceso-row");
+            return {
+              nombre: chk.value,
+              unidad: fila.querySelector(".unidad-sub")
+                ? fila.querySelector(".unidad-sub").value
+                : "",
+              cantidad: parseInt(
+                fila.querySelector(".cantidad-sub").value || "0",
+                10
+              ),
+              valor: parseFloat(
+                fila.querySelector(".valor-subproceso").dataset.real || "0"
+              ),
+            };
+          })
+          .filter((sp) => sp.cantidad > 0 && sp.valor > 0);
+
+        if (!seleccionados.length) {
+          return alert("⚠️ Seleccione subprocesos con cantidades válidas.");
+        }
+
+        seleccionados.forEach((sp) => {
+          agregarAlResumen({
+            area,
+            proceso: proceso,
+            unidad: sp.unidad, // Alquiler SÍ muestra unidad (Horas/Días/Meses)
+            cantidad: sp.cantidad,
+            valor: sp.valor,
+            costo: sp.valor * sp.cantidad,
+            subprocesos: [sp.nombre],
           });
+        });
+      });
+
+      return; // 🔚 Terminamos rama especial de Alquiler de Equipos
+    }
+
+    // ============================================================
+    // ✔ SI HAY MÁS DE 1 SUBPROCESO → MODO GLOBAL + SUBPROCESOS
+    // ============================================================
+    if (subps.length > 1) {
+      const divGeneral = document.createElement("div");
+      divGeneral.className = "subproceso-row";
+      divGeneral.style.cssText =
+        "display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px;border:2px solid #990f0c;border-radius:6px;margin-bottom:12px;background:#fff7f7;";
+
+      divGeneral.innerHTML = `
+        <div style="flex:2;display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="chkTodoProceso" class="chk-general">
+          <strong>Todo el proceso</strong>
+        </div>
+
+        <input type="number" id="cantidadGeneralProceso"
+          class="cantidad-sub"
+          placeholder="Cant."
+          min="1"
+          style="width:90px;text-align:center;opacity:0.5;" disabled>
+
+        <input type="text" id="valorGeneralProceso"
+          placeholder="Valor unitario"
+          style="width:120px;text-align:right;opacity:0.5;"
+          disabled>
+      `;
+
+      subprocesosList.appendChild(divGeneral);
+
+      chkTodoProcesoRef = divGeneral.querySelector("#chkTodoProceso");
+      cantidadGeneralProcesoRef =
+        divGeneral.querySelector("#cantidadGeneralProceso");
+      valorGeneralProcesoRef = divGeneral.querySelector("#valorGeneralProceso");
+
+      // activar/desactivar modo global
+      chkTodoProcesoRef.addEventListener("change", () => {
+        const activar = chkTodoProcesoRef.checked;
+
+        cantidadGeneralProcesoRef.disabled = !activar;
+        valorGeneralProcesoRef.disabled = !activar;
+
+        cantidadGeneralProcesoRef.style.opacity = activar ? "1" : "0.5";
+        valorGeneralProcesoRef.style.opacity = activar ? "1" : "0.5";
+
+        document
+          .querySelectorAll(".chk-subproceso")
+          .forEach((c) => (c.disabled = activar));
+
+        document.querySelectorAll(".cantidad-sub").forEach((i) => {
+          if (i !== cantidadGeneralProcesoRef) i.disabled = activar;
+        });
+
+        document.querySelectorAll(".valor-subproceso").forEach((i) => {
+          if (i !== valorGeneralProcesoRef) i.disabled = activar;
+        });
+      });
+    }
+
+    // ============================================================
+    // 🔲 SUBPROCESOS NORMALES (UNO O VARIOS)
+    // ============================================================
+    subps.forEach((sp) => {
+      const div = document.createElement("div");
+      div.className = "subproceso-row";
+
+      
+
+      let htmlUnidad = "";
+
+      if (!PROCESOS_SIN_UNIDAD.includes(proceso)) {
+        htmlUnidad = `
+          <select class="unidad-sub" style="width:100px;">
+            <option value="Documentos">Documentos</option>
+            <option value="Carpetas">Carpetas</option>
+            <option value="Folder">Folder</option>
+            <option value="Acbetas">Acbetas</option>
+            <option value="Cajas">Cajas</option>
+          </select>
+        `;
+      }
+
+      // Casos sin unidad
+      else {
+        htmlUnidad = `<span style="width:100px;text-align:center;color:#666;">—</span>`;
+      }
+
+
+      div.innerHTML = `
+        <div style="flex:2;display:flex;align-items:center;gap:6px;">
+          <input type="checkbox" value="${sp.nombre}" class="chk-subproceso">
+          <span>${sp.nombre}</span>
+        </div>
+
+        ${htmlUnidad}
+
+        <input type="number" class="cantidad-sub"
+          placeholder="Cant." min="1"
+          style="width:90px;text-align:center;">
+
+        <input type="text" class="valor-subproceso"
+          value="${formatoCOP(sp.valor)}"
+          data-real="${sp.valor}"
+          style="width:100px;text-align:right;">
+      `;
+
+      // === CLICK EN LA FILA COMPLETA PARA SELECCIONAR ===
+      div.addEventListener("click", (e) => {
+        // Evitar conflicto cuando hacen clic en inputs
+        if (
+          e.target.classList.contains("cantidad-sub") ||
+          e.target.classList.contains("valor-subproceso") ||
+          e.target.classList.contains("unidad-sub")
+        ) {
+          return;
+        }
+
+        const chk = div.querySelector(".chk-subproceso");
+
+        // Alternar check
+        chk.checked = !chk.checked;
+
+        // Activar/desactivar estilo seleccionado
+        div.classList.toggle("selected", chk.checked);
+      });
+
+      div.style.cssText =
+        "display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;margin-bottom:6px;background:#fafafa;";
+      subprocesosList.appendChild(div);
+    });
+
+    // ============================================================
+    // 🔘 BOTÓN ÚNICO (GLOBAL O INDIVIDUAL SEGÚN ESTADO)
+    // ============================================================
+    const acciones = document.createElement("div");
+    acciones.style.cssText = `
+      display:flex;
+      justify-content:flex-end;
+      margin-top:15px;
+      padding-top:10px;
+      border-top:2px solid #990f0c;
+    `;
+
+    acciones.innerHTML = `
+      <button id="btnAgregarUniversal"
+        style="background:#990f0c;color:white;border:none;padding:10px 18px;
+        border-radius:6px;cursor:pointer;font-weight:600;">
+        ➕ Agregar al resumen
+      </button>
+    `;
+
+    subprocesosList.appendChild(acciones);
+
+    const btnAgregarUniversal = acciones.querySelector("#btnAgregarUniversal");
+
+    // ============================================================
+    // 🎯 LÓGICA DEL BOTÓN ÚNICO
+    // ============================================================
+    btnAgregarUniversal.addEventListener("click", () => {
+      const area = areaSelect.value;
+
+      // ======= MODO GLOBAL =======
+      if (chkTodoProcesoRef && chkTodoProcesoRef.checked) {
+        const cantidad = parseInt(
+          cantidadGeneralProcesoRef.value || "0",
+          10
+        );
+        if (cantidad <= 0)
+          return alert("⚠️ Ingrese cantidad global válida.");
+
+        const rawValor = valorGeneralProcesoRef.value.replace(/\D/g, "");
+        const valorUnitario = parseFloat(rawValor || "0");
+        if (valorUnitario <= 0)
+          return alert("⚠️ Ingrese valor unitario válido.");
+
+        const costo = cantidad * valorUnitario;
+
+        agregarAlResumen({
+          area,
+          proceso,
+          cantidad,
+          valor: valorUnitario,
+          costo,
+          subprocesos: [],
+          isGlobal: true, // ← MARCA GLOBAL
         });
 
         return;
       }
 
-      // === CASO GENERAL (con posible cantidad individual por subproceso) ===
-      if (subps.length > 0) {
-        subprocesosContainer.style.display = "block";
+      // =========== MODO INDIVIDUAL ============
+      const seleccionados = Array.from(
+        subprocesosList.querySelectorAll(".chk-subproceso:checked")
+      )
+        .map((chk) => {
+          const fila = chk.closest(".subproceso-row");
+          return {
+            nombre: chk.value,
+            unidad: fila.querySelector(".unidad-sub")
+              ? fila.querySelector(".unidad-sub").value
+              : "",
+            cantidad: parseInt(
+              fila.querySelector(".cantidad-sub").value || "0",
+              10
+            ),
+            valor: parseFloat(
+              fila.querySelector(".valor-subproceso").dataset.real || "0"
+            ),
+          };
+        })
+        .filter((sp) => sp.cantidad > 0 && sp.valor > 0);
 
-        subps.forEach((sp) => {
-          const div = document.createElement("div");
-          div.className = "subproceso-row";
-
-          const requiereCantidadIndividual =
-            procesosConCantidadIndividual.includes(proceso);
-
-          div.innerHTML = `
-            <div style="flex:2;display:flex;align-items:center;gap:6px;">
-              <input type="checkbox" value="${sp.nombre}" class="chk-subproceso">
-              <span>${sp.nombre}</span>
-            </div>
-            ${
-              requiereCantidadIndividual
-                ? `<input type="number" class="cantidad-area" placeholder="Cant." min="1" style="width:90px;text-align:center;">`
-                : ``
-            }
-            <input type="text" class="valor-subproceso"
-              value="${formatoCOP(sp.valor)}"
-              data-real="${sp.valor}"
-              style="width:100px;text-align:right;">
-          `;
-
-          div.style.cssText =
-            "display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;margin-bottom:6px;background:#fafafa;";
-          subprocesosList.appendChild(div);
-        });
-
-        // === Bloque de cantidad + botón general ===
-        const bloqueAccion = document.createElement("div");
-        bloqueAccion.style.cssText = `
-          display:flex;
-          justify-content:flex-end;
-          align-items:center;
-          gap:10px;
-          margin-top:15px;
-          padding:10px;
-          border-top:2px solid #990f0c;
-        `;
-        bloqueAccion.innerHTML = `
-          <input type="number" id="cantidadGeneral" placeholder="Cantidad" min="1"
-            style="width:90px;text-align:center;border:1px solid #ccc;border-radius:6px;">
-          <button id="btnAgregarSubprocesos"
-            style="background:#990f0c;color:white;border:none;padding:8px 14px;
-            border-radius:6px;cursor:pointer;font-weight:600;">
-            ➕ Agregar seleccionados al resumen
-          </button>
-        `;
-        subprocesosList.appendChild(bloqueAccion);
-
-        // === Lógica del botón de agregar ===
-        bloqueAccion
-          .querySelector("#btnAgregarSubprocesos")
-          .addEventListener("click", () => {
-            const area = areaSelect.value;
-            const cantidadGeneral =
-              parseInt(document.getElementById("cantidadGeneral").value, 10) || 1;
-
-            const requiereCantidadIndividual =
-              procesosConCantidadIndividual.includes(proceso);
-
-            const seleccionados = Array.from(
-              subprocesosList.querySelectorAll(".chk-subproceso:checked")
-            )
-              .map((chk) => {
-                const fila = chk.closest(".subproceso-row");
-                const inputValor = fila.querySelector(".valor-subproceso");
-                const inputCantidad = fila.querySelector(".cantidad-area");
-
-                return {
-                  nombre: chk.value,
-                  valor: parseFloat(inputValor.dataset.real || 0),
-                  cantidad: requiereCantidadIndividual
-                    ? parseInt(inputCantidad?.value || "0", 10)
-                    : null,
-                };
-              })
-              .filter((sp) => sp.valor > 0);
-
-            if (!seleccionados.length) {
-              return alert("⚠️ Debe seleccionar al menos un subproceso válido.");
-            }
-
-            // 🔥 Cálculo correcto según el tipo de proceso
-            let costoNuevo = 0;
-            let valorUnitario = 0;
-            let cantidadFinal = 0;
-            const nombresSubprocesos = seleccionados.map((sp) => sp.nombre);
-
-            if (requiereCantidadIndividual) {
-              // PROCESOS CON CANTIDAD POR SUBPROCESO
-              seleccionados.forEach((sp) => {
-                if (sp.cantidad && sp.cantidad > 0) {
-                  costoNuevo += sp.valor * sp.cantidad;
-                  cantidadFinal += sp.cantidad;
-                }
-              });
-
-              if (cantidadFinal > 0) {
-                valorUnitario = costoNuevo / cantidadFinal;
-              }
-            } else {
-              // PROCESOS NORMALES
-              valorUnitario = seleccionados.reduce(
-                (sum, sp) => sum + sp.valor,
-                0
-              );
-              cantidadFinal = cantidadGeneral;
-              costoNuevo = valorUnitario * cantidadFinal;
-            }
-
-            if (cantidadFinal <= 0 || costoNuevo <= 0) {
-              return alert("⚠️ Verifique cantidades y valores ingresados.");
-            }
-
-            agregarAlResumen({
-              area,
-              proceso,
-              cantidad: cantidadFinal,
-              valor: valorUnitario,
-              costo: costoNuevo,
-              subprocesos: nombresSubprocesos,
-            });
-          });
+      if (!seleccionados.length) {
+        return alert("⚠️ Seleccione subprocesos y cantidades válidas.");
       }
+
+      seleccionados.forEach((sp) => {
+        // 🔥 Normalización del nombre (tildes + mayúsculas)
+        const key = sp.nombre
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase();
+
+        const nombreLimpio = nombreSubprocesoEstandar[key] || sp.nombre;
+
+        agregarAlResumen({
+          area,
+          proceso: proceso,
+          unidad: PROCESOS_SIN_UNIDAD.includes(proceso) ? "" : sp.unidad,
+          cantidad: sp.cantidad,
+          valor: sp.valor,
+          costo: sp.valor * sp.cantidad,
+          subprocesos: [nombreLimpio],
+        });
+      });
     });
-  }
+  });
 
   // ============================================================
   // ✏️ FORMATEO EN VIVO DE CAMPOS valor-subproceso
   // ============================================================
   document.addEventListener("input", (e) => {
     if (e.target.classList.contains("valor-subproceso")) {
+      const limpio = e.target.value.replace(/\D/g, "");
+      e.target.dataset.real = limpio;
+      e.target.value = formatoCOP(limpio);
+    }
+  });
+
+  // ============================================================
+  // ✏️ FORMATEO EN VIVO DEL VALOR GLOBAL (TODO EL PROCESO)
+  // ============================================================
+  document.addEventListener("input", (e) => {
+    if (e.target.id === "valorGeneralProceso") {
       const limpio = e.target.value.replace(/\D/g, "");
       e.target.dataset.real = limpio;
       e.target.value = formatoCOP(limpio);
@@ -496,7 +583,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // ============================================================
   // 🤝 ALIADOS ESTRATÉGICOS — INTEGRACIÓN A COTIZACIÓN
   // ============================================================
-
   console.log("🤝 Cargando módulo de Aliados en Cotización...");
 
   const selectAliado = document.getElementById("selectAliado");
@@ -504,7 +590,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnAgregarAliado = document.getElementById("btnAgregarAliado");
 
   if (selectAliado && selectServicioAliado && btnAgregarAliado) {
-
     // === 1️⃣ cargar aliados desde localStorage ===
     const aliadosLS = JSON.parse(localStorage.getItem("aliados_data")) || [];
 
@@ -563,5 +648,4 @@ document.addEventListener("DOMContentLoaded", () => {
       selectServicioAliado.innerHTML = `<option value="">Seleccione servicio...</option>`;
     });
   }
-
 });

@@ -3,6 +3,20 @@
 // (Versión limpia, optimizada y sin errores de scope)
 // ============================================================
 
+
+window.nombreSubprocesoEstandar = {
+  "areas": "Áreas",
+  "alistamiento": "Alistamiento",
+  "indexacion": "Indexación",
+  "tiempo completo": "Tiempo completo",
+  "parcial": "Parcial",
+  "básicos": "Básicos",
+  "medios": "Medios",
+  "especializados": "Especializados",
+  // … y así con todos los que quieras estandarizar
+};
+
+
 // ============= UTILIDADES GLOBALES ==========================
 document.addEventListener("DOMContentLoaded", () => {
   console.log("🧾 [PropuestaValor] Inicializado correctamente");
@@ -184,17 +198,17 @@ document.addEventListener("click", async (e) => {
           visibles
             .filter(r => obtenerProcesoBase(r) === nombre)
             .flatMap(r => {
-              // Nuevo formato (array)
+              if (r.isGlobal) return []; // 🟢 proceso global → sin subprocesos
               if (Array.isArray(r.subprocesos) && r.subprocesos.length)
                 return r.subprocesos;
 
-              // Viejo formato: "Proceso - Sub"
               const partes = (r.proceso || "").split(" - ");
               return partes[1] ? [partes[1]] : [];
             })
             .filter(Boolean)
         )
       ];
+
 
       // convertir a objetos con descripción
       const detallesSubprocesos = subprocesosVisibles.map(sp =>
@@ -205,7 +219,8 @@ document.addEventListener("click", async (e) => {
         nombre,
         descripcion: plantilla.descripcion?.trim() || "",
         subprocesos: detallesSubprocesos,
-        beneficios: plantilla.beneficios || []
+        beneficios: plantilla.beneficios || [],
+        esGlobal: visibles.some(r => obtenerProcesoBase(r) === nombre && r.isGlobal)
       };
     })
     .filter(Boolean);
@@ -288,8 +303,35 @@ document.addEventListener("click", async (e) => {
         return s;
     };
 
+    if (p.esGlobal) {
+      const sGlobal = pptx.addSlide();
+      try { sGlobal.background = { path: "assets/img/textos-propuesto.png" }; } catch {}
+
+      sGlobal.addText(`${p.nombre.toUpperCase()} — Proceso Completo`, {
+        x: 1, y: 0.6, fontSize: 26, bold: true, color: "990f0c"
+      });
+
+      // 🔥 Mensaje especializado por proceso
+      const mensaje = plantillasProcesos[p.nombre]?.mensajeProcesoCompleto
+        || "Este servicio se cotiza como un proceso integral según el alcance acordado.";
+
+      sGlobal.addText(mensaje, {
+        x: 1, y: 3,
+        w: 8,
+        fontSize: 16,
+        color: "333333",
+        align: "justify"
+      });
+
+      return;
+    }
+
+
     let s2 = crearSlideDetalle();
     let y = 1.3;
+
+    
+
 
     // Título subprocesos
     s2.addText("📂 Subprocesos Seleccionados:", {

@@ -47,3 +47,21 @@
   if (document.readyState !== "loading") window.initSidebar();
   else document.addEventListener("DOMContentLoaded", window.initSidebar);
 })();
+document.addEventListener("DOMContentLoaded", () => {
+
+    const btnLogout = document.querySelector(".logout-btn");
+
+    if (btnLogout) {
+        btnLogout.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            if (!confirm("¿Deseas cerrar sesión?")) return;
+
+            localStorage.removeItem("usuario_logueado");
+
+            window.location.href = "login.html";
+        });
+    }
+
+});
+

@@ -15,6 +15,9 @@ Nuestro servicio de Actualización de Archivos Electrónicos garantiza que los d
 
 Aplicamos metodologías de control de versiones, depuración de duplicados, integración de metadatos y verificación de consistencia, asegurando que su entorno documental sea confiable, accesible y alineado con las normas de preservación digital.
     `,
+    mensajeProcesoCompleto: `
+Este servicio se ejecuta de forma integral e incluye: actualización masiva de documentos electrónicos, normalización de metadatos, depuración de duplicados, control de versiones, revisión de consistencia y estandarización completa del repositorio digital institucional.
+    `,
     subprocesos: {
       "Alistamiento": `
         Preparamos y estandarizamos los documentos digitales antes de su actualización,
@@ -38,8 +41,10 @@ Aplicamos metodologías de control de versiones, depuración de duplicados, inte
   "Administración In House": {
     descripcion: `
 Con la Administración Documental In House de Gadier Sistemas, su entidad contará con un equipo especializado que gestiona directamente en sus instalaciones todos los procesos archivísticos.
-
 Ofrecemos presencia constante, control de calidad, seguimiento en tiempo real y total confidencialidad en el manejo de la información institucional.
+    `,
+    mensajeProcesoCompleto: `
+Incluye la administración integral de los procesos de gestión documental dentro de la entidad, con personal especializado, supervisión continua, control de calidad, atención inmediata y manejo directo de todos los flujos y actividades archivísticas.
     `,
     subprocesos: {
       "Tiempo completo": `
@@ -66,6 +71,10 @@ Ofrecemos presencia constante, control de calidad, seguimiento en tiempo real y 
 Gadier Sistemas ofrece alquiler de equipos especializados para proyectos de gestión documental,
 digitalización y procesamiento de archivos. Todos nuestros dispositivos cuentan con mantenimiento
 preventivo y soporte técnico garantizado.
+    `,
+    mensajeProcesoCompleto: `
+Este servicio incluye el suministro continuo de equipos especializados, mantenimiento preventivo,
+soporte técnico, reemplazo por fallas y disponibilidad garantizada durante todo el proyecto.
     `,
     subprocesos: {
       "Básicos": `
@@ -98,6 +107,11 @@ en diagnóstico, planeación y mejora de los procesos de gestión documental.
 Alineamos las prácticas de su organización con la normatividad del Archivo General de la Nación
 y las mejores metodologías de conservación y acceso a la información.
     `,
+    mensajeProcesoCompleto: `
+El servicio completo incluye la evaluación general de la gestión documental, diseño de políticas,
+alineación normativa, acompañamiento técnico, formación especializada y establecimiento de estrategias
+integrales de mejora institucional.
+    `,
     subprocesos: {
       "Diagnóstico archivístico": `
         Evaluamos la situación actual del archivo institucional y definimos líneas
@@ -128,6 +142,11 @@ Nuestra Consultoría Archivística transforma la gestión documental en un valor
 para su institución. Desarrollamos planes, políticas e instrumentos alineados con los
 estándares nacionales e internacionales.
     `,
+    mensajeProcesoCompleto: `
+El servicio integral de consultoría incluye diagnóstico especializado, análisis estratégico,
+diseño de soluciones, implementación de mejoras, creación de instrumentos archivísticos y
+alineación total con estándares nacionales e internacionales.
+    `,
     subprocesos: {
       "Análisis de requerimientos": `
         Identificamos oportunidades de mejora y diseñamos soluciones personalizadas
@@ -157,16 +176,19 @@ estándares nacionales e internacionales.
 Diseñamos y actualizamos los instrumentos archivísticos exigidos por el Archivo General de la Nación (AGN),
 garantizando el cumplimiento normativo y la estructuración técnica de la gestión documental institucional.
     `,
+    mensajeProcesoCompleto: `
+Incluye el diseño, actualización y validación técnica de todos los instrumentos archivísticos institucionales,
+siguiendo los lineamientos del AGN y asegurando coherencia normativa y funcional.
+    `,
     subprocesos: {
       "PINAR": "Plan Institucional de Archivos - orienta la gestión documental institucional.",
-      "TRD": "Tablas de Retención Documental - define tiempos de conservación y disposición final.",
+      "TRD-CCD": "Tablas de Retención Documental y Cuadro de Clasificación Documental - define tiempos de conservación y disposición final y estructura funcionalmente las series documentales.",
       "INVENTARIOS": "Instrumentos de control y descripción de los documentos custodiados.",
       "TVD": "Tablas de Valoración Documental - determinan el valor secundario de los archivos.",
       "PGD": "Programa de Gestión Documental - estructura la política general de archivos.",
       "ID": "Instrumentos de Descripción - mejoran el acceso a la información archivística.",
       "RGD": "Reglamento General de Archivos - define normas internas de gestión documental.",
       "MPA": "Manuales de Procedimiento Archivístico - estandarizan las operaciones técnicas.",
-      "CCD": "Cuadro de Clasificación Documental - estructura funcionalmente las series documentales."
     },
     beneficios: [
       "Cumple con los lineamientos del Archivo General de la Nación.",
@@ -182,6 +204,11 @@ garantizando el cumplimiento normativo y la estructuración técnica de la gesti
     descripcion: `
 La Organización Documental de Gadier Sistemas garantiza el orden técnico, físico y digital
 de sus fondos documentales, cumpliendo con los principios de procedencia y orden original.
+    `,
+    mensajeProcesoCompleto: `
+Este servicio incluye la intervención completa del archivo institucional: diagnóstico técnico,
+clasificación, ordenación, descripción, depuración, identificación de unidades de conservación,
+y estructuración de instrumentos archivísticos esenciales.
     `,
     subprocesos: {
       "Diagnóstico": `
@@ -208,42 +235,60 @@ de sus fondos documentales, cumpliendo con los principios de procedencia y orden
     ]
   },
 
+  /// ======================================================
+  // 🧹 DEPURACIÓN
   // ======================================================
-  // 🧹 DEPURACIÓN Y ELIMINACIÓN
-  // ======================================================
-  "Depuración y Eliminación": {
+  "Depuración": {
     descripcion: `
-Ejecutamos el proceso de depuración y eliminación documental con rigor técnico,
-cumpliendo los protocolos del Archivo General de la Nación y garantizando seguridad,
-confidencialidad y trazabilidad total del proceso.
+  El servicio de Depuración Documental de Gadier Sistemas permite identificar,
+  analizar y clasificar documentos que ya cumplieron su función administrativa,
+  legal o fiscal, preparando el fondo documental para procesos de organización
+  o eliminación regulada.
+    `,
+    mensajeProcesoCompleto: `
+  Incluye revisión técnica de documentos, identificación de unidades susceptibles
+  de depuración, validación normativa con TRD vigentes, y elaboración de informes
+  técnicos de diagnóstico y recomendaciones.
     `,
     subprocesos: {
-      "Revisión de series documentales": `
-        Identificamos las series susceptibles de eliminación según TRD y criterios legales.
-      `,
-      "Aplicación de Tablas de Retención Documental": `
-        Validamos tiempos de conservación y disposición final según la normativa vigente.
-      `,
-      "Identificación de expedientes": `
-        Determinamos los documentos que han cumplido su función legal o administrativa.
-      `,
-      "Elaboración de actas de eliminación": `
-        Documentamos el proceso con soporte técnico, legal y fotográfico.
-      `,
-      "Gestión de aprobación": `
-        Coordinamos con el comité evaluador para la aprobación del proceso de eliminación.
-      `,
-      "Destrucción controlada": `
-        Ejecutamos la eliminación mediante métodos certificados, preservando la confidencialidad.
-      `,
-      "Informe final": `
-        Entregamos un informe consolidado con evidencia del proceso completo.
+      "Servicio de depuración documental": `
+        Realizamos la depuración documental conforme a criterios técnicos y normativos,
+        identificando documentos que han perdido vigencia según TRD o procesos internos
+        de la entidad. Se entrega informe con evidencias y recomendaciones para disposición final.
       `
     },
     beneficios: [
-      "Cumple la Ley 594 y directrices del AGN.",
-      "Optimiza espacios y recursos de almacenamiento.",
-      "Garantiza transparencia y trazabilidad total del proceso."
+      "Optimiza el volumen documental y reduce cargas de almacenamiento.",
+      "Mejora la organización previa a procesos de archivo o digitalización.",
+      "Cumple lineamientos del AGN para depuración técnica documental."
+    ]
+  },
+
+  // ======================================================
+  // 🗑️ ELIMINACIÓN
+  // ======================================================
+  "Eliminación": {
+    descripcion: `
+  El servicio de Eliminación Documental garantiza la disposición final adecuada
+  de documentos sin valor administrativo, fiscal o legal, siguiendo estrictamente
+  las Tablas de Retención Documental y protocolos del Archivo General de la Nación.
+    `,
+    mensajeProcesoCompleto: `
+  Incluye análisis de TRD, preparación de listados, validación ante Comité Evaluador,
+  elaboración de actas de eliminación, ejecución de destrucción controlada y entrega
+  de informe final con evidencias y certificaciones.
+    `,
+    subprocesos: {
+      "Servicio de eliminación documental": `
+        Ejecutamos la eliminación bajo criterios normativos, con actas completas,
+        trazabilidad del proceso, evidencia fotográfica y métodos de destrucción
+        certificados (trituración, incineración o eliminación digital controlada).
+      `
+    },
+    beneficios: [
+      "Cumple la normativa del AGN y disposiciones legales vigentes.",
+      "Reduce costos de almacenamiento físico y digital.",
+      "Garantiza seguridad, trazabilidad y confidencialidad en el proceso."
     ]
   },
 
@@ -255,6 +300,11 @@ confidencialidad y trazabilidad total del proceso.
 La Custodia Documental de Gadier Sistemas ofrece almacenamiento físico y digital
 bajo condiciones seguras, controladas y trazables, garantizando conservación, integridad
 y disponibilidad de los fondos documentales institucionales.
+    `,
+    mensajeProcesoCompleto: `
+Este servicio cubre toda la cadena de custodia: recepción, verificación, clasificación,
+codificación, almacenamiento seguro, auditorías periódicas, control de préstamos,
+trazabilidad y gestión de entregas o retiros.
     `,
     subprocesos: {
       "Recepción y verificación": `
@@ -293,8 +343,13 @@ y disponibilidad de los fondos documentales institucionales.
   Nuestro equipo realiza una revisión técnica y normativa completa que servirá como punto de partida
   para la planeación de acciones correctivas o de modernización archivística.
     `,
+    mensajeProcesoCompleto: `
+El diagnóstico integral incluye revisión normativa, análisis físico y digital, inspección de áreas productoras,
+evaluación de flujos documentales, identificación de riesgos y elaboración de un informe técnico detallado
+con recomendaciones estratégicas para la mejora archivística.
+    `,
     subprocesos: {
-      "areas": `
+      "Áreas": `
         Analizamos las áreas funcionales y unidades productoras de documentos para identificar
         necesidades, flujos de información y riesgos asociados a la gestión documental.
       `
@@ -307,9 +362,6 @@ y disponibilidad de los fondos documentales institucionales.
     valores: [
       { nombre: "Áreas", valor: 18000 }
     ]
-  },
-
-
-  
+  }
 
 };

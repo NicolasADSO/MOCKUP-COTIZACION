@@ -596,3 +596,32 @@ body.modal-activo .navbar-fija {
     color: #666;
     text-align: center;
 }
+
+#procesoSelect option[value="Proceso personalizado"] {
+    font-weight: bold;
+    color: #990f0c;
+    background: #fff3f3;
+}
+/* Ocultar checkbox real */
+.chk-subproceso {
+    display: none;
+}
+
+/* Fila normal */
+.subproceso-row {
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+/* Cuando está seleccionada */
+.subproceso-row.selected {
+    background: #ffe5e5 !important;
+    border-color: #990f0c !important;
+    box-shadow: 0 0 6px rgba(153, 15, 12, 0.4);
+}
+
+/* Texto o iconos dentro */
+.subproceso-row.selected span {
+    font-weight: 600;
+    color: #990f0c;
+}

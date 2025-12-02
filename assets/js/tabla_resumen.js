@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let aplicarIVA = false;
 
   // ============================================================
-  // ✅ AGREGAR CHECKBOX IVA (solo la primera vez)
+  // ✅ CHECKBOX IVA
   // ============================================================
   if (!document.querySelector(".iva-box")) {
     const ivaBox = document.createElement("div");
@@ -26,9 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
 
     const descuentoBox = descuentoInput.closest(".descuento-box");
-    if (descuentoBox) {
-      descuentoBox.insertAdjacentElement("afterend", ivaBox);
-    }
+    if (descuentoBox) descuentoBox.insertAdjacentElement("afterend", ivaBox);
 
     document.getElementById("chkIVA").addEventListener("change", e => {
       aplicarIVA = e.target.checked;
@@ -59,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelector(".columna-resumen").appendChild(ocultosPanel);
 
   // ============================================================
-  // 🧩 FUNCIÓN GLOBAL: MERGE AUTOMÁTICO
+  // 🧩 MERGE AUTOMÁTICO DE SUBPROCESOS
   // ============================================================
   window.agregarOActualizarResumen = function (nuevo) {
     if (!window.resumen) window.resumen = [];
@@ -82,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // ============================================================
-  // 🧾 RENDER PRINCIPAL (con repartición inversa de costos ocultos)
+  // 🧾 RENDER PRINCIPAL DE LA TABLA
   // ============================================================
   window.renderTabla = function () {
     tablaBody.innerHTML = "";
@@ -95,109 +93,118 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    const columnasVisibles =
+      JSON.parse(localStorage.getItem("columnas_visibles")) || {
+        0: true, 1: true, 2: true, 3: true, 4: true, 5: true
+      };
+
     let subtotal = 0;
     let subtotalVisible = 0;
 
-    // ===== CALCULAR SUBTOTAL TOTAL =====
+    // TOTAL
     window.resumen.forEach(r => {
-      const valorUnitario = r.valor || 0;
-      const costo = r.costo ?? (r.cantidad * valorUnitario);
+      const costo = r.costo ?? (r.cantidad * r.valor);
       subtotal += costo;
     });
 
-    // ===== CALCULAR SUBTOTAL SOLO VISIBLES =====
+    // TOTAL VISIBLE
     window.resumen.forEach(r => {
       if (r.visible) {
-        const valorUnitario = r.valor || 0;
-        const costo = r.costo ?? (r.cantidad * valorUnitario);
+        const costo = r.costo ?? (r.cantidad * r.valor);
         subtotalVisible += costo;
       }
     });
 
-    // ===== CUÁNTO DINERO OCULTO HAY =====
     const costoOcultos = subtotal - subtotalVisible;
 
-    // =====================================================
-    //  🧠 REPARTO INVERSO — más peso a procesos baratos
-    // =====================================================
+    // PESOS INVERSOS
     let pesos = [];
     let sumaPesos = 0;
-
     window.resumen.forEach(r => {
-      if (r.visible) {
-        const valorUnitario = r.valor || 0;
-        const costoBase = r.costo ?? (r.cantidad * valorUnitario);
-
-        const peso = 1 / costoBase; // 🔥 inverso: barato = peso alto
-        pesos.push({ r, peso, costoBase });
-        sumaPesos += peso;
-      }
+      if (!r.visible) return;
+      const costoBase = r.costo ?? (r.cantidad * r.valor);
+      const peso = 1 / costoBase;
+      pesos.push({ r, peso });
+      sumaPesos += peso;
     });
 
-    // ===== DESCUENTO, IVA Y TOTAL =====
-    const descuentoPorcentaje = (parseFloat(descuentoInput.value) || 0) / 100;
-    const descuentoValor = subtotal * descuentoPorcentaje;
+    // DESCUENTO / IVA
+    const descuentoP = (parseFloat(descuentoInput.value) || 0) / 100;
+    const descuentoValor = subtotal * descuentoP;
     const subtotalConDescuento = subtotal - descuentoValor;
     const ivaValor = aplicarIVA ? subtotalConDescuento * 0.19 : 0;
     const totalFinal = subtotalConDescuento + ivaValor;
 
-    // ===== TABLA DE RENDER =====
+    // RENDER DE FILAS
     window.resumen.forEach((r, i) => {
-      const valorUnitario = r.valor || 0;
-      const costoBase = r.costo ?? (r.cantidad * valorUnitario);
+      const valor = r.valor || 0;
+      const costoBase = r.costo ?? (r.cantidad * valor);
 
-      if (r.visible) {
-
-        // =====================================================
-        //    🔥 CÁLCULO DE LA PARTE QUE LE TOCA DEL OCULTO
-        // =====================================================
-        let parteExtra = 0;
-        const pesoObj = pesos.find(p => p.r === r);
-
-        if (pesoObj && sumaPesos > 0) {
-          parteExtra = (pesoObj.peso / sumaPesos) * costoOcultos;
-        }
-
-        const costoFinal = costoBase + parteExtra;
-
-        const tr = document.createElement("tr");
-
-        let cantidadHTML = r.cantidad;
-
-        tr.innerHTML = `
-          <td>${r.proceso}</td>
-          <td style="text-align:center;">${cantidadHTML}</td>
-          <td style="text-align:right;">$${valorUnitario.toLocaleString()}</td>
-          <td style="text-align:right;color:#990f0c;font-weight:600;">
-            $${Math.round(costoFinal).toLocaleString()}
-          </td>
-          <td style="text-align:center;">
-            <button class="btn-eliminar-fila" data-id="${i}">🗑️</button>
-            <button class="btn-ocultar-fila" data-id="${i}">👁️</button>
-          </td>
-        `;
-
-        tablaBody.appendChild(tr);
-
-      } else {
-        // Ocultos → lista lateral
+      if (!r.visible) {
         const li = document.createElement("li");
         li.innerHTML = `
-          🔒 ${r.proceso} — ${r.cantidad} × $${valorUnitario.toLocaleString()}
+          🔒 ${r.proceso} — ${r.cantidad} × $${valor.toLocaleString()}
           <button class="btn-mostrar-fila" data-id="${i}"
             style="background:none;border:none;color:#990f0c;cursor:pointer;">
             Mostrar
           </button>
         `;
         listaOcultos.appendChild(li);
+        return;
       }
+
+      // REPARTO INVERSO
+      let parteExtra = 0;
+      const pesoObj = pesos.find(p => p.r === r);
+      if (pesoObj && sumaPesos) {
+        parteExtra = (pesoObj.peso / sumaPesos) * costoOcultos;
+      }
+
+      const costoFinal = Math.round(costoBase + parteExtra);
+
+      const tr = document.createElement("tr");
+      let html = "";
+
+      // COLUMNA 0: PROCESO
+      if (columnasVisibles[0] !== false)
+        html += `<td>${r.proceso}</td>`;
+
+      // COLUMNA 1: UNIDAD
+      if (columnasVisibles[1] !== false)
+        html += `<td style="text-align:center;">${r.unidad || "Und"}</td>`;
+
+      // COLUMNA 2: CANTIDAD
+      if (columnasVisibles[2] !== false)
+        html += `<td style="text-align:center;">${r.cantidad}</td>`;
+
+      // COLUMNA 3: VALOR
+      if (columnasVisibles[3] !== false)
+        html += `<td style="text-align:right;">$${valor.toLocaleString()}</td>`;
+
+      // COLUMNA 4: COSTO
+      if (columnasVisibles[4] !== false)
+        html += `<td style="text-align:right;color:#990f0c;font-weight:600;">
+                  $${costoFinal.toLocaleString()}
+                </td>`;
+
+      // COLUMNA 5: ACCIONES
+      if (columnasVisibles[5] !== false)
+        html += `
+          <td style="text-align:center;">
+            <button class="btn-eliminar-fila" data-id="${i}">🗑️</button>
+            <button class="btn-ocultar-fila" data-id="${i}">👁️</button>
+          </td>
+        `;
+
+      tr.innerHTML = html;
+      tablaBody.appendChild(tr);
     });
 
-    // ===== TOTAL FINAL =====
+    // TOTAL
     totalGeneralEl.innerHTML = `
       <div style="text-align:right;">
         <div>Subtotal: <strong>$${subtotal.toLocaleString()}</strong></div>
-        ${descuentoValor > 0 ? `<div>Descuento: <strong>-$${descuentoValor.toLocaleString()}</strong></div>` : ""}
+        ${descuentoValor ? `<div>Descuento: <strong>-$${descuentoValor.toLocaleString()}</strong></div>` : ""}
         ${aplicarIVA ? `<div>IVA (19%): <strong>$${ivaValor.toLocaleString()}</strong></div>` : ""}
         <div style="margin-top:4px;border-top:1px solid #ccc;padding-top:4px;color:#990f0c;font-weight:700;">
           Total Final: $${totalFinal.toLocaleString()}
@@ -205,55 +212,121 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
-    ocultosPanel.style.display = listaOcultos.children.length > 0 ? "block" : "none";
-    btnVaciar.disabled = window.resumen.length === 0;
+    ocultosPanel.style.display = listaOcultos.children.length ? "block" : "none";
+    btnVaciar.disabled = !window.resumen.length;
+
+    // Aplicar visibilidad guardada nuevamente
+    Object.entries(columnasVisibles).forEach(([col, visible]) => {
+      ocultarColumna(parseInt(col), visible);
+    });
   };
 
-
-
   // ============================================================
-  // 🧩 EVENTOS: eliminar / ocultar / mostrar / vaciar
+  // 🌙 EVENTOS DE BOTONES (eliminar, ocultar, mostrar)
   // ============================================================
   document.addEventListener("click", e => {
+    const el = e.target;
 
-    const btnEliminar = e.target.closest(".btn-eliminar-fila");
-    const btnOcultar = e.target.closest(".btn-ocultar-fila");
-    const btnMostrar = e.target.closest(".btn-mostrar-fila");
-
-    if (btnEliminar) {
-      const id = parseInt(btnEliminar.dataset.id);
-      if (confirm("¿Eliminar este elemento de la cotización?")) {
+    if (el.closest(".btn-eliminar-fila")) {
+      const id = el.dataset.id;
+      if (confirm("¿Eliminar este elemento?")) {
         window.resumen.splice(id, 1);
         renderTabla();
       }
       return;
     }
 
-    if (btnOcultar) {
-      const id = parseInt(btnOcultar.dataset.id);
+    if (el.closest(".btn-ocultar-fila")) {
+      const id = el.dataset.id;
       window.resumen[id].visible = false;
       renderTabla();
       return;
     }
 
-    if (btnMostrar) {
-      const id = parseInt(btnMostrar.dataset.id);
+    if (el.closest(".btn-mostrar-fila")) {
+      const id = el.dataset.id;
       window.resumen[id].visible = true;
       renderTabla();
       return;
     }
   });
 
-  // Descuento dinámico
   descuentoInput.addEventListener("input", renderTabla);
 
-  // Vaciar tabla
   btnVaciar.addEventListener("click", () => {
-    if (!window.resumen.length) return alert("⚠️ No hay elementos.");
+    if (!window.resumen.length) return;
     if (!confirm("¿Vaciar toda la cotización?")) return;
-
     window.resumen = [];
     renderTabla();
   });
+
+  // ============================================================
+  // 💾 GUARDAR / CARGAR ESTADO DE COLUMNAS
+  // ============================================================
+
+  function guardarColumnasEstado() {
+    const estado = {};
+    document.querySelectorAll(".col-toggle").forEach(chk => {
+      estado[chk.dataset.col] = chk.checked;
+    });
+    localStorage.setItem("columnas_visibles", JSON.stringify(estado));
+  }
+
+    function cargarColumnasEstado() {
+      const estado = JSON.parse(localStorage.getItem("columnas_visibles"));
+      if (!estado) return;
+
+      // 🔒 Fuerza visibilidad de PROCESO (0) y ACCIÓN (5)
+      estado[0] = true;
+      estado[5] = true;
+
+      document.querySelectorAll(".col-toggle").forEach(chk => {
+          const col = chk.dataset.col;
+
+          // Deshabilitar los checkboxes 0 y 5 en el modal
+          if (col == "0" || col == "5") {
+              chk.checked = true;
+              chk.disabled = true;
+          }
+
+          if (estado[col] !== undefined) {
+              chk.checked = estado[col];
+              ocultarColumna(parseInt(col), estado[col]);
+          }
+      });
+  }
+
+
+  document.querySelectorAll(".col-toggle").forEach(chk => {
+    chk.addEventListener("change", () => {
+      const col = parseInt(chk.dataset.col);
+      const visible = chk.checked;
+      guardarColumnasEstado();
+      ocultarColumna(col, visible);
+    });
+  });
+
+cargarColumnasEstado();
+
+  // ============================================================
+  // 🔳 FUNCIÓN OCULTAR/MOSTRAR COLUMNA
+  // ============================================================
+  function ocultarColumna(index, mostrar) {
+  const tabla = document.getElementById("tablaResumen");
+
+  // Oculta el TH correcto
+  const th = tabla.querySelector(`thead th:nth-child(${index + 1})`);
+  if (th) th.style.display = mostrar ? "" : "none";
+
+  // Oculta todas las celdas de esa columna
+  tabla.querySelectorAll("tbody tr").forEach(tr => {
+    const td = tr.querySelector(`td:nth-child(${index + 1})`);
+    if (td) td.style.display = mostrar ? "" : "none";
+  });
+}
+
+ 
+
+
 
 });

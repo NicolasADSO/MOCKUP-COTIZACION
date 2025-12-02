@@ -12,6 +12,14 @@
 </head>
 
 <body class="page-funcionarios">
+
+  <script>
+    // Si NO hay sesión → enviar al login
+    if (!localStorage.getItem("usuario_logueado")) {
+        window.location.href = "login.html";
+    }
+  </script>
+
   <!-- === SIDEBAR === -->
   <div id="sidebar-container"></div>
 

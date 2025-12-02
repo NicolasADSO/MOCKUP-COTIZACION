@@ -1,0 +1,237 @@
+/* ============================================================
+   LOGIN PREMIUM GADIER - VERSIÓN MEJORADA
+   ============================================================ */
+
+/* Fondo degradado diagonal moderno */
+.login-body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+  background: linear-gradient(135deg, #b31217 0%, #dd2d28 35%, #fad2d2 100%);
+}
+
+/* Envoltorio general */
+.login-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 15px 40px;
+}
+
+/* HEADER - Logo más grande */
+.login-header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.login-logo {
+  height: 120px; /* AUMENTADO */
+  max-width: 350px;
+  filter: drop-shadow(0 3px 4px rgba(0,0,0,0.25));
+}
+
+/* CENTRAR TARJETA */
+.contenedor {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+/* FORMULARIO glass moderno */
+.formulario {
+  width: 700px;
+  max-width: 95%;
+  padding: 45px 55px;
+
+  border-radius: 22px;
+
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  box-shadow: 0 25px 80px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+}
+
+/* TITULOS MEJORADOS */
+.titulo {
+  font-size: 34px;
+  font-weight: 800;
+  color: #7b0000;
+  margin-bottom: 8px;
+}
+
+.sub {
+  margin-bottom: 35px;
+  color: #2e2e2e;
+  font-size: 15px;
+}
+
+/* SEPARADORES FINOS */
+.formulario::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: rgba(0,0,0,0.15);
+  margin-bottom: 25px;
+}
+
+/* GRUPOS */
+.grupo {
+  margin-bottom: 30px;
+}
+
+.grupo label {
+  font-size: 17px;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* INPUTS MÁS VISUALES */
+.grupo input {
+  width: 100%;
+  font-size: 19px;
+  padding: 12px 0 8px;
+  border: none;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.45);
+  background: transparent;
+  color: #111;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.grupo input:focus {
+  outline: none;
+  border-bottom: 2px solid #b50000;
+  color: #7b0000;
+}
+
+/* BOTÓN MEJORADO */
+.btn {
+  width: 100%;
+  padding: 16px;
+  margin-top: 18px;
+  font-size: 18px;
+
+  background: linear-gradient(180deg, #d10e0e, #9d0000);
+  color: white;
+  border: none;
+
+  border-radius: 10px;
+  cursor: pointer;
+
+  box-shadow: 0 9px #610000;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.btn:hover {
+  background: linear-gradient(180deg, #ff1a1a, #b30000);
+}
+
+.btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 4px #610000;
+}
+
+/* FIRMA */
+#firma {
+  width: 100%;
+  height: 120px;
+  display: none;
+}
+
+#firmaPath {
+  fill: none;
+  stroke: #000;
+  stroke-width: 3;
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: drawSignature 2s forwards ease;
+}
+
+@keyframes drawSignature {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.pen {
+  width: 600px;
+  position: absolute;
+  display: none;
+  pointer-events: none;
+  transform: rotate(-18deg);
+}
+
+
+/* MENSAJE */
+.msg {
+  margin-top: 15px;
+  color: #900;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .login-logo {
+    height: 90px;
+  }
+
+  .formulario {
+    padding: 30px 25px;
+  }
+
+  .titulo {
+    font-size: 26px;
+  }
+}
+/* SELLO con logo */
+#selloWrapper {
+  margin-top: 120px;  /* antes 80px → baja el logo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 150px;      /* un poco más alto para respirar */
+}
+
+.cargando-contenido {
+    text-align: center;
+    color: white;
+    margin-bottom: 20px;
+
+    /* 🔥 Centramos mejor la caja */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    transform: translateY(100px); /* ⬅️ AJUSTA EL VALOR si quieres más abajo */
+}
+
+#sello {
+  width: 130px;
+  height: 130px;
+  object-fit: contain;
+  padding: 18px;
+  border-radius: 50%;
+  background: #b50000;
+  box-shadow: 0 0 0 6px #fff, 0 0 0 12px #b50000;
+  animation: estampar 0.6s forwards ease-out;
+}
+
+@keyframes estampar {
+  0%   { transform: scale(1.5) rotate(-15deg); opacity: 0; }
+  50%  { transform: scale(1.2) rotate(-5deg);  opacity: 0.8; }
+  100% { transform: scale(1)   rotate(0deg);    opacity: 1; }
+}
