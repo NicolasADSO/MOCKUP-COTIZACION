@@ -30,11 +30,19 @@
         <h2 class="titulo">Contrato de Acceso</h2>
         <p class="sub">Complete los campos para validar su identidad</p>
 
-        <!-- Usuario -->
+         <!-- 🆕 Campo de usuario (coincide con login-contrato.js) -->
         <div class="grupo">
-          <label>Yo,</label>
-          <input type="text" id="usuario" placeholder="Escriba su nombre de usuario">
+          <label>Usuario</label>
+          <input type="text" id="usuario" placeholder="Nombre de usuario o correo">
         </div>
+
+        <select id="rolUsuario" required>
+          <option value="">Seleccione un rol...</option>
+          <option value="admin">Administrador</option>
+          <option value="cotizador">Cotizador</option>
+          <option value="soporte">Soporte</option>
+          <option value="tecnica">Tecnica</option>
+        </select>
 
         <!-- Contraseña -->
         <div class="grupo">
