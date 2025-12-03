@@ -13,6 +13,8 @@ window.dataProcesos = {
     "Consultoría",
     "Elaboración de Instrumentos Archivísticos",
     "Organización",
+    "Consultas",
+    "Traslado de archivos",
     "Depuración",
     "Eliminación",
     "Custodia",
@@ -71,6 +73,13 @@ window.dataSubprocesos = {
     { nombre: "Ordenación", valor: 24000 },
     { nombre: "Descripción", valor: 28000 }
   ],
+
+  "Consultas": [],
+
+  "Traslado de archivos": [
+    { nombre: "Cajas", valor: 15000 },
+  ],
+
 
   "Depuración": [
     { nombre: "Servicio de depuración documental", valor: 20000 },

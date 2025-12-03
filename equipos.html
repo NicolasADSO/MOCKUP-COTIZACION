@@ -13,7 +13,7 @@
 
 <body>
 
-  <script>
+  <script async function loadSidebarpt>
     // Si NO hay sesión → enviar al login
     if (!localStorage.getItem("usuario_logueado")) {
         window.location.href = "login.html";
@@ -108,5 +108,8 @@
 
     window.addEventListener("load", loadSidebar);
   </script>
+
+  <!-- === CONTROL DE ROLES === -->
+  <script src="./assets/js/auth.js"></script>
 </body>
 </html>

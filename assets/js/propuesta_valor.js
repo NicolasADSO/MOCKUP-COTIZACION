@@ -3,7 +3,6 @@
 // (Versión limpia, optimizada y sin errores de scope)
 // ============================================================
 
-
 window.nombreSubprocesoEstandar = {
   "areas": "Áreas",
   "alistamiento": "Alistamiento",
@@ -13,9 +12,7 @@ window.nombreSubprocesoEstandar = {
   "básicos": "Básicos",
   "medios": "Medios",
   "especializados": "Especializados",
-  // … y así con todos los que quieras estandarizar
 };
-
 
 // ============= UTILIDADES GLOBALES ==========================
 document.addEventListener("DOMContentLoaded", () => {
@@ -27,24 +24,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.nombreSeguroArchivo = (nombre) =>
     (nombre || "Cliente")
-      .replace(/[\\/:*?"<>|]/g, "")
+      .replace(/[\\/:*?\"<>|]/g, "")
       .replace(/\s+/g, "_")
       .substring(0, 40);
 
-  // ➤ Coincidencia flexible de subprocesos
   window.encontrarSubproceso = function(diccionario, nombreVisible) {
     if (!diccionario) return null;
 
     const visibleNorm = normalizarTexto(nombreVisible);
 
-    // Coincidencia exacta
     let claveReal = Object.keys(diccionario).find(
       k => normalizarTexto(k) === visibleNorm
     );
     if (claveReal)
       return { nombre: claveReal, descripcion: diccionario[claveReal] };
 
-    // Coincidencia "contiene"
     claveReal = Object.keys(diccionario).find(
       k =>
         normalizarTexto(k).includes(visibleNorm) ||
@@ -53,70 +47,199 @@ document.addEventListener("DOMContentLoaded", () => {
     if (claveReal)
       return { nombre: claveReal, descripcion: diccionario[claveReal] };
 
-    // No encontrado
     return { nombre: nombreVisible, descripcion: "— Sin descripción registrada —" };
   };
 });
 
-// ============================================================
-// 🟥 MODAL PARA OBTENER NOMBRE DESTINATARIO
-// ============================================================
-async function obtenerDatosCliente() {
-  return new Promise((resolve) => {
-    const modal = document.getElementById("modalCliente");
-    const inputCliente = modal.querySelector("#inputCliente");
-    const btnGuardar = modal.querySelector("#btnGuardarCliente");
-    const btnCancelar = modal.querySelector("#btnCancelarCliente");
-
-    // restaurar previo
-    const previo = sessionStorage.getItem("nombreClienteGadier");
-    if (previo) inputCliente.value = previo;
-
-    modal.style.display = "flex";
-    document.body.classList.add("modal-activo");
-
-    // cancelar
-    btnCancelar.onclick = () => {
-      modal.style.display = "none";
-      document.body.classList.remove("modal-activo");
-      resolve(null);
-    };
-
-    // guardar
-    btnGuardar.onclick = () => {
-      const cliente = inputCliente.value.trim();
-      if (!cliente) {
-        alert("⚠ Debe ingresar el nombre.");
-        inputCliente.focus();
-        return;
-      }
-      sessionStorage.setItem("nombreClienteGadier", cliente);
-      modal.style.display = "none";
-      document.body.classList.remove("modal-activo");
-      resolve({ cliente });
-    };
-  });
+function columnasVisiblesResumen() {
+  return {
+    unidad: !document.querySelector(".col-unidad")?.classList.contains("oculto"),
+    cantidad: !document.querySelector(".col-cantidad")?.classList.contains("oculto"),
+    valorUnitario: !document.querySelector(".col-valor")?.classList.contains("oculto"),
+    total: !document.querySelector(".col-total")?.classList.contains("oculto"),
+    tiempo: !document.querySelector(".col-tiempo")?.classList.contains("oculto"), // 🆕
+  };
 }
 
 // ============================================================
-// 🔥 GENERAR PPT
+// 🟦 MODAL UNIVERSAL — DATOS DEL CLIENTE (PDF + PPT)
+// (USAMOS modalDatosCliente DEL HTML)
 // ============================================================
-document.addEventListener("click", async (e) => {
+
+// Estado global donde guardamos lo que viene del modal
+window.datosClienteGlobal = window.datosClienteGlobal || null;
+
+// Solo definimos si no existe para evitar conflictos
+if (!window.abrirModalDatosCliente) {
+  window.abrirModalDatosCliente = function(modo) {
+    const modal = document.getElementById("modalDatosCliente");
+    if (!modal) {
+      console.warn("⚠ No se encontró #modalDatosCliente en el DOM.");
+      return;
+    }
+
+    const inputNombre      = modal.querySelector("#modalNombreCliente");
+    const inputCorreo      = modal.querySelector("#modalCorreoCliente");
+    const inputTelefono    = modal.querySelector("#modalTelefonoCliente");
+    const inputDestinatario= modal.querySelector("#modalDestinatario");
+    const radioRUNT        = modal.querySelector("#identRUNT");
+    const radioCC          = modal.querySelector("#identCC");
+    const inputNumeroIdent = modal.querySelector("#modalNumeroIdent");
+
+    const btnCancelar      = modal.querySelector("#btnModalCancelar");
+    const btnContinuar     = modal.querySelector("#btnModalContinuar");
+
+    // Restaurar datos previos si existen
+    try {
+      const guardado = sessionStorage.getItem("datosClienteGadier");
+      if (guardado) {
+        const d = JSON.parse(guardado);
+        if (d.nombre)       inputNombre.value       = d.nombre;
+        if (d.correo)       inputCorreo.value       = d.correo;
+        if (d.telefono)     inputTelefono.value     = d.telefono;
+        if (d.destinatario) inputDestinatario.value = d.destinatario;
+        if (d.tipoIdent === "RUNT") {
+          radioRUNT.checked = true;
+        } else if (d.tipoIdent === "Documento de identidad") {
+          radioCC.checked = true;
+        }
+        if (d.numeroIdent) {
+          inputNumeroIdent.value = d.numeroIdent;
+          inputNumeroIdent.style.display = "block";
+        }
+      }
+    } catch (e) {
+      console.warn("⚠ Error leyendo datosClienteGadier de sessionStorage:", e);
+    }
+
+    // Mostrar/ocultar input de número según radio
+    function actualizarVisibilidadNumero() {
+      if (radioRUNT.checked || radioCC.checked) {
+        inputNumeroIdent.style.display = "block";
+      } else {
+        inputNumeroIdent.style.display = "none";
+        inputNumeroIdent.value = "";
+      }
+    }
+
+    radioRUNT?.addEventListener("change", actualizarVisibilidadNumero);
+    radioCC?.addEventListener("change", actualizarVisibilidadNumero);
+
+    actualizarVisibilidadNumero();
+
+    // Mostrar modal
+    modal.style.display = "flex";
+    document.body.classList.add("modal-activo");
+
+    // Limpiar handlers previos para evitar múltiples binds
+    btnCancelar.onclick  = null;
+    btnContinuar.onclick = null;
+
+    btnCancelar.onclick = () => {
+      modal.style.display = "none";
+      document.body.classList.remove("modal-activo");
+    };
+
+    btnContinuar.onclick = () => {
+      const nombre   = (inputNombre.value || "").trim() || "Cliente";
+      const correo   = (inputCorreo.value || "").trim() || "sin_correo@gadiersistemas.com";
+      const telefono = (inputTelefono.value || "").trim() || "Sin especificar";
+      const destinatario = (inputDestinatario.value || "").trim();
+
+      let tipoIdent = "";
+      if (radioRUNT.checked) tipoIdent = "RUNT";
+      else if (radioCC.checked) tipoIdent = "Documento de identidad";
+
+      const numeroIdent = (inputNumeroIdent.value || "").trim();
+
+      // Guardar global + sessionStorage
+      const datos = {
+        nombre,
+        correo,
+        telefono,
+        destinatario,
+        tipoIdent,
+        numeroIdent
+      };
+      window.datosClienteGlobal = datos;
+      try {
+        sessionStorage.setItem("datosClienteGadier", JSON.stringify(datos));
+      } catch (e) {
+        console.warn("⚠ No se pudo guardar datosClienteGadier en sessionStorage:", e);
+      }
+
+      modal.style.display = "none";
+      document.body.classList.remove("modal-activo");
+
+      // Disparar acción según modo
+      if (modo === "PPT" && typeof window.generarPPTConDatos === "function") {
+        window.generarPPTConDatos();
+      } else if (modo === "PDF" && typeof window.generarPDFConDatos === "function") {
+        window.generarPDFConDatos();
+      }
+    };
+  };
+}
+
+// ============================================================
+// 🔥 CLICK EN BOTÓN PPT → ABRE MODAL UNIVERSAL
+// ============================================================
+document.addEventListener("click", (e) => {
   const btn = e.target.closest("#btnPropuestaValor");
   if (!btn) return;
 
   if (!window.resumen || window.resumen.length === 0) {
-    return alert("⚠ No hay elementos seleccionados.");
+    alert("⚠ No hay elementos seleccionados.");
+    return;
   }
 
-  // === Visibles para contenido del PPT
+  const visiblesCheck = window.resumen.filter(r => r.visible !== false);
+  if (!visiblesCheck.length) {
+    alert("⚠ Todos los elementos están ocultos.");
+    return;
+  }
+
+  // Abrimos modal universal en modo PPT
+  window.abrirModalDatosCliente("PPT");
+});
+
+// ============================================================
+// 🟥 FUNCIÓN — GENERAR PPT USANDO LOS DATOS DEL MODAL UNIVERSAL
+// ============================================================
+window.generarPPTConDatos = async function () {
+  if (!window.resumen || window.resumen.length === 0) {
+    alert("⚠ No hay elementos seleccionados.");
+    return;
+  }
+
   const visibles = window.resumen.filter(r => r.visible !== false);
+  if (visibles.length === 0) {
+    alert("⚠ Todos los elementos están ocultos.");
+    return;
+  }
+
+  const col = columnasVisiblesResumen();
+
+  const datos = window.datosClienteGlobal || {};
+  const nombreCliente = datos.nombre || "Cliente";
+  const correo        = datos.correo || "";
+  const telefono      = datos.telefono || "";
+  const destinatario  = datos.destinatario || "";
+  const tipoIdent     = datos.tipoIdent || "";
+  const numeroIdent   = datos.numeroIdent || "";
+
+  const fechaGeneracion = new Date().toLocaleDateString("es-CO");
 
   // ============================================================
-  // 🧮 VALORES ECONÓMICOS CON REDISTRIBUCIÓN INVERSA
+  // 🧮 REDISTRIBUCIÓN INVERSA
   // ============================================================
+  const gastosAdicionales = parseFloat(
+    document.getElementById("gastosInput")?.dataset.real || "0"
+  );
 
-  // --- 1. CALCULAR SUBTOTAL TOTAL (incluye ocultos) ---
+  const chkG = document.getElementById("ocultarGastos");
+  const ocultarGastos = chkG ? chkG.checked : false;
+
   let subtotalTotal = 0;
   window.resumen.forEach(r => {
     const valorUnit = r.valor || 0;
@@ -124,7 +247,6 @@ document.addEventListener("click", async (e) => {
     subtotalTotal += costo;
   });
 
-  // --- 2. SUBTOTAL SOLO VISIBLES ---
   let subtotalVisible = 0;
   visibles.forEach(r => {
     const valorUnit = r.valor || 0;
@@ -133,13 +255,8 @@ document.addEventListener("click", async (e) => {
   });
 
   subtotalVisible = Math.round(subtotalVisible);
-
-  // --- 3. COSTO OCULTOS ---
   const costoOcultos = subtotalTotal - subtotalVisible;
 
-  // ============================================================
-  // 🔥 4. REPARTICIÓN INVERSA (baratos reciben más peso)
-  // ============================================================
   let pesos = [];
   let sumaPesos = 0;
 
@@ -147,14 +264,11 @@ document.addEventListener("click", async (e) => {
     const valorUnit = r.valor || 0;
     const costoBase = r.costo ?? (r.cantidad * valorUnit);
 
-    const peso = 1 / costoBase; // inverso: barato = más peso
+    const peso = 1 / costoBase; // inverso: barato = mayor peso
     pesos.push({ r, peso, costoBase });
     sumaPesos += peso;
   });
 
-  // ============================================================
-  // 🔧 5. Función para obtener costo final redistribuido
-  // ============================================================
   const obtenerCostoFinal = (r) => {
     const valorUnit = r.valor || 0;
     const costoBase = r.costo ?? (r.cantidad * valorUnit);
@@ -166,21 +280,9 @@ document.addEventListener("click", async (e) => {
     return Math.round(costoBase + extra);
   };
 
-
-  if (visibles.length === 0) {
-    return alert("⚠ Todos los elementos están ocultos.");
-  }
-
-  // === obtener cliente
-  const datosCliente = await obtenerDatosCliente();
-  if (!datosCliente) return;
-  const nombreCliente = datosCliente.cliente;
-  const fechaGeneracion = new Date().toLocaleDateString("es-CO");
-
   // ============================================================
-  // 📌 PROCESAMIENTO DE PROCESOS + SUBPROCESOS
+  // 📌 PROCESOS + SUBPROCESOS
   // ============================================================
-
   const obtenerProcesoBase = (r) => (r.proceso || "").split(" - ")[0].trim();
 
   const procesosUnicos = [
@@ -190,15 +292,14 @@ document.addEventListener("click", async (e) => {
   const propuesta = procesosUnicos
     .map(nombre => {
       const plantilla = plantillasProcesos[nombre];
-      if (!plantilla) return null; // si no existe plantilla, ignorar
+      if (!plantilla) return null;
 
-      // recolectar subprocesos visibles
       const subprocesosVisibles = [
         ...new Set(
           visibles
             .filter(r => obtenerProcesoBase(r) === nombre)
             .flatMap(r => {
-              if (r.isGlobal) return []; // 🟢 proceso global → sin subprocesos
+              if (r.isGlobal) return [];
               if (Array.isArray(r.subprocesos) && r.subprocesos.length)
                 return r.subprocesos;
 
@@ -209,8 +310,6 @@ document.addEventListener("click", async (e) => {
         )
       ];
 
-
-      // convertir a objetos con descripción
       const detallesSubprocesos = subprocesosVisibles.map(sp =>
         window.encontrarSubproceso(plantilla.subprocesos || {}, sp)
       );
@@ -226,12 +325,10 @@ document.addEventListener("click", async (e) => {
     .filter(Boolean);
 
   if (!propuesta.length) {
-    return alert("⚠ Ningún proceso tiene plantilla disponible.");
+    alert("⚠ Ningún proceso tiene plantilla disponible.");
+    return;
   }
 
-  // ============================================================
-  // 🎨 CREACIÓN DEL PPT
-  // ============================================================
   const pptx = new PptxGenJS();
   pptx.layout = "LAYOUT_16x9";
 
@@ -248,7 +345,9 @@ document.addEventListener("click", async (e) => {
     });
   } catch {}
 
-  slidePortada.addText(`Dirigido a: ${nombreCliente}`, {
+  const textoDirigido = destinatario || nombreCliente;
+
+  slidePortada.addText(`Dirigido a: ${textoDirigido}`, {
     x: 1.0, y: 4.2, w: 8.5, fontSize: 20, color: "222222"
   });
 
@@ -256,248 +355,157 @@ document.addEventListener("click", async (e) => {
     x: 1.0, y: 4.6, w: 8.5, fontSize: 18, color: "333333"
   });
 
+  // Línea con identificación (RUNT / Documento) + contacto
+  let lineasContacto = [];
+  if (tipoIdent && numeroIdent) {
+    lineasContacto.push(`${tipoIdent}: ${numeroIdent}`);
+  }
+  if (telefono) {
+    lineasContacto.push(`Tel: ${telefono}`);
+  }
+  if (correo) {
+    lineasContacto.push(`Correo: ${correo}`);
+  }
+
+  if (lineasContacto.length) {
+    slidePortada.addText(lineasContacto.join("   •   "), {
+      x: 1.0, y: 5.0, w: 8.5, fontSize: 12, color: "555555"
+    });
+  }
+
   slidePortada.addText("Gadier Sistemas • marketing@gadiersistemas.com • gadiersistemas.com", {
     x: 0.8, y: 6.1, w: 8.4, fontSize: 10, color: "666666", align: "center"
   });
 
   // ============================================================
-  // 🎨 SLIDES DE PROCESOS
+  // 💼 SLIDE RESUMEN – IGUAL QUE PDF (con columnas dinámicas)
   // ============================================================
-  propuesta.forEach(p => {
-    // --- slide 1 ---
-    const s1 = pptx.addSlide();
-    try { s1.background = { path: "assets/img/textos-propuesto.png" }; } catch {}
+  const slideResumen = pptx.addSlide();
+  try { slideResumen.background = { path: "assets/img/textos-propuesto.png" }; } catch {}
 
-    s1.addText(p.nombre.toUpperCase(), {
-      x: 1, y: 0.8, fontSize: 28, color: "990f0c", bold: true
-    });
+  slideResumen.addText("📄 Resumen de la Propuesta de Valor", {
+    x: 0.5, y: 0.6, w: 9, h: 0.6,
+    fontSize: 30, bold: true, color: "990f0c", align: "center",
+  });
 
-    // ==== AJUSTE DINÁMICO DE ALTURA ====
-    // medimos según caracteres
-    const largo = p.descripcion.length;
+  // ---- 1. Crear encabezado según visibilidad ----
+  let encabezado = [
+    { text: "Descripción", options: { bold: true, fill:{color:"990f0c"}, color:"FFFFFF" }}
+  ];
 
-    // si es muy larga → iniciar más arriba y dar más espacio
-    let yDescripcion = (largo > 400) ? 1.2 : (largo > 250) ? 1.3 : 1.6;
-    let altoDescripcion = (largo > 400) ? 4.8 : (largo > 250) ? 4.2 : 3.2;
+  if (col.unidad)
+    encabezado.push({ text: "Unidad", options:{ bold:true, fill:{color:"990f0c"}, color:"FFFFFF", align:"center" }});
+  if (col.cantidad)
+    encabezado.push({ text: "Cant.", options:{ bold:true, fill:{color:"990f0c"}, color:"FFFFFF", align:"center" }});
+  if (col.valorUnitario)
+    encabezado.push({ text: "Valor unitario", options:{ bold:true, fill:{color:"990f0c"}, color:"FFFFFF", align:"right" }});
+  if (col.tiempo)
+    encabezado.push({ text: "Tiempo", options:{ bold:true, fill:{color:"990f0c"}, color:"FFFFFF", align:"center" }});
+  if (col.total)
+    encabezado.push({ text: "Total", options:{ bold:true, fill:{color:"990f0c"}, color:"FFFFFF", align:"right" }});
 
-    s1.addText(p.descripcion, {
-      x: 1,
-      y: yDescripcion,
-      w: 8.4,
-      h: altoDescripcion,
-      fontSize: 16,
-      color: "333333",
-      align: "justify"
-    });
+  let filas = [ encabezado ];
 
+  // ---- 2. Filas de ítems ----
+  visibles.forEach(r => {
+    const costoFinal = Math.round(obtenerCostoFinal(r));
 
-        // --- slide 2 (Paginación automática de contenido) ---
-    const crearSlideDetalle = () => {
-        const s = pptx.addSlide();
-        try { s.background = { path: "assets/img/textos-propuesto.png" }; } catch {}
+    let fila = [
+      { text: r.proceso }
+    ];
 
-        s.addText(`${p.nombre.toUpperCase()} — Detalle`, {
-            x: 1, y: 0.6, fontSize: 26, bold: true, color: "990f0c"
-        });
-
-        return s;
-    };
-
-    if (p.esGlobal) {
-      const sGlobal = pptx.addSlide();
-      try { sGlobal.background = { path: "assets/img/textos-propuesto.png" }; } catch {}
-
-      sGlobal.addText(`${p.nombre.toUpperCase()} — Proceso Completo`, {
-        x: 1, y: 0.6, fontSize: 26, bold: true, color: "990f0c"
-      });
-
-      // 🔥 Mensaje especializado por proceso
-      const mensaje = plantillasProcesos[p.nombre]?.mensajeProcesoCompleto
-        || "Este servicio se cotiza como un proceso integral según el alcance acordado.";
-
-      sGlobal.addText(mensaje, {
-        x: 1, y: 3,
-        w: 8,
-        fontSize: 16,
-        color: "333333",
-        align: "justify"
-      });
-
-      return;
+    if (col.unidad) {
+      const txtUnidad = (r.unidad && r.unidad.trim() !== "") ? r.unidad : "";
+      fila.push({ text: txtUnidad, options:{ align:"center" }});
     }
 
+    if (col.cantidad)
+      fila.push({ text: (r.cantidad || 1) + "", options:{ align:"center" }});
 
-    let s2 = crearSlideDetalle();
-    let y = 1.3;
+    if (col.valorUnitario)
+      fila.push({ text: `$${(r.valor || 0).toLocaleString("es-CO")}`, options:{ align:"right" }});
 
-    
+    if (col.tiempo)
+      fila.push({ text: r.tiempo || "-", options:{ align:"center" }});
 
+    if (col.total)
+      fila.push({ text: `$${costoFinal.toLocaleString("es-CO")}`, options:{ align:"right", bold:true }});
 
-    // Título subprocesos
-    s2.addText("📂 Subprocesos Seleccionados:", {
-        x: 1, y, fontSize: 17, bold: true, color: "7d0c0a"
-    });
-    y += 0.45;
+    filas.push(fila);
+  });
 
-    // =====================================================
-    // 1️⃣ SUBPROCESOS (paginación automática)
-    // =====================================================
-    for (const sp of p.subprocesos) {
-        if (y + 1.2 > 5.2) {
-            s2 = crearSlideDetalle();
-            y = 1.3;
+  // ---- 3. Totales dinámicos ----
+  const subtotalFinal = visibles.reduce((acc, r) => acc + Math.round(obtenerCostoFinal(r)), 0);
+  const dPct = parseFloat(document.getElementById("descuentoInput")?.value || 0);
+  const dVal = subtotalFinal * (dPct / 100);
+  const subtotalDesc = subtotalFinal - dVal;
+  const aplicarIVA = document.getElementById("chkIVA")?.checked || false;
+  const iva = aplicarIVA ? subtotalDesc * 0.19 : 0;
 
-            s2.addText("📂 Subprocesos Seleccionados:", {
-                x: 1, y, fontSize: 17, bold: true, color: "7d0c0a"
-            });
-            y += 0.45;
-        }
+  const totalFinal = subtotalDesc + iva + gastosAdicionales;
 
-        s2.addShape(pptx.shapes.RECTANGLE, {
-            x: 1, y, w: 8, h: 1,
-            fill: { color: "FAFAFA" },
-            line: { color: "DDDDDD" }
-        });
+  const numCols = encabezado.length;
+  const span = numCols - 1;
 
-        s2.addText(`• ${sp.nombre}`, {
-            x: 1.2, y: y + 0.1,
-            fontSize: 14, bold: true, color: "990f0c"
-        });
+  filas.push([
+    { text:"SUBTOTAL", options:{ bold:true, align:"right", colspan: span }},
+    { text:`$${subtotalFinal.toLocaleString("es-CO")}`, options:{ bold:true, align:"right" }}
+  ]);
 
-        s2.addText(sp.descripcion, {
-            x: 1.2, y: y + 0.5, w: 7.7,
-            fontSize: 12, color: "333333", align: "justify"
-        });
+  if (dPct > 0) {
+    filas.push([
+      { text:`DESCUENTO (${dPct}%)`, options:{ bold:true, align:"right", color:"7d0c0a", colspan: span }},
+      { text:`-$${dVal.toLocaleString("es-CO")}`, options:{ bold:true, align:"right", color:"7d0c0a" }}
+    ]);
+  }
 
-        y += 1.2;
-    }
+  if (aplicarIVA) {
+    filas.push([
+      { text:"IVA (19%)", options:{ bold:true, align:"right", colspan: span }},
+      { text:`$${iva.toLocaleString("es-CO")}`, options:{ bold:true, align:"right" }}
+    ]);
+  }
 
-    // =====================================================
-    // 2️⃣ BENEFICIOS (paginación automática)
-    // =====================================================
-    if (p.beneficios.length) {
+  if (!ocultarGastos && gastosAdicionales > 0) {
+    filas.push([
+      { text:"Gastos adicionales", options:{ bold:true, align:"right", colspan: span }},
+      { text:`$${gastosAdicionales.toLocaleString("es-CO")}`, options:{ bold:true, align:"right" }}
+    ]);
+  }
 
-        if (y + 0.8 > 5.2) {
-            s2 = crearSlideDetalle();
-            y = 1.3;
-        }
+  filas.push([
+    { text:"TOTAL FINAL", options:{ bold:true, align:"right", fill:{color:"990f0c"}, color:"FFFFFF", colspan: span }},
+    { text:`$${totalFinal.toLocaleString("es-CO")}`, options:{ bold:true, align:"right", fill:{color:"990f0c"}, color:"FFFFFF" }}
+  ]);
 
-        s2.addText("🌟 Beneficios:", {
-            x: 1, y, fontSize: 17, bold: true, color: "7d0c0a"
-        });
-        y += 0.45;
+  // ---- 4. Column widths dinámicos ----
+  let colW = [];
 
-        for (const b of p.beneficios) {
+  let columnas = ["descripcion"];
+  if (col.unidad)       columnas.push("unidad");
+  if (col.cantidad)     columnas.push("cantidad");
+  if (col.valorUnitario)columnas.push("valorUnitario");
+  if (col.tiempo)       columnas.push("tiempo");
+  if (col.total)        columnas.push("total");
 
-            if (y + 0.5 > 5.2) {
-                s2 = crearSlideDetalle();
-                y = 1.3;
-                s2.addText("🌟 Beneficios:", {
-                    x: 1, y, fontSize: 17, bold: true, color: "7d0c0a"
-                });
-                y += 0.45;
-            }
+  const totalWidth = 9;
+  const anchoBase = totalWidth / columnas.length;
 
-            s2.addText(`• ${b}`, {
-                x: 1.2, y,
-                fontSize: 13, color: "444444"
-            });
-
-            y += 0.35;
-        }
+  columnas.forEach(c => {
+    if (c === "descripcion") {
+      colW.push(anchoBase * 1.5);
+    } else {
+      colW.push(anchoBase * 0.7);
     }
   });
 
-  // ============================================================
-// 💰 SLIDE RESUMEN – IGUAL QUE PDF (mismos valores y filas)
-// ============================================================
-const slideResumen = pptx.addSlide();
-try { slideResumen.background = { path: "assets/img/textos-propuesto.png" }; } catch {}
-
-// ---- 1. Crear filas idénticas al PDF ----
-const filas = [
-  [
-    { text: "Descripción", options: { bold: true, fill: { color: "990f0c" }, color: "FFFFFF" }},
-    { text: "Cant.", options: { bold: true, fill: { color: "990f0c" }, color: "FFFFFF", align: "center" }},
-    { text: "Valor unitario", options: { bold: true, fill: { color: "990f0c" }, color: "FFFFFF", align: "right" }},
-    { text: "Total", options: { bold: true, fill: { color: "990f0c" }, color: "FFFFFF", align: "right" }}
-  ]
-];
-
-// ---- 2. Filas de ítems visibles (misma lógica PDF) ----
-visibles.forEach(r => {
-  const costoFinal = Math.round(obtenerCostoFinal(r));
-
-  filas.push([
-    { text: r.proceso },
-    { text: (r.cantidad || 1) + "", options: { align: "center" }},
-    { text: `$${(r.valor || 0).toLocaleString("es-CO")}`, options: { align: "right" }},
-    { text: `$${costoFinal.toLocaleString("es-CO")}`, options: { align: "right", bold: true }},
-  ]);
-});
-
-// ---- 3. Totales (idénticos al PDF) ----
-const subtotalFinal = visibles.reduce((acc, r) => acc + Math.round(obtenerCostoFinal(r)), 0);
-const dPct = parseFloat(document.getElementById("descuentoInput")?.value || 0);
-const dVal = subtotalFinal * (dPct / 100);
-const subtotalDesc = subtotalFinal - dVal;
-const aplicarIVA = document.getElementById("chkIVA")?.checked || false;
-const iva = aplicarIVA ? subtotalDesc * 0.19 : 0;
-const totalFinal = subtotalDesc + iva;
-
-filas.push([
-  { text: "SUBTOTAL", options: { bold: true, align: "right" }},
-  { text: "" },
-  { text: "" },
-  { text: `$${subtotalFinal.toLocaleString("es-CO")}`, options: { bold: true, align: "right" }}
-]);
-
-if (dPct > 0) {
-  filas.push([
-    { text: `DESCUENTO (${dPct}%)`, options: { bold: true, align: "right", color: "7d0c0a" }},
-    { text: "" },
-    { text: "" },
-    { text: `-$${dVal.toLocaleString("es-CO")}`, options: { bold: true, align: "right", color: "7d0c0a" }}
-  ]);
-}
-
-if (aplicarIVA) {
-  filas.push([
-    { text: "IVA (19%)", options: { bold: true, align: "right" }},
-    { text: "" },
-    { text: "" },
-    { text: `$${iva.toLocaleString("es-CO")}`, options: { bold: true, align: "right" }}
-  ]);
-}
-
-filas.push([
-  { text: "TOTAL FINAL", options: { bold: true, align: "right", fill: { color: "990f0c" }, color: "FFFFFF" }},
-  { text: "", options: { fill: { color: "990f0c" }}},
-  { text: "", options: { fill: { color: "990f0c" }}},
-  { text: `$${totalFinal.toLocaleString("es-CO")}`, options: { bold: true, align: "right", fill: { color: "990f0c" }, color: "FFFFFF" }}
-]);
-
-// ---- 4. Dibujar tabla en el slide ----
-slideResumen.addText("📄 Resumen de la Propuesta de Valor", {
-  x: 0.5,
-  y: 0.6,
-  w: 9,
-  h: 0.6,
-  fontSize: 30,
-  bold: true,
-  color: "990f0c",
-  align: "center",
-});
-
-// === TABLA ÚNICA IGUAL AL PDF ===
-slideResumen.addTable(filas, {
-  x: 0.5,
-  y: 1.5,
-  w: 9,
-  colW: [4, 1, 2, 2],
-  fontSize: 13,
-});
-
+  slideResumen.addTable(filas, {
+    x:0.5,
+    y:1.5,
+    w:9,
+    colW,
+    fontSize:13,
+  });
 
   // ============================================================
   // 🖋 SLIDE FINAL
@@ -525,4 +533,4 @@ slideResumen.addTable(filas, {
   // ============================================================
   const fileName = `Propuesta_Gadier_${window.nombreSeguroArchivo(nombreCliente)}_${new Date().toISOString().split("T")[0]}.pptx`;
   await pptx.writeFile({ fileName });
-});
+};

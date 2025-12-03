@@ -1,6 +1,5 @@
 // ============================================================
 // 🧮 TABLA DE RESUMEN — GADIER SISTEMAS
-// (Render, eliminación, ocultar/mostrar, vaciado, descuento e IVA)
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -11,6 +10,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnVaciar = document.getElementById("btnVaciar");
 
   let aplicarIVA = false;
+  let ocultarGastos = false;
+
+
+  // ============================================================
+  // 🆕 CASILLA "Gastos Adicionales"
+  // (Ahora SIEMPRE añadimos listener porque YA existe en el HTML)
+  // ============================================================
+
+  const gastosInput = document.getElementById("gastosInput");
+
+  if (gastosInput) {
+    gastosInput.addEventListener("input", (e) => {
+      const limpio = e.target.value.replace(/\D/g, "");
+      e.target.dataset.real = limpio || 0;
+      e.target.value = Number(limpio || 0).toLocaleString("es-CO");
+      renderTabla();
+    });
+  }
+
+  // Listener para ocultar gastos adicionales
+  const chkOcultarGastos = document.getElementById("ocultarGastos");
+  if (chkOcultarGastos) {
+    chkOcultarGastos.addEventListener("change", () => {
+      ocultarGastos = chkOcultarGastos.checked;
+      renderTabla();
+    });
+  }
+
+
 
   // ============================================================
   // ✅ CHECKBOX IVA
@@ -25,8 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
       </label>
     `;
 
-    const descuentoBox = descuentoInput.closest(".descuento-box");
-    if (descuentoBox) descuentoBox.insertAdjacentElement("afterend", ivaBox);
+    const gastosBox = document.querySelector(".gastos-box");
+    if (gastosBox) gastosBox.insertAdjacentElement("afterend", ivaBox);
 
     document.getElementById("chkIVA").addEventListener("change", e => {
       aplicarIVA = e.target.checked;
@@ -56,31 +84,44 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
   document.querySelector(".columna-resumen").appendChild(ocultosPanel);
 
+
   // ============================================================
-  // 🧩 MERGE AUTOMÁTICO DE SUBPROCESOS
+  // ➕ AGREGAR / ACTUALIZAR PROCESO
   // ============================================================
   window.agregarOActualizarResumen = function (nuevo) {
     if (!window.resumen) window.resumen = [];
 
-    const existente = window.resumen.find(
-      r => r.area === nuevo.area && r.proceso === nuevo.proceso
-    );
+    // 🔎 Gastos adicionales NO se mergean
+    if (nuevo.tipo !== "gastos") {
+      const existente = window.resumen.find(
+        r => r.area === nuevo.area && r.proceso === nuevo.proceso
+      );
 
-    if (existente) {
-      existente.cantidad += nuevo.cantidad;
-      existente.costo += nuevo.costo;
-      existente.valor = nuevo.valor;
-      existente.visible = true;
+      if (existente) {
+        existente.cantidad += nuevo.cantidad;
+        existente.costo += nuevo.costo;
+        existente.valor = nuevo.valor;
+        existente.visible = true;
+        existente.tiempo = nuevo.tiempo || existente.tiempo || "-";
+      } else {
+        nuevo.visible = true;
+        nuevo.tiempo = nuevo.tiempo || "-";
+        window.resumen.push(nuevo);
+      }
     } else {
       nuevo.visible = true;
+      nuevo.unidad = "N/A";
+      nuevo.cantidad = 1;
+      nuevo.tiempo = "-";
       window.resumen.push(nuevo);
     }
 
     renderTabla();
   };
 
+
   // ============================================================
-  // 🧾 RENDER PRINCIPAL DE LA TABLA
+  // 🧾 RENDER PRINCIPAL
   // ============================================================
   window.renderTabla = function () {
     tablaBody.innerHTML = "";
@@ -95,19 +136,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const columnasVisibles =
       JSON.parse(localStorage.getItem("columnas_visibles")) || {
-        0: true, 1: true, 2: true, 3: true, 4: true, 5: true
+        0: true, 1: true, 2: true, 3: true, 4: true, 5: true, 6: true
       };
 
     let subtotal = 0;
     let subtotalVisible = 0;
 
-    // TOTAL
+    // SUBTOTAL
     window.resumen.forEach(r => {
       const costo = r.costo ?? (r.cantidad * r.valor);
       subtotal += costo;
     });
 
-    // TOTAL VISIBLE
+    // SUBTOTAL VISIBLE
     window.resumen.forEach(r => {
       if (r.visible) {
         const costo = r.costo ?? (r.cantidad * r.valor);
@@ -117,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const costoOcultos = subtotal - subtotalVisible;
 
-    // PESOS INVERSOS
+    // PESOS INVERSOS PARA REPARTO
     let pesos = [];
     let sumaPesos = 0;
     window.resumen.forEach(r => {
@@ -128,101 +169,103 @@ document.addEventListener("DOMContentLoaded", () => {
       sumaPesos += peso;
     });
 
+    // 🆕 GASTOS ADICIONALES
+    const gastosAdicionales = parseFloat(
+      (document.getElementById("gastosInput")?.dataset.real || "0")
+    );
+
     // DESCUENTO / IVA
     const descuentoP = (parseFloat(descuentoInput.value) || 0) / 100;
     const descuentoValor = subtotal * descuentoP;
     const subtotalConDescuento = subtotal - descuentoValor;
     const ivaValor = aplicarIVA ? subtotalConDescuento * 0.19 : 0;
-    const totalFinal = subtotalConDescuento + ivaValor;
+    const totalFinal = subtotalConDescuento + ivaValor + gastosAdicionales;
 
-    // RENDER DE FILAS
-    window.resumen.forEach((r, i) => {
-      const valor = r.valor || 0;
-      const costoBase = r.costo ?? (r.cantidad * valor);
 
-      if (!r.visible) {
-        const li = document.createElement("li");
-        li.innerHTML = `
-          🔒 ${r.proceso} — ${r.cantidad} × $${valor.toLocaleString()}
-          <button class="btn-mostrar-fila" data-id="${i}"
-            style="background:none;border:none;color:#990f0c;cursor:pointer;">
-            Mostrar
-          </button>
-        `;
-        listaOcultos.appendChild(li);
-        return;
-      }
 
-      // REPARTO INVERSO
-      let parteExtra = 0;
-      const pesoObj = pesos.find(p => p.r === r);
-      if (pesoObj && sumaPesos) {
-        parteExtra = (pesoObj.peso / sumaPesos) * costoOcultos;
-      }
+   // ============================================================
+  // 🔁 RENDER DE CADA FILA (SIEMPRE 7 COLUMNAS)
+  // ============================================================
+  window.resumen.forEach((r, i) => {
+    const valor = r.valor || 0;
+    const costoBase = r.costo ?? (r.cantidad * valor);
 
-      const costoFinal = Math.round(costoBase + parteExtra);
+    if (!r.visible) {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        🔒 ${r.proceso} — ${r.cantidad} × $${valor.toLocaleString()}
+        <button class="btn-mostrar-fila" data-id="${i}"
+          style="background:none;border:none;color:#990f0c;cursor:pointer;">
+          Mostrar
+        </button>
+      `;
+      listaOcultos.appendChild(li);
+      return;
+    }
 
-      const tr = document.createElement("tr");
-      let html = "";
+    // Reparto inverso
+    let parteExtra = 0;
+    const pesoObj = pesos.find(p => p.r === r);
+    if (pesoObj && sumaPesos) {
+      parteExtra = (pesoObj.peso / sumaPesos) * costoOcultos;
+    }
 
-      // COLUMNA 0: PROCESO
-      if (columnasVisibles[0] !== false)
-        html += `<td>${r.proceso}</td>`;
+    const costoFinal = Math.round(costoBase + parteExtra);
 
-      // COLUMNA 1: UNIDAD
-      if (columnasVisibles[1] !== false)
-        html += `<td style="text-align:center;">${r.unidad || "Und"}</td>`;
+    const tr = document.createElement("tr");
 
-      // COLUMNA 2: CANTIDAD
-      if (columnasVisibles[2] !== false)
-        html += `<td style="text-align:center;">${r.cantidad}</td>`;
+    tr.innerHTML = `
+      <td class="col-0">${r.proceso}</td>
+      <td class="col-1" style="text-align:center;">${r.unidad || "Und"}</td>
+      <td class="col-2" style="text-align:center;">${r.cantidad}</td>
+      <td class="col-3" style="text-align:right;">$${valor.toLocaleString()}</td>
+      <td class="col-4" style="text-align:right;color:#990f0c;font-weight:600;">
+        $${costoFinal.toLocaleString()}
+      </td>
+      <td class="col-5" style="text-align:center;">${r.tiempo || "-"}</td>
+      <td class="col-6" style="text-align:center;">
+        <button class="btn-eliminar-fila" data-id="${i}">🗑️</button>
+        <button class="btn-ocultar-fila" data-id="${i}">👁️</button>
+      </td>
+    `;
 
-      // COLUMNA 3: VALOR
-      if (columnasVisibles[3] !== false)
-        html += `<td style="text-align:right;">$${valor.toLocaleString()}</td>`;
+    tablaBody.appendChild(tr);
+  });
 
-      // COLUMNA 4: COSTO
-      if (columnasVisibles[4] !== false)
-        html += `<td style="text-align:right;color:#990f0c;font-weight:600;">
-                  $${costoFinal.toLocaleString()}
-                </td>`;
 
-      // COLUMNA 5: ACCIONES
-      if (columnasVisibles[5] !== false)
-        html += `
-          <td style="text-align:center;">
-            <button class="btn-eliminar-fila" data-id="${i}">🗑️</button>
-            <button class="btn-ocultar-fila" data-id="${i}">👁️</button>
-          </td>
-        `;
-
-      tr.innerHTML = html;
-      tablaBody.appendChild(tr);
-    });
-
-    // TOTAL
+    // TOTAL FINAL VISUAL
     totalGeneralEl.innerHTML = `
       <div style="text-align:right;">
         <div>Subtotal: <strong>$${subtotal.toLocaleString()}</strong></div>
-        ${descuentoValor ? `<div>Descuento: <strong>-$${descuentoValor.toLocaleString()}</strong></div>` : ""}
-        ${aplicarIVA ? `<div>IVA (19%): <strong>$${ivaValor.toLocaleString()}</strong></div>` : ""}
+        
+        ${descuentoValor ? `
+          <div>Descuento: <strong>-$${descuentoValor.toLocaleString()}</strong></div>` : ""}
+        
+        ${(!ocultarGastos && gastosAdicionales > 0) ? `
+          <div>Gastos adicionales: <strong>$${gastosAdicionales.toLocaleString()}</strong></div>` : ""}
+
+        
+        ${aplicarIVA ? `
+          <div>IVA (19%): <strong>$${ivaValor.toLocaleString()}</strong></div>` : ""}
+        
         <div style="margin-top:4px;border-top:1px solid #ccc;padding-top:4px;color:#990f0c;font-weight:700;">
           Total Final: $${totalFinal.toLocaleString()}
         </div>
       </div>
     `;
 
+
     ocultosPanel.style.display = listaOcultos.children.length ? "block" : "none";
     btnVaciar.disabled = !window.resumen.length;
 
-    // Aplicar visibilidad guardada nuevamente
+    // Aplicar visibilidad al volver a renderizar
     Object.entries(columnasVisibles).forEach(([col, visible]) => {
       ocultarColumna(parseInt(col), visible);
     });
   };
 
   // ============================================================
-  // 🌙 EVENTOS DE BOTONES (eliminar, ocultar, mostrar)
+  // 🔘 EVENTOS
   // ============================================================
   document.addEventListener("click", e => {
     const el = e.target;
@@ -261,9 +304,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ============================================================
-  // 💾 GUARDAR / CARGAR ESTADO DE COLUMNAS
+  // 💾 CARGAR / GUARDAR ESTADO DE COLUMNAS
   // ============================================================
-
   function guardarColumnasEstado() {
     const estado = {};
     document.querySelectorAll(".col-toggle").forEach(chk => {
@@ -272,30 +314,28 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("columnas_visibles", JSON.stringify(estado));
   }
 
-    function cargarColumnasEstado() {
-      const estado = JSON.parse(localStorage.getItem("columnas_visibles"));
-      if (!estado) return;
+  function cargarColumnasEstado() {
+    const estado = JSON.parse(localStorage.getItem("columnas_visibles"));
+    if (!estado) return;
 
-      // 🔒 Fuerza visibilidad de PROCESO (0) y ACCIÓN (5)
-      estado[0] = true;
-      estado[5] = true;
+    // 🔒 Forzar visibilidad de Proceso (0) y Acción (6)
+    estado[0] = true;
+    estado[6] = true;
 
-      document.querySelectorAll(".col-toggle").forEach(chk => {
-          const col = chk.dataset.col;
+    document.querySelectorAll(".col-toggle").forEach(chk => {
+      const col = chk.dataset.col;
 
-          // Deshabilitar los checkboxes 0 y 5 en el modal
-          if (col == "0" || col == "5") {
-              chk.checked = true;
-              chk.disabled = true;
-          }
+      if (col == "0" || col == "6") {
+        chk.checked = true;
+        chk.disabled = true;
+      }
 
-          if (estado[col] !== undefined) {
-              chk.checked = estado[col];
-              ocultarColumna(parseInt(col), estado[col]);
-          }
-      });
+      if (estado[col] !== undefined) {
+        chk.checked = estado[col];
+        ocultarColumna(parseInt(col), estado[col]);
+      }
+    });
   }
-
 
   document.querySelectorAll(".col-toggle").forEach(chk => {
     chk.addEventListener("change", () => {
@@ -306,27 +346,22 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-cargarColumnasEstado();
+  cargarColumnasEstado();
 
   // ============================================================
-  // 🔳 FUNCIÓN OCULTAR/MOSTRAR COLUMNA
+  // 🔳 OCULTAR COLUMNA
   // ============================================================
   function ocultarColumna(index, mostrar) {
-  const tabla = document.getElementById("tablaResumen");
+    const tabla = document.getElementById("tablaResumen");
 
-  // Oculta el TH correcto
-  const th = tabla.querySelector(`thead th:nth-child(${index + 1})`);
-  if (th) th.style.display = mostrar ? "" : "none";
+    // Encabezado
+    const th = tabla.querySelector(`thead th:nth-child(${index + 1})`);
+    if (th) th.style.display = mostrar ? "" : "none";
 
-  // Oculta todas las celdas de esa columna
-  tabla.querySelectorAll("tbody tr").forEach(tr => {
-    const td = tr.querySelector(`td:nth-child(${index + 1})`);
-    if (td) td.style.display = mostrar ? "" : "none";
-  });
-}
-
- 
-
-
+    // Celdas
+    tabla.querySelectorAll(`.col-${index}`).forEach(td => {
+      td.style.display = mostrar ? "" : "none";
+    });
+  }
 
 });

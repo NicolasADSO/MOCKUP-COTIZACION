@@ -235,6 +235,64 @@ y estructuración de instrumentos archivísticos esenciales.
     ]
   },
 
+   // ======================================================
+    // 🔎 CONSULTAS DE DOCUMENTOS
+    // ======================================================
+    "Consultas": {
+      descripcion: `
+  El servicio de Consultas Documentales de Gadier Sistemas permite localizar,
+  verificar y suministrar información contenida en los archivos institucionales.
+  Atendemos solicitudes internas o externas asegurando trazabilidad,
+  tiempos de respuesta eficientes y cumplimiento de protocolos de consulta.
+      `,
+      mensajeProcesoCompleto: `
+  Incluye recepción de la solicitud, verificación de disponibilidad,
+  búsqueda en fondos documentales físicos y/o digitales, registro de consulta,
+  entrega controlada, digitalización cuando aplica y cierre formal del requerimiento.
+      `,
+      subprocesos: {
+        // Sin subprocesos definidos en dataSubprocesos, pero dejamos uno general
+        "Atención de consulta": `
+          Gestión completa de la solicitud: búsqueda, verificación, registro,
+          control del préstamo y cierre del requerimiento documental.
+        `
+      },
+      beneficios: [
+        "Trazabilidad completa de cada solicitud de información.",
+        "Reducción de tiempos de respuesta institucional.",
+        "Mejor control y seguridad sobre los documentos consultados."
+      ]
+    },
+
+      // ======================================================
+      // 📦 TRASLADO DE ARCHIVOS
+      // ======================================================
+      "Traslado de archivos": {
+        descripcion: `
+    El Traslado de Archivos de Gadier Sistemas garantiza el movimiento seguro,
+    técnico y controlado de fondos documentales dentro o fuera de las instalaciones
+    del cliente. Aplicamos protocolos de embalaje, identificación y transporte que
+    preservan la integridad física y la organización de los documentos.
+        `,
+        mensajeProcesoCompleto: `
+    Incluye alistamiento, clasificación previa, rotulación de unidades,
+    embalaje técnico, cargue y descargue seguro, transporte interno o externo
+    y verificación final de entrega. Todo con registro fotográfico y trazabilidad.
+        `,
+        subprocesos: {
+          "Cajas": `
+            Traslado de cajas documentales con embalaje técnico,
+            rotulación, registro de unidades y transporte seguro.
+          `
+        },
+        beneficios: [
+          "Minimiza riesgos de pérdida o daño documental durante el traslado.",
+          "Preserva la organización original de los fondos documentales.",
+          "Incluye trazabilidad completa y registro técnico del proceso."
+        ]
+      },
+
+
   /// ======================================================
   // 🧹 DEPURACIÓN
   // ======================================================

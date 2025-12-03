@@ -12,8 +12,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // 🚫 PROCESOS QUE NO DEBEN MOSTRAR "UNIDAD" EN LA TABLA RESUMEN
   const PROCESOS_SIN_UNIDAD = [
   "Diagnóstico",
-  "Administración in house",
-  "Elaboración de Instrumentos Archivísticos"
+  "Administración In House",
+  "Elaboración de Instrumentos Archivísticos",
+  "Consultas",
+  "Traslado de archivos"
 ];
 
   // ============================================================
@@ -62,6 +64,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let chkTodoProcesoRef = null;
   let cantidadGeneralProcesoRef = null;
   let valorGeneralProcesoRef = null;
+  let unidadGeneralProcesoRef = null;
+  let duracionGeneralProcesoRef = null;
+
 
   const dataProcesos = window.dataProcesos;
   const dataSubprocesos = window.dataSubprocesos;
@@ -181,26 +186,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
         div.innerHTML = `
           <div style="flex:2;display:flex;align-items:center;gap:6px;">
-            <input type="checkbox" value="${sp.nombre}" class="chk-subproceso">
-            <span>${sp.nombre}</span>
-          </div>
+    <input type="checkbox" value="${sp.nombre}" class="chk-subproceso">
+    <span>${sp.nombre}</span>
+    </div>
 
-          <input type="number" class="cantidad-sub"
-            placeholder="Cant." min="1"
-            style="width:90px;text-align:center;">
+    <select class="duracion-sub" style="width:110px;">
+        <option value="Único">Único</option>
+        <option value="Diario">Diario</option>
+        <option value="Semanal">Semanal</option>
+        <option value="Mensual">Mensual</option>
+        <option value="Anual">Anual</option>
+    </select>
 
-          <input type="text" class="valor-subproceso"
-            value="${formatoCOP(sp.valor)}"
-            data-real="${sp.valor}"
-            style="width:100px;text-align:right;">
-        `;
+    <input type="number" class="cantidad-sub"
+      placeholder="Cant." min="1"
+      style="width:90px;text-align:center;">
+
+    <input type="text" class="valor-subproceso"
+      value="${formatoCOP(sp.valor)}"
+      data-real="${sp.valor}"
+      style="width:100px;text-align:right;">
+            `;
 
         // Click en fila para alternar selección
         div.addEventListener("click", (e) => {
           if (
             e.target.classList.contains("cantidad-sub") ||
             e.target.classList.contains("valor-subproceso") ||
-            e.target.classList.contains("unidad-sub")
+            e.target.classList.contains("unidad-sub") ||
+            e.target.classList.contains("duracion-sub")
           ) {
             return;
           }
@@ -243,21 +257,23 @@ document.addEventListener("DOMContentLoaded", () => {
           subprocesosList.querySelectorAll(".chk-subproceso:checked")
         )
           .map((chk) => {
-            const fila = chk.closest(".subproceso-row");
-            return {
-              nombre: chk.value,
-              unidad: fila.querySelector(".unidad-sub")
-                ? fila.querySelector(".unidad-sub").value
-                : "",
-              cantidad: parseInt(
-                fila.querySelector(".cantidad-sub").value || "0",
-                10
-              ),
-              valor: parseFloat(
-                fila.querySelector(".valor-subproceso").dataset.real || "0"
-              ),
-            };
+              const fila = chk.closest(".subproceso-row");
+
+              return {
+                nombre: chk.value,
+                unidad: fila.querySelector(".unidad-sub")
+                  ? fila.querySelector(".unidad-sub").value
+                  : "",
+                cantidad: parseInt(
+                  fila.querySelector(".cantidad-sub").value || "0",
+                  10
+                ),
+                valor: parseFloat(
+                  fila.querySelector(".valor-subproceso").dataset.real || "0"
+                ),
+              };
           })
+
           .filter((sp) => sp.cantidad > 0 && sp.valor > 0);
 
         if (!seleccionados.length) {
@@ -265,13 +281,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         seleccionados.forEach((sp) => {
+          const fila = subprocesosList.querySelector(
+              `.chk-subproceso[value="${sp.nombre}"]`
+          ).closest(".subproceso-row");
+
+          const duracion = fila.querySelector(".duracion-sub")?.value || "Único";
+
           agregarAlResumen({
             area,
             proceso: proceso,
-            unidad: sp.unidad, // Alquiler SÍ muestra unidad (Horas/Días/Meses)
+            unidad: PROCESOS_SIN_UNIDAD.includes(proceso) ? "" : sp.unidad,
             cantidad: sp.cantidad,
             valor: sp.valor,
             costo: sp.valor * sp.cantidad,
+            tiempo: duracion,
             subprocesos: [sp.nombre],
           });
         });
@@ -290,29 +313,63 @@ document.addEventListener("DOMContentLoaded", () => {
         "display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px;border:2px solid #990f0c;border-radius:6px;margin-bottom:12px;background:#fff7f7;";
 
       divGeneral.innerHTML = `
-        <div style="flex:2;display:flex;align-items:center;gap:8px;">
-          <input type="checkbox" id="chkTodoProceso" class="chk-general">
-          <strong>Todo el proceso</strong>
-        </div>
+      <div style="flex:2;display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="chkTodoProceso" class="chk-general">
+        <strong>Todo el proceso</strong>
+      </div>
 
-        <input type="number" id="cantidadGeneralProceso"
-          class="cantidad-sub"
-          placeholder="Cant."
-          min="1"
-          style="width:90px;text-align:center;opacity:0.5;" disabled>
+      <select id="unidadGeneralProceso"
+        class="unidad-sub"
+        style="width:100px;opacity:0.5;"
+        disabled>
+          <option value="Documentos">Documentos</option>
+          <option value="Carpetas">Carpetas</option>
+          <option value="Folder">Folder</option>
+          <option value="Acbetas">Acbetas</option>
+          <option value="Cajas">Cajas</option>
+      </select>
 
-        <input type="text" id="valorGeneralProceso"
-          placeholder="Valor unitario"
-          style="width:120px;text-align:right;opacity:0.5;"
-          disabled>
+      <select id="duracionGeneralProceso"
+        class="duracion-sub"
+        style="width:110px;opacity:0.5;"
+        disabled>
+          <option value="Único">Único</option>
+          <option value="Diario">Diario</option>
+          <option value="Semanal">Semanal</option>
+          <option value="Mensual">Mensual</option>
+          <option value="Anual">Anual</option>
+      </select>
+
+      <input type="number" id="cantidadGeneralProceso"
+        class="cantidad-sub"
+        placeholder="Cant."
+        min="1"
+        style="width:90px;text-align:center;opacity:0.5;"
+        disabled>
+
+      <input type="text" id="valorGeneralProceso"
+        placeholder="Valor unitario"
+        style="width:120px;text-align:right;opacity:0.5;"
+        disabled>
       `;
 
+
       subprocesosList.appendChild(divGeneral);
+
 
       chkTodoProcesoRef = divGeneral.querySelector("#chkTodoProceso");
       cantidadGeneralProcesoRef =
         divGeneral.querySelector("#cantidadGeneralProceso");
       valorGeneralProcesoRef = divGeneral.querySelector("#valorGeneralProceso");
+      unidadGeneralProcesoRef = divGeneral.querySelector("#unidadGeneralProceso");
+      duracionGeneralProcesoRef = divGeneral.querySelector("#duracionGeneralProceso");
+
+      if (PROCESOS_SIN_UNIDAD.includes(proceso)) {
+          unidadGeneralProcesoRef.style.display = "none";
+      } else {
+          unidadGeneralProcesoRef.style.display = "inline-block";
+      }
+
 
       // activar/desactivar modo global
       chkTodoProcesoRef.addEventListener("change", () => {
@@ -320,9 +377,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         cantidadGeneralProcesoRef.disabled = !activar;
         valorGeneralProcesoRef.disabled = !activar;
+        unidadGeneralProcesoRef.disabled = !activar;
+
+        duracionGeneralProcesoRef.disabled = !activar;
+        duracionGeneralProcesoRef.style.opacity = activar ? "1" : "0.5";
 
         cantidadGeneralProcesoRef.style.opacity = activar ? "1" : "0.5";
         valorGeneralProcesoRef.style.opacity = activar ? "1" : "0.5";
+        unidadGeneralProcesoRef.style.opacity = activar ? "1" : "0.5";
 
         document
           .querySelectorAll(".chk-subproceso")
@@ -375,6 +437,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         ${htmlUnidad}
 
+        <select class="duracion-sub" style="width:110px;">
+          <option value="Único">Único</option>
+          <option value="Diario">Diario</option>
+          <option value="Semanal">Semanal</option>
+          <option value="Mensual">Mensual</option>
+          <option value="Anual">Anual</option>
+        </select>
+
         <input type="number" class="cantidad-sub"
           placeholder="Cant." min="1"
           style="width:90px;text-align:center;">
@@ -384,6 +454,7 @@ document.addEventListener("DOMContentLoaded", () => {
           data-real="${sp.valor}"
           style="width:100px;text-align:right;">
       `;
+
 
       // === CLICK EN LA FILA COMPLETA PARA SELECCIONAR ===
       div.addEventListener("click", (e) => {
@@ -456,14 +527,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const costo = cantidad * valorUnitario;
 
+        const duracion = duracionGeneralProcesoRef.value || "Único";
+
         agregarAlResumen({
           area,
           proceso,
+          unidad: unidadGeneralProcesoRef.value,
           cantidad,
           valor: valorUnitario,
           costo,
-          subprocesos: [],
-          isGlobal: true, // ← MARCA GLOBAL
+          tiempo: duracion,
+          subprocesos: ["Todo el proceso"],
+          isGlobal: true,
         });
 
         return;
@@ -496,21 +571,27 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       seleccionados.forEach((sp) => {
-        // 🔥 Normalización del nombre (tildes + mayúsculas)
         const key = sp.nombre
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .toLowerCase();
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
 
         const nombreLimpio = nombreSubprocesoEstandar[key] || sp.nombre;
+
+        const fila = subprocesosList.querySelector(
+            `.chk-subproceso[value="${sp.nombre}"]`
+        ).closest(".subproceso-row");
 
         agregarAlResumen({
           area,
           proceso: proceso,
-          unidad: PROCESOS_SIN_UNIDAD.includes(proceso) ? "" : sp.unidad,
+          unidad: PROCESOS_SIN_UNIDAD.includes(proceso)
+                  ? ""
+                  : fila.querySelector(".unidad-sub")?.value || "",
           cantidad: sp.cantidad,
           valor: sp.valor,
           costo: sp.valor * sp.cantidad,
+          tiempo: fila.querySelector(".duracion-sub")?.value || "Único",
           subprocesos: [nombreLimpio],
         });
       });

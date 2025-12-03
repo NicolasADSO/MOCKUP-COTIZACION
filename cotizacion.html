@@ -223,19 +223,23 @@
 
 
         <!-- ✅ TABLA DE RESUMEN (sin switch de vista) -->
+         <div class="tabla-scroll">
         <table id="tablaResumen">
-          <thead>
+         <thead>
           <tr>
             <th>Proceso</th>
             <th>Unidad</th>
             <th>Cantidad</th>
             <th>Valor Unitario</th>
             <th>Costo Estimado</th>
+            <th>Tiempo</th>
             <th>Acción</th>
           </tr>
         </thead>
+
           <tbody></tbody>
         </table>
+        </div>
 
         <!-- Total general -->
         <div class="total-box">
@@ -243,7 +247,7 @@
           <span id="totalGeneral">$0</span>
         </div>
 
-        <!-- Descuento -->
+       <!-- Descuento -->
         <div class="form-group descuento-box">
           <label for="descuentoInput">Descuento (%)</label>
           <input
@@ -255,6 +259,27 @@
             style="width:100%;padding:6px;border-radius:6px;border:1px solid #ccc;text-align:center;"
           />
         </div>
+
+        <!-- Gastos Adicionales (DEBE IR AQUÍ, ANTES DEL IVA) -->
+        <div class="form-group gastos-box">
+          <label for="gastosInput">Gastos adicionales ($)</label>
+          <input
+            type="text"
+            id="gastosInput"
+            placeholder="Ej: 150000"
+            style="width:100%;padding:6px;border-radius:6px;border:1px solid #ccc;text-align:center;"
+          />
+        </div>
+
+        <div class="gastos-extra-opciones" style="margin-top:6px;">
+          <label style="display:flex;align-items:center;gap:6px;">
+            <input type="checkbox" id="ocultarGastos">
+            Ocultar gastos adicionales al cliente
+          </label>
+        </div>
+
+
+
 
         <!-- ⚙️ Checkbox IVA: será insertado dinámicamente por JS -->
         
@@ -272,6 +297,76 @@
       </section>
     </div>
   </main>
+  <!-- ============================================================
+     🟦 MODAL UNIVERSAL — DATOS DEL CLIENTE (PDF + PROPUESTA)
+  =============================================================== -->
+  <div id="modalDatosCliente" class="modal-cliente-overlay" style="display:none;">
+    <div class="modal-cliente-contenedor" style="max-width:480px;">
+
+      <h2 style="color:#990f0c;margin:0 0 15px 0;font-size:22px;font-weight:700;">
+        📋 Datos del Cliente
+      </h2>
+
+      <!-- Nombre -->
+      <div class="form-group">
+        <label for="modalNombreCliente">Nombre del cliente</label>
+        <input type="text" id="modalNombreCliente" placeholder="Ej: Gadier Sistemas">
+      </div>
+
+      <!-- Correo -->
+      <div class="form-group">
+        <label for="modalCorreoCliente">Correo</label>
+        <input type="email" id="modalCorreoCliente" placeholder="cliente@correo.com">
+      </div>
+
+      <!-- Teléfono -->
+      <div class="form-group">
+        <label for="modalTelefonoCliente">Teléfono</label>
+        <input type="text" id="modalTelefonoCliente" placeholder="320 555 8296">
+      </div>
+
+      <!-- Destinatario -->
+      <div class="form-group">
+        <label for="modalDestinatario">Dirigido a</label>
+        <input type="text" id="modalDestinatario" placeholder="Ej: Oficina de Archivo – Alcaldía">
+      </div>
+
+      <!-- Identificación -->
+      <div class="form-group" style="margin-top:15px;">
+        <label style="font-weight:600;">Identificación</label>
+
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
+          <label style="display:flex;align-items:center;gap:4px;">
+            <input type="radio" name="tipoIdent" id="identRUNT" value="RUNT">
+            RUNT
+          </label>
+
+          <label style="display:flex;align-items:center;gap:4px;">
+            <input type="radio" name="tipoIdent" id="identCC" value="Documento">
+            Documento de identidad
+          </label>
+        </div>
+
+        <input
+          type="text"
+          id="modalNumeroIdent"
+          placeholder="Número"
+          style="margin-top:8px;display:none;"
+        >
+      </div>
+
+      <!-- Botones -->
+      <div class="modal-botones" style="margin-top:20px;">
+        <button id="btnModalCancelar" class="btn-cancelar">Cancelar</button>
+
+        <!-- El botón cambia según si es PDF o PPT -->
+        <button id="btnModalContinuar" class="btn-guardar" style="background:#990f0c;color:white;">
+          Continuar
+        </button>
+      </div>
+    </div>
+  </div>
+
 
   <!-- ============================================================
        🧩 SCRIPTS PRINCIPALES DE MÓDULOS
@@ -334,54 +429,9 @@
     }
     window.addEventListener("load", loadSidebar);
 
-    document.getElementById("modalLogout").addEventListener("click", (e) => {
-      if (e.target.id === "modalLogout") {
-          document.getElementById("modalLogout").style.display = "none";
-      }
-  });
-
   </script>
 
-
-  <!-- ============================================================
-  📌 MODAL ELEGANTE — DATOS DEL CLIENTE (NUEVA VERSIÓN)
-  ============================================================== -->
-  <div id="modalCliente" class="modal-cliente-overlay" style="display:none;">
-    <div class="modal-cliente-contenedor">
-      <h2>📄 Datos de la propuesta</h2>
-
-      <label for="inputCliente">¿A quién va dirigida la propuesta?</label>
-      <input type="text" id="inputCliente" placeholder="Ej: Alcaldía de Bogotá" />
-
-      <div class="modal-botones">
-        <button id="btnCancelarCliente" class="btn-cancelar">Cancelar</button>
-        <button id="btnGuardarCliente" class="btn-guardar">Continuar</button>
-      </div>
-    </div>
-  </div>
-
-   <!-- ============================================================
-       🟥 MODAL DATOS PARA PDF (NUEVO)
-  ============================================================ -->
-  <div id="modalPDF" class="modal-cliente-overlay" style="display:none;">
-    <div class="modal-cliente-contenedor" style="max-width:420px;">
-      
-      <h2 style="color:#990f0c;margin-bottom:10px;">📋 Datos del Cliente</h2>
-
-      <label>Nombre del cliente:</label>
-      <input type="text" id="pdfNombre" placeholder="Ej: Gadier Sistemas" />
-
-      <label>Correo electrónico:</label>
-      <input type="email" id="pdfCorreo" placeholder="Ej: cliente@correo.com" />
-
-      <label>Teléfono:</label>
-      <input type="text" id="pdfTelefono" placeholder="Ej: 320 555 8296" />
-
-      <div class="modal-botones">
-        <button id="btnPDFCancelar" class="btn-cancelar">Cancelar</button>
-        <button id="btnPDFAceptar" class="btn-guardar">Generar PDF</button>
-      </div>
-    </div>
+  <script src="./assets/js/auth.js"></script>
   </div>
 
     <div id="modalColumnas" class="modal-cliente-overlay" style="display:none;">
@@ -393,10 +443,12 @@
       <label><input type="checkbox" class="col-toggle" data-col="2" checked> Cantidad</label>
       <label><input type="checkbox" class="col-toggle" data-col="3" checked> Valor Unitario</label>
       <label><input type="checkbox" class="col-toggle" data-col="4" checked> Costo Estimado</label>
-      <label><input type="checkbox" class="col-toggle" data-col="5" checked> Acción</label>
+      <label><input type="checkbox" class="col-toggle" data-col="5" checked> Tiempo</label>
+      <label><input type="checkbox" class="col-toggle" data-col="6" checked> Acción</label>
+
 
       <div class="modal-botones" style="margin-top:20px;">
-        <button id="btnCerrarColumnas" class="btn-cancelar">Cerrar</button>
+        <button id="btnCerrarColumnas" class="btn-modal-close">Cerrar</button>
       </div>
     </div>
   </div>
@@ -445,6 +497,60 @@
       </div>
     </div>
   </div>
+
+  <script>
+// Guarda el modo actual ("PDF" o "PPT")
+let modoActual = "";  
+
+// Abrir modal universal
+function abrirModalDatosCliente(modo) {
+  modoActual = modo;
+  document.getElementById("modalDatosCliente").style.display = "flex";
+}
+
+// Mostrar input número cuando eligen tipo de documento
+document.addEventListener("change", (e) => {
+  if (e.target.id === "identRUNT" || e.target.id === "identCC") {
+    document.getElementById("modalNumeroIdent").style.display = "block";
+  }
+});
+
+// Botón cancelar
+document.getElementById("btnModalCancelar").onclick = () => {
+  document.getElementById("modalDatosCliente").style.display = "none";
+};
+
+// Botón continuar
+document.getElementById("btnModalContinuar").onclick = () => {
+
+  const nombre = document.getElementById("modalNombreCliente").value.trim();
+  const correo = document.getElementById("modalCorreoCliente").value.trim();
+  const telefono = document.getElementById("modalTelefonoCliente").value.trim();
+  const destinatario = document.getElementById("modalDestinatario").value.trim();
+
+  const tipoIdent = document.querySelector('input[name="tipoIdent"]:checked')?.value || "";
+  const numeroIdent = document.getElementById("modalNumeroIdent").value.trim();
+
+  if (!nombre) return alert("Ingrese el nombre del cliente.");
+  if (!correo) return alert("Ingrese el correo.");
+
+  // Guardar datos globales
+  window.datosClienteGlobal = {
+    nombre,
+    correo,
+    telefono,
+    destinatario,
+    tipoIdent,
+    numeroIdent
+  };
+
+  document.getElementById("modalDatosCliente").style.display = "none";
+
+  // Llamar flujo según modo
+  if (modoActual === "PDF") generarPDFConDatos();
+  if (modoActual === "PPT") generarPPTConDatos();
+};
+</script>
 
 
 </body>

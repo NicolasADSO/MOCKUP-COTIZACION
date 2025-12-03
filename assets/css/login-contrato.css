@@ -235,3 +235,169 @@
   50%  { transform: scale(1.2) rotate(-5deg);  opacity: 0.8; }
   100% { transform: scale(1)   rotate(0deg);    opacity: 1; }
 }
+/* ============================================================
+   SELECT MODERNO + LISTA PERSONALIZADA (Windows friendly)
+   ============================================================ */
+
+/* Contenedor del select */
+.grupo select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  font-size: 19px;
+  padding: 12px 0 8px;
+
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.45);
+  color: #222;
+
+  padding-right: 32px;
+  cursor: pointer;
+
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+/* Flecha */
+.grupo select {
+  background-image: url("data:image/svg+xml;utf8,<svg fill='black' width='22' height='22' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  background-size: 20px;
+}
+
+/* Focus */
+.grupo select:focus {
+  outline: none;
+  border-bottom: 2px solid #b50000;
+  color: #7b0000;
+}
+
+/* LISTA desplegada (solo navegadores modernos) */
+.grupo select option {
+  background: #ffffff;
+  padding: 12px;
+  color: #222;
+  font-size: 16px;
+  border: none;
+}
+
+/* Evita el azul feo de selección */
+.grupo select option:checked {
+  background-color: #f2f2f2 !important;
+  color: #7b0000 !important;
+}
+
+/* Hover de cada opción */
+.grupo select option:hover {
+  background-color: #ffe5e5 !important;
+}
+
+/* Scroll elegante en la lista */
+.grupo select option::-webkit-scrollbar {
+  width: 8px;
+}
+
+.grupo select option::-webkit-scrollbar-thumb {
+  background-color: #b50000;
+  border-radius: 10px;
+}
+/* ============================================
+   SELECT CUSTOM GADIER — VERSIÓN PRO PREMIUM
+   ============================================ */
+.custom-select {
+  position: relative;
+  width: 100%;
+  font-size: 19px;
+  padding: 12px 0 8px;
+  border-bottom: 2px solid rgba(0,0,0,0.45);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-select:hover,
+.custom-select.open {
+  border-bottom: 2px solid #b50000;
+}
+
+.custom-select span {
+  color: #222;
+}
+
+.custom-select .arrow {
+  transition: transform 0.25s ease;
+}
+
+.custom-select.open .arrow {
+  transform: rotate(180deg);
+}
+
+
+/* LISTA */
+.custom-options {
+  position: absolute;
+  top: 100%; 
+  width: 100%;
+  background: rgba(255, 255, 255, 0.94); /* MÁS SÓLIDO */
+  backdrop-filter: blur(16px);  /* GLASS REAL */
+  -webkit-backdrop-filter: blur(16px);
+
+  list-style: none;
+  padding: 6px 0;
+  margin: 0;
+
+  border-radius: 12px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.28);
+
+  display: none;
+  z-index: 9999;
+
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity .18s ease, transform .18s ease;
+}
+
+.custom-options.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.custom-options li {
+  padding: 12px 18px;
+  font-size: 17px;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+  color: #222;
+}
+
+/* Hover limpio */
+.custom-options li:hover {
+  background: rgba(255, 230, 230, 0.85);
+}
+
+/* Seleccionado */
+.custom-options li.selected {
+  background: rgba(255, 200, 200, 0.95);
+  color: #7b0000;
+  font-weight: 700;
+}
+
+/* Evitar que el fondo rojo se vea atrás */
+.custom-options::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.12);
+  border-radius: inherit;
+  pointer-events: none;
+}
+.grupo {
+  margin-bottom: 30px;
+  position: relative; /* 🔥 NECESARIO PARA POSICIONAR LA LISTA */
+}
