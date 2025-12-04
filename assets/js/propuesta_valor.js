@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.normalizarTexto = (str) =>
     !str ? "" :
-    str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+      str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
   window.nombreSeguroArchivo = (nombre) =>
     (nombre || "Cliente")
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/\s+/g, "_")
       .substring(0, 40);
 
-  window.encontrarSubproceso = function(diccionario, nombreVisible) {
+  window.encontrarSubproceso = function (diccionario, nombreVisible) {
     if (!diccionario) return null;
 
     const visibleNorm = normalizarTexto(nombreVisible);
@@ -52,14 +52,33 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function columnasVisiblesResumen() {
+
+  // Valores por defecto (igual que PDF)
+  const columnasPorDefecto = {
+    0: true,  // Descripción
+    1: true,  // Unidad
+    2: true,  // Cantidad
+    3: true,  // Valor unitario
+    4: true,  // Total
+    5: true   // Tiempo
+  };
+
+  // Cargar columnas visibles guardadas por el usuario
+  let columnasVisibles = JSON.parse(localStorage.getItem("columnas_visibles")) || {};
+
+  // Mezclar defaults + guardadas
+  columnasVisibles = { ...columnasPorDefecto, ...columnasVisibles };
+
+  // Retornar en formato usado por PPT
   return {
-    unidad: !document.querySelector(".col-unidad")?.classList.contains("oculto"),
-    cantidad: !document.querySelector(".col-cantidad")?.classList.contains("oculto"),
-    valorUnitario: !document.querySelector(".col-valor")?.classList.contains("oculto"),
-    total: !document.querySelector(".col-total")?.classList.contains("oculto"),
-    tiempo: !document.querySelector(".col-tiempo")?.classList.contains("oculto"), // 🆕
+    unidad: columnasVisibles[1] !== false,
+    cantidad: columnasVisibles[2] !== false,
+    valorUnitario: columnasVisibles[3] !== false,
+    total: columnasVisibles[4] !== false,
+    tiempo: columnasVisibles[5] !== false,
   };
 }
+
 
 // ============================================================
 // 🟦 MODAL UNIVERSAL — DATOS DEL CLIENTE (PDF + PPT)
@@ -71,32 +90,32 @@ window.datosClienteGlobal = window.datosClienteGlobal || null;
 
 // Solo definimos si no existe para evitar conflictos
 if (!window.abrirModalDatosCliente) {
-  window.abrirModalDatosCliente = function(modo) {
+  window.abrirModalDatosCliente = function (modo) {
     const modal = document.getElementById("modalDatosCliente");
     if (!modal) {
       console.warn("⚠ No se encontró #modalDatosCliente en el DOM.");
       return;
     }
 
-    const inputNombre      = modal.querySelector("#modalNombreCliente");
-    const inputCorreo      = modal.querySelector("#modalCorreoCliente");
-    const inputTelefono    = modal.querySelector("#modalTelefonoCliente");
-    const inputDestinatario= modal.querySelector("#modalDestinatario");
-    const radioRUNT        = modal.querySelector("#identRUNT");
-    const radioCC          = modal.querySelector("#identCC");
+    const inputNombre = modal.querySelector("#modalNombreCliente");
+    const inputCorreo = modal.querySelector("#modalCorreoCliente");
+    const inputTelefono = modal.querySelector("#modalTelefonoCliente");
+    const inputDestinatario = modal.querySelector("#modalDestinatario");
+    const radioRUNT = modal.querySelector("#identRUNT");
+    const radioCC = modal.querySelector("#identCC");
     const inputNumeroIdent = modal.querySelector("#modalNumeroIdent");
 
-    const btnCancelar      = modal.querySelector("#btnModalCancelar");
-    const btnContinuar     = modal.querySelector("#btnModalContinuar");
+    const btnCancelar = modal.querySelector("#btnModalCancelar");
+    const btnContinuar = modal.querySelector("#btnModalContinuar");
 
     // Restaurar datos previos si existen
     try {
       const guardado = sessionStorage.getItem("datosClienteGadier");
       if (guardado) {
         const d = JSON.parse(guardado);
-        if (d.nombre)       inputNombre.value       = d.nombre;
-        if (d.correo)       inputCorreo.value       = d.correo;
-        if (d.telefono)     inputTelefono.value     = d.telefono;
+        if (d.nombre) inputNombre.value = d.nombre;
+        if (d.correo) inputCorreo.value = d.correo;
+        if (d.telefono) inputTelefono.value = d.telefono;
         if (d.destinatario) inputDestinatario.value = d.destinatario;
         if (d.tipoIdent === "RUNT") {
           radioRUNT.checked = true;
@@ -132,7 +151,7 @@ if (!window.abrirModalDatosCliente) {
     document.body.classList.add("modal-activo");
 
     // Limpiar handlers previos para evitar múltiples binds
-    btnCancelar.onclick  = null;
+    btnCancelar.onclick = null;
     btnContinuar.onclick = null;
 
     btnCancelar.onclick = () => {
@@ -141,8 +160,8 @@ if (!window.abrirModalDatosCliente) {
     };
 
     btnContinuar.onclick = () => {
-      const nombre   = (inputNombre.value || "").trim() || "Cliente";
-      const correo   = (inputCorreo.value || "").trim() || "sin_correo@gadiersistemas.com";
+      const nombre = (inputNombre.value || "").trim() || "Cliente";
+      const correo = (inputCorreo.value || "").trim() || "sin_correo@gadiersistemas.com";
       const telefono = (inputTelefono.value || "").trim() || "Sin especificar";
       const destinatario = (inputDestinatario.value || "").trim();
 
@@ -222,11 +241,11 @@ window.generarPPTConDatos = async function () {
 
   const datos = window.datosClienteGlobal || {};
   const nombreCliente = datos.nombre || "Cliente";
-  const correo        = datos.correo || "";
-  const telefono      = datos.telefono || "";
-  const destinatario  = datos.destinatario || "";
-  const tipoIdent     = datos.tipoIdent || "";
-  const numeroIdent   = datos.numeroIdent || "";
+  const correo = datos.correo || "";
+  const telefono = datos.telefono || "";
+  const destinatario = datos.destinatario || "";
+  const tipoIdent = datos.tipoIdent || "";
+  const numeroIdent = datos.numeroIdent || "";
 
   const fechaGeneracion = new Date().toLocaleDateString("es-CO");
 
@@ -336,14 +355,14 @@ window.generarPPTConDatos = async function () {
   // 🟥 PORTADA
   // ============================================================
   const slidePortada = pptx.addSlide();
-  try { slidePortada.background = { path: "assets/img/portada-propuesta.png" }; } catch {}
+  try { slidePortada.background = { path: "assets/img/portada-propuesta.png" }; } catch { }
 
   try {
     slidePortada.addImage({
       path: "assets/img/logo-blanco-sin-fondo.png",
       x: 6.4, y: 3.1, w: 3.8, h: 2.1
     });
-  } catch {}
+  } catch { }
 
   const textoDirigido = destinatario || nombreCliente;
 
@@ -381,7 +400,7 @@ window.generarPPTConDatos = async function () {
   // 💼 SLIDE RESUMEN – IGUAL QUE PDF (con columnas dinámicas)
   // ============================================================
   const slideResumen = pptx.addSlide();
-  try { slideResumen.background = { path: "assets/img/textos-propuesto.png" }; } catch {}
+  try { slideResumen.background = { path: "assets/img/textos-propuesto.png" }; } catch { }
 
   slideResumen.addText("📄 Resumen de la Propuesta de Valor", {
     x: 0.5, y: 0.6, w: 9, h: 0.6,
@@ -390,21 +409,21 @@ window.generarPPTConDatos = async function () {
 
   // ---- 1. Crear encabezado según visibilidad ----
   let encabezado = [
-    { text: "Descripción", options: { bold: true, fill:{color:"990f0c"}, color:"FFFFFF" }}
+    { text: "Descripción", options: { bold: true, fill: { color: "990f0c" }, color: "FFFFFF" } }
   ];
 
   if (col.unidad)
-    encabezado.push({ text: "Unidad", options:{ bold:true, fill:{color:"990f0c"}, color:"FFFFFF", align:"center" }});
+    encabezado.push({ text: "Unidad", options: { bold: true, fill: { color: "990f0c" }, color: "FFFFFF", align: "center" } });
   if (col.cantidad)
-    encabezado.push({ text: "Cant.", options:{ bold:true, fill:{color:"990f0c"}, color:"FFFFFF", align:"center" }});
+    encabezado.push({ text: "Cant.", options: { bold: true, fill: { color: "990f0c" }, color: "FFFFFF", align: "center" } });
   if (col.valorUnitario)
-    encabezado.push({ text: "Valor unitario", options:{ bold:true, fill:{color:"990f0c"}, color:"FFFFFF", align:"right" }});
+    encabezado.push({ text: "Valor unitario", options: { bold: true, fill: { color: "990f0c" }, color: "FFFFFF", align: "right" } });
   if (col.tiempo)
-    encabezado.push({ text: "Tiempo", options:{ bold:true, fill:{color:"990f0c"}, color:"FFFFFF", align:"center" }});
+    encabezado.push({ text: "Tiempo", options: { bold: true, fill: { color: "990f0c" }, color: "FFFFFF", align: "center" } });
   if (col.total)
-    encabezado.push({ text: "Total", options:{ bold:true, fill:{color:"990f0c"}, color:"FFFFFF", align:"right" }});
+    encabezado.push({ text: "Total", options: { bold: true, fill: { color: "990f0c" }, color: "FFFFFF", align: "right" } });
 
-  let filas = [ encabezado ];
+  let filas = [encabezado];
 
   // ---- 2. Filas de ítems ----
   visibles.forEach(r => {
@@ -416,20 +435,20 @@ window.generarPPTConDatos = async function () {
 
     if (col.unidad) {
       const txtUnidad = (r.unidad && r.unidad.trim() !== "") ? r.unidad : "";
-      fila.push({ text: txtUnidad, options:{ align:"center" }});
+      fila.push({ text: txtUnidad, options: { align: "center" } });
     }
 
     if (col.cantidad)
-      fila.push({ text: (r.cantidad || 1) + "", options:{ align:"center" }});
+      fila.push({ text: (r.cantidad || 1) + "", options: { align: "center" } });
 
     if (col.valorUnitario)
-      fila.push({ text: `$${(r.valor || 0).toLocaleString("es-CO")}`, options:{ align:"right" }});
+      fila.push({ text: `$${(r.valor || 0).toLocaleString("es-CO")}`, options: { align: "right" } });
 
     if (col.tiempo)
-      fila.push({ text: r.tiempo || "-", options:{ align:"center" }});
+      fila.push({ text: r.tiempo || "-", options: { align: "center" } });
 
     if (col.total)
-      fila.push({ text: `$${costoFinal.toLocaleString("es-CO")}`, options:{ align:"right", bold:true }});
+      fila.push({ text: `$${costoFinal.toLocaleString("es-CO")}`, options: { align: "right", bold: true } });
 
     filas.push(fila);
   });
@@ -448,70 +467,83 @@ window.generarPPTConDatos = async function () {
   const span = numCols - 1;
 
   filas.push([
-    { text:"SUBTOTAL", options:{ bold:true, align:"right", colspan: span }},
-    { text:`$${subtotalFinal.toLocaleString("es-CO")}`, options:{ bold:true, align:"right" }}
+    { text: "SUBTOTAL", options: { bold: true, align: "right", colspan: span } },
+    { text: `$${subtotalFinal.toLocaleString("es-CO")}`, options: { bold: true, align: "right" } }
   ]);
 
   if (dPct > 0) {
     filas.push([
-      { text:`DESCUENTO (${dPct}%)`, options:{ bold:true, align:"right", color:"7d0c0a", colspan: span }},
-      { text:`-$${dVal.toLocaleString("es-CO")}`, options:{ bold:true, align:"right", color:"7d0c0a" }}
+      { text: `DESCUENTO (${dPct}%)`, options: { bold: true, align: "right", color: "7d0c0a", colspan: span } },
+      { text: `-$${dVal.toLocaleString("es-CO")}`, options: { bold: true, align: "right", color: "7d0c0a" } }
     ]);
   }
 
   if (aplicarIVA) {
     filas.push([
-      { text:"IVA (19%)", options:{ bold:true, align:"right", colspan: span }},
-      { text:`$${iva.toLocaleString("es-CO")}`, options:{ bold:true, align:"right" }}
+      { text: "IVA (19%)", options: { bold: true, align: "right", colspan: span } },
+      { text: `$${iva.toLocaleString("es-CO")}`, options: { bold: true, align: "right" } }
     ]);
   }
 
   if (!ocultarGastos && gastosAdicionales > 0) {
     filas.push([
-      { text:"Gastos adicionales", options:{ bold:true, align:"right", colspan: span }},
-      { text:`$${gastosAdicionales.toLocaleString("es-CO")}`, options:{ bold:true, align:"right" }}
+      { text: "Gastos adicionales", options: { bold: true, align: "right", colspan: span } },
+      { text: `$${gastosAdicionales.toLocaleString("es-CO")}`, options: { bold: true, align: "right" } }
     ]);
   }
 
   filas.push([
-    { text:"TOTAL FINAL", options:{ bold:true, align:"right", fill:{color:"990f0c"}, color:"FFFFFF", colspan: span }},
-    { text:`$${totalFinal.toLocaleString("es-CO")}`, options:{ bold:true, align:"right", fill:{color:"990f0c"}, color:"FFFFFF" }}
+    { text: "TOTAL FINAL", options: { bold: true, align: "right", fill: { color: "990f0c" }, color: "FFFFFF", colspan: span } },
+    { text: `$${totalFinal.toLocaleString("es-CO")}`, options: { bold: true, align: "right", fill: { color: "990f0c" }, color: "FFFFFF" } }
   ]);
+
+  // ---- DEFINIR COLUMNAS SEGÚN VISIBILIDAD ----
+  let columnas = ["descripcion"];
+  if (col.unidad) columnas.push("unidad");
+  if (col.cantidad) columnas.push("cantidad");
+  if (col.valorUnitario) columnas.push("valorUnitario");
+  if (col.tiempo) columnas.push("tiempo");
+  if (col.total) columnas.push("total");
+
 
   // ---- 4. Column widths dinámicos ----
   let colW = [];
 
-  let columnas = ["descripcion"];
-  if (col.unidad)       columnas.push("unidad");
-  if (col.cantidad)     columnas.push("cantidad");
-  if (col.valorUnitario)columnas.push("valorUnitario");
-  if (col.tiempo)       columnas.push("tiempo");
-  if (col.total)        columnas.push("total");
-
-  const totalWidth = 9;
-  const anchoBase = totalWidth / columnas.length;
-
   columnas.forEach(c => {
-    if (c === "descripcion") {
-      colW.push(anchoBase * 1.5);
-    } else {
-      colW.push(anchoBase * 0.7);
-    }
+    if (c === "descripcion") colW.push(4.2);   // Igual que PDF, ancho estable
+    else if (c === "unidad") colW.push(1.0);
+    else if (c === "cantidad") colW.push(0.8);
+    else if (c === "valorUnitario") colW.push(1.4);
+    else if (c === "tiempo") colW.push(1.0);
+    else if (c === "total") colW.push(1.4);
   });
 
   slideResumen.addTable(filas, {
-    x:0.5,
-    y:1.5,
-    w:9,
+    x: 0.5,
+    y: 1.5,
     colW,
-    fontSize:13,
+    fontSize: 13,
+    w: "auto",
+    autoPageRow: true,
+
+    // 🔥 QUITAMOS TODAS LAS LÍNEAS INTERNAS
+    border: {
+      type: "none"
+    },
+
+    // 🔥 AGREGAMOS SOLO BORDES EXTERNOS
+    outerBorder: {
+      type: "solid",
+      color: "AAAAAA",
+      width: 0.8
+    }
   });
 
   // ============================================================
   // 🖋 SLIDE FINAL
   // ============================================================
   const slideFin = pptx.addSlide();
-  try { slideFin.background = { path: "assets/img/cierre-presupuesto.png" }; } catch {}
+  try { slideFin.background = { path: "assets/img/cierre-presupuesto.png" }; } catch { }
 
   slideFin.addText("Gracias por confiar en Gadier Sistemas", {
     x: 0.8, y: 1.6, w: 8.4,
