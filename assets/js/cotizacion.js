@@ -31,6 +31,35 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ============================================================
+  // 🧱 MANEJADOR UNIFICADO DE CLIC EN FILAS DE SUBPROCESO
+  // Evita que selects/inputs activen o desactiven la fila.
+  // ============================================================
+  function bindRowClick(rowElement, checkboxSelector = ".chk-subproceso") {
+    rowElement.addEventListener("click", (e) => {
+
+      // ❌ Si hacen clic dentro de cualquier control editable → NO togglear
+      if (
+        e.target.classList.contains("cantidad-sub") ||
+        e.target.classList.contains("valor-subproceso") ||
+        e.target.classList.contains("unidad-sub") ||
+        e.target.classList.contains("duracion-sub") ||
+        e.target.tagName === "SELECT" ||
+        e.target.tagName === "INPUT"
+      ) {
+        return;
+      }
+
+      // Toggle normal
+      const chk = rowElement.querySelector(checkboxSelector);
+      if (!chk) return;
+
+      chk.checked = !chk.checked;
+      rowElement.classList.toggle("selected", chk.checked);
+    });
+  }
+
+
+  // ============================================================
   // 🧩 Normalización corporativa de nombres de subprocesos
   // ============================================================
   const nombreSubprocesoEstandar = {
@@ -215,20 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
       style="width:100px;text-align:right;">
             `;
 
-        // Click en fila para alternar selección
-        div.addEventListener("click", (e) => {
-          if (
-            e.target.classList.contains("cantidad-sub") ||
-            e.target.classList.contains("valor-subproceso") ||
-            e.target.classList.contains("unidad-sub") ||
-            e.target.classList.contains("duracion-sub")
-          ) {
-            return;
-          }
-          const chk = div.querySelector(".chk-subproceso");
-          chk.checked = !chk.checked;
-          div.classList.toggle("selected", chk.checked);
-        });
+        bindRowClick(div);
 
         div.style.cssText =
           "display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;margin-bottom:6px;background:#fafafa;";
@@ -362,6 +378,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
       subprocesosList.appendChild(divGeneral);
+      bindRowClick(divGeneral, "#chkTodoProceso");
 
 
       chkTodoProcesoRef = divGeneral.querySelector("#chkTodoProceso");
@@ -378,33 +395,51 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
 
-      // activar/desactivar modo global
       chkTodoProcesoRef.addEventListener("change", () => {
         const activar = chkTodoProcesoRef.checked;
 
+        // 1️⃣ Habilitar / deshabilitar inputs del modo global
         cantidadGeneralProcesoRef.disabled = !activar;
         valorGeneralProcesoRef.disabled = !activar;
         unidadGeneralProcesoRef.disabled = !activar;
-
         duracionGeneralProcesoRef.disabled = !activar;
-        duracionGeneralProcesoRef.style.opacity = activar ? "1" : "0.5";
 
         cantidadGeneralProcesoRef.style.opacity = activar ? "1" : "0.5";
         valorGeneralProcesoRef.style.opacity = activar ? "1" : "0.5";
         unidadGeneralProcesoRef.style.opacity = activar ? "1" : "0.5";
+        duracionGeneralProcesoRef.style.opacity = activar ? "1" : "0.5";
 
-        document
-          .querySelectorAll(".chk-subproceso")
-          .forEach((c) => (c.disabled = activar));
-
-        document.querySelectorAll(".cantidad-sub").forEach((i) => {
-          if (i !== cantidadGeneralProcesoRef) i.disabled = activar;
+        // 2️⃣ Deshabilitar TODOS los subprocesos individuales excepto el bloque global
+        subprocesosList.querySelectorAll(".chk-subproceso").forEach(chk => {
+          chk.disabled = activar;
         });
 
-        document.querySelectorAll(".valor-subproceso").forEach((i) => {
-          if (i !== valorGeneralProcesoRef) i.disabled = activar;
+        subprocesosList.querySelectorAll(".cantidad-sub").forEach(inp => {
+          if (inp.id !== "cantidadGeneralProceso") inp.disabled = activar;
         });
+
+        subprocesosList.querySelectorAll(".valor-subproceso").forEach(inp => {
+          if (inp.id !== "valorGeneralProceso") inp.disabled = activar;
+        });
+
+        subprocesosList.querySelectorAll(".duracion-sub").forEach(sel => {
+          if (sel.id !== "duracionGeneralProceso") sel.disabled = activar;
+        });
+
+        subprocesosList.querySelectorAll(".unidad-sub").forEach(sel => {
+          if (sel.id !== "unidadGeneralProceso") sel.disabled = activar;
+        });
+
+        // 3️⃣ Si activan "Todo el proceso", limpiar selección individual
+        if (activar) {
+          subprocesosList.querySelectorAll(".chk-subproceso").forEach(chk => {
+            chk.checked = false;
+            chk.closest(".subproceso-row")?.classList.remove("selected");
+          });
+        }
       });
+
+
     }
 
     // ============================================================
@@ -462,26 +497,7 @@ document.addEventListener("DOMContentLoaded", () => {
           style="width:100px;text-align:right;">
       `;
 
-
-      // === CLICK EN LA FILA COMPLETA PARA SELECCIONAR ===
-      div.addEventListener("click", (e) => {
-        // Evitar conflicto cuando hacen clic en inputs
-        if (
-          e.target.classList.contains("cantidad-sub") ||
-          e.target.classList.contains("valor-subproceso") ||
-          e.target.classList.contains("unidad-sub")
-        ) {
-          return;
-        }
-
-        const chk = div.querySelector(".chk-subproceso");
-
-        // Alternar check
-        chk.checked = !chk.checked;
-
-        // Activar/desactivar estilo seleccionado
-        div.classList.toggle("selected", chk.checked);
-      });
+      bindRowClick(div);
 
       div.style.cssText =
         "display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;margin-bottom:6px;background:#fafafa;";

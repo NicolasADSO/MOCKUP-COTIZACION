@@ -91,24 +91,32 @@ document.addEventListener("DOMContentLoaded", () => {
   window.agregarOActualizarResumen = function (nuevo) {
     if (!window.resumen) window.resumen = [];
 
-    // 🔎 Gastos adicionales NO se mergean
     if (nuevo.tipo !== "gastos") {
-      const existente = window.resumen.find(
-        r => r.area === nuevo.area && r.proceso === nuevo.proceso
+
+      // 🔍 BUSCAR SI YA EXISTE UNA FILA IGUAL (excepto cantidad)
+      const existente = window.resumen.find(r =>
+        r.area === nuevo.area &&
+        r.proceso === nuevo.proceso &&
+        JSON.stringify(r.subprocesos) === JSON.stringify(nuevo.subprocesos) &&
+        r.unidad === nuevo.unidad &&
+        r.valor === nuevo.valor &&
+        r.tiempo === nuevo.tiempo
       );
 
       if (existente) {
+        // 🔄 Sumar cantidades y costos
         existente.cantidad += nuevo.cantidad;
         existente.costo += nuevo.costo;
-        existente.valor = nuevo.valor;
         existente.visible = true;
-        existente.tiempo = nuevo.tiempo || existente.tiempo || "-";
       } else {
+        // ➕ NUEVA FILA (es diferente en al menos 1 campo)
         nuevo.visible = true;
         nuevo.tiempo = nuevo.tiempo || "-";
         window.resumen.push(nuevo);
       }
+
     } else {
+      // ⭐ LÓGICA ESPECIAL PARA GASTOS ADICIONALES
       nuevo.visible = true;
       nuevo.unidad = "N/A";
       nuevo.cantidad = 1;
@@ -183,54 +191,62 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-   // ============================================================
-  // 🔁 RENDER DE CADA FILA (SIEMPRE 7 COLUMNAS)
-  // ============================================================
-  window.resumen.forEach((r, i) => {
-    const valor = r.valor || 0;
-    const costoBase = r.costo ?? (r.cantidad * valor);
+    // ============================================================
+    // 🔁 RENDER DE CADA FILA (SIEMPRE 7 COLUMNAS)
+    // ============================================================
+    window.resumen.forEach((r, i) => {
+      const valor = r.valor || 0;
+      const costoBase = r.costo ?? (r.cantidad * valor);
 
-    if (!r.visible) {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        🔒 ${r.proceso} — ${r.cantidad} × $${valor.toLocaleString()}
-        <button class="btn-mostrar-fila" data-id="${i}"
-          style="background:none;border:none;color:#990f0c;cursor:pointer;">
-          Mostrar
-        </button>
+      if (!r.visible) {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          🔒 ${r.proceso}
+          ${r.subprocesos && r.subprocesos.length ? " – " + r.subprocesos[0] : ""}
+          — ${r.cantidad} × $${valor.toLocaleString()}
+          <button class="btn-mostrar-fila" data-id="${i}"
+            style="background:none;border:none;color:#990f0c;cursor:pointer;">
+            Mostrar
+          </button>
+        `;
+
+        listaOcultos.appendChild(li);
+        return;
+      }
+
+      // Reparto inverso
+      let parteExtra = 0;
+      const pesoObj = pesos.find(p => p.r === r);
+      if (pesoObj && sumaPesos) {
+        parteExtra = (pesoObj.peso / sumaPesos) * costoOcultos;
+      }
+
+      const costoFinal = Math.round(costoBase + parteExtra);
+
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td class="col-0">
+          ${r.proceso}
+          ${r.subprocesos && r.subprocesos.length && r.subprocesos[0].trim() !== ""
+          ? " – " + r.subprocesos[0]
+          : ""}
+        </td>
+        <td class="col-1" style="text-align:center;">${r.unidad || ""}</td>
+        <td class="col-2" style="text-align:center;">${r.cantidad}</td>
+        <td class="col-3" style="text-align:right;">$${valor.toLocaleString()}</td>
+        <td class="col-4" style="text-align:right;color:#990f0c;font-weight:600;">
+          $${costoFinal.toLocaleString()}
+        </td>
+        <td class="col-5" style="text-align:center;">${r.tiempo || "-"}</td>
+        <td class="col-6" style="text-align:center;">
+          <button class="btn-eliminar-fila" data-id="${i}">🗑️</button>
+          <button class="btn-ocultar-fila" data-id="${i}">👁️</button>
+        </td>
       `;
-      listaOcultos.appendChild(li);
-      return;
-    }
 
-    // Reparto inverso
-    let parteExtra = 0;
-    const pesoObj = pesos.find(p => p.r === r);
-    if (pesoObj && sumaPesos) {
-      parteExtra = (pesoObj.peso / sumaPesos) * costoOcultos;
-    }
-
-    const costoFinal = Math.round(costoBase + parteExtra);
-
-    const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td class="col-0">${r.proceso}</td>
-      <td class="col-1" style="text-align:center;">${r.unidad || "Und"}</td>
-      <td class="col-2" style="text-align:center;">${r.cantidad}</td>
-      <td class="col-3" style="text-align:right;">$${valor.toLocaleString()}</td>
-      <td class="col-4" style="text-align:right;color:#990f0c;font-weight:600;">
-        $${costoFinal.toLocaleString()}
-      </td>
-      <td class="col-5" style="text-align:center;">${r.tiempo || "-"}</td>
-      <td class="col-6" style="text-align:center;">
-        <button class="btn-eliminar-fila" data-id="${i}">🗑️</button>
-        <button class="btn-ocultar-fila" data-id="${i}">👁️</button>
-      </td>
-    `;
-
-    tablaBody.appendChild(tr);
-  });
+      tablaBody.appendChild(tr);
+    });
 
 
     // TOTAL FINAL VISUAL

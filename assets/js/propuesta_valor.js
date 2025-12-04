@@ -397,6 +397,113 @@ window.generarPPTConDatos = async function () {
   });
 
   // ============================================================
+  // 🧩 SLIDES POR CADA PROCESO — DISEÑO DEFINITIVO SIN SUPERPOSICIONES
+  // ============================================================
+
+  propuesta.forEach(p => {
+    const slide = pptx.addSlide();
+    try { slide.background = { path: "assets/img/textos-propuesto.png" }; } catch { }
+
+    let y = 1.0; // Margen superior real (no usar menos por diseño del PNG)
+    const maxWidth = 8.2; // Ancho visual seguro dentro del fondo Gadier
+
+    // -------------------------
+    // 🟥 TÍTULO DEL PROCESO
+    // -------------------------
+    slide.addText(p.nombre, {
+      x: 0.6, y, w: maxWidth,
+      fontSize: 30,
+      bold: true,
+      color: "990f0c",
+      autoFit: true,
+      valign: "top"
+    });
+
+    y += 0.9;
+
+    // -------------------------
+    // 📄 DESCRIPCIÓN DEL PROCESO
+    // -------------------------
+    if (p.descripcion) {
+      slide.addText(p.descripcion, {
+        x: 0.6, y, w: maxWidth,
+        fontSize: 17,
+        color: "444444",
+        lineSpacing: 1.2,
+        autoFit: false,
+        breakLine: true,
+      });
+      y += 1.2; // Espacio tras el párrafo
+    }
+
+    // -------------------------
+    // 📌 SUBPROCESOS
+    // -------------------------
+    if (p.subprocesos.length > 0) {
+      slide.addText("Subprocesos incluidos:", {
+        x: 0.6, y, w: maxWidth,
+        fontSize: 22,
+        bold: true,
+        color: "990f0c"
+      });
+      y += 0.6;
+
+      p.subprocesos.forEach(sp => {
+        slide.addText(`• ${sp.nombre}`, {
+          x: 0.9, y, w: maxWidth - 0.5,
+          fontSize: 17,
+          color: "333333",
+          breakLine: true
+        });
+
+        y += 0.35;
+
+        if (sp.descripcion) {
+          slide.addText(sp.descripcion, {
+            x: 1.2, y, w: maxWidth - 1,
+            fontSize: 15,
+            color: "777777",
+            lineSpacing: 1.2,
+            breakLine: true
+          });
+          y += 0.7;
+        } else {
+          y += 0.3;
+        }
+      });
+
+      y += 0.4;
+    }
+
+    // -------------------------
+    // 🎯 BENEFICIOS
+    // -------------------------
+    if (p.beneficios && p.beneficios.length > 0) {
+      slide.addText("Beneficios:", {
+        x: 0.6, y, w: maxWidth,
+        fontSize: 22,
+        bold: true,
+        color: "990f0c"
+      });
+
+      y += 0.6;
+
+      p.beneficios.forEach(b => {
+        slide.addText(`✔ ${b}`, {
+          x: 0.9, y, w: maxWidth - 0.5,
+          fontSize: 17,
+          color: "333333",
+          breakLine: true
+        });
+        y += 0.5;
+      });
+    }
+  });
+
+
+
+
+  // ============================================================
   // 💼 SLIDE RESUMEN – IGUAL QUE PDF (con columnas dinámicas)
   // ============================================================
   const slideResumen = pptx.addSlide();
