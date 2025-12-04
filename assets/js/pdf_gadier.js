@@ -178,9 +178,23 @@ En Gadier Sistemas creemos que la tecnología es más que herramientas: es un pu
   // 📊 TABLA DINÁMICA (AUTO TABLE)
   // ============================================================
 
-  const columnasVisibles = JSON.parse(localStorage.getItem("columnas_visibles")) || {
-    0: true, 1: true, 2: true, 3: true, 4: true, 5: true
+  // 🔧 Asegurar que SIEMPRE existan las 6 columnas por defecto,
+  // incluso si localStorage tiene datos incompletos
+  const columnasPorDefecto = {
+    0: true,  // Descripción
+    1: true,  // Unidad
+    2: true,  // Cant.
+    3: true,  // Valor unitario
+    4: true,  // Total
+    5: true   // Tiempo (¡clave!)
   };
+
+  // Cargar columnas almacenadas, si existen
+  let columnasVisibles = JSON.parse(localStorage.getItem("columnas_visibles")) || {};
+
+  // Mezclar defaults + columnas guardadas
+  columnasVisibles = { ...columnasPorDefecto, ...columnasVisibles };
+
 
   const encabezados = {
     0: "Descripción",
@@ -191,12 +205,14 @@ En Gadier Sistemas creemos que la tecnología es más que herramientas: es un pu
     5: "Tiempo"
   };
 
+  // Construir encabezado dinámico
   const head = [
     Object.keys(encabezados)
       .filter(c => columnasVisibles[c] !== false)
       .map(c => encabezados[c])
   ];
 
+  // Construir filas dinámicas
   const body = visibles.map(r => {
     const costoFinal = obtenerCostoFinal(r);
     const fila = [];
@@ -211,6 +227,7 @@ En Gadier Sistemas creemos que la tecnología es más que herramientas: es un pu
     return fila;
   });
 
+  // Ajuste de anchos de columna (versión estable)
   const columnStyles = {};
   let idx = 0;
 
@@ -219,21 +236,33 @@ En Gadier Sistemas creemos que la tecnología es más que herramientas: es un pu
     .forEach(c => {
       c = parseInt(c);
 
-      if (c === 0) columnStyles[idx] = { halign: "left", cellWidth: 220 };
-      else if (c === 1) columnStyles[idx] = { halign: "center", cellWidth: 70 };
-      else if (c === 2) columnStyles[idx] = { halign: "center", cellWidth: 60 };
-      else if (c === 3) columnStyles[idx] = { halign: "right", cellWidth: 95 };
-      else if (c === 4) columnStyles[idx] = { halign: "right", cellWidth: 95 };
-      else if (c === 5) columnStyles[idx] = { halign: "center", cellWidth: 70 };
+      if (c === 0) columnStyles[idx] = { halign: "left", cellWidth: 175 }; // Descripción
+      else if (c === 1) columnStyles[idx] = { halign: "center", cellWidth: 65 }; // Unidad
+      else if (c === 2) columnStyles[idx] = { halign: "center", cellWidth: 35 }; // Cantidad
+      else if (c === 3) columnStyles[idx] = { halign: "right", cellWidth: 75 }; // Valor unitario
+      else if (c === 4) columnStyles[idx] = { halign: "right", cellWidth: 75 }; // Total
+      else if (c === 5) columnStyles[idx] = { halign: "center", cellWidth: 60 }; // Tiempo
 
       idx++;
     });
 
+
+
+  // Render final de AutoTable
   doc.autoTable({
     startY: 350,
+    margin: { left: 80 },
     tableWidth: "wrap",
     tableLineWidth: 0.1,
     tableLineColor: "#999",
+    drawCell: function (data) {
+      const cell = data.cell;
+
+      // Si es la última columna → quitamos el borde derecho
+      if (data.column.index === data.table.columns.length - 1) {
+        cell.styles.lineWidthRight = 0;
+      }
+    },
     head,
     body,
     theme: "grid",
@@ -245,9 +274,9 @@ En Gadier Sistemas creemos que la tecnología es más que herramientas: es un pu
       halign: "center"
     },
     columnStyles,
-
     horizontalPageBreak: true,
   });
+
 
   // ============================================================
   // 💰 Totales alineados sin desbordarse
@@ -255,10 +284,10 @@ En Gadier Sistemas creemos que la tecnología es más que herramientas: es un pu
 
   let y = doc.lastAutoTable.finalY + 25;
 
-  const tablaX = doc.lastAutoTable.finalX || 80;  
+  const tablaX = doc.lastAutoTable.finalX || 80;
   const tablaW = doc.lastAutoTable.width || 380;
 
-  const posX = tablaX + tablaW - 160; 
+  const posX = tablaX + tablaW - 160;
 
   doc.setFont("helvetica", "bold");
   doc.setTextColor("#000000");

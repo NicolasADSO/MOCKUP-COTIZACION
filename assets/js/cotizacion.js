@@ -11,12 +11,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 🚫 PROCESOS QUE NO DEBEN MOSTRAR "UNIDAD" EN LA TABLA RESUMEN
   const PROCESOS_SIN_UNIDAD = [
-  "Diagnóstico",
-  "Administración In House",
-  "Elaboración de Instrumentos Archivísticos",
-  "Consultas",
-  "Traslado de archivos"
-];
+    "Diagnóstico",
+    "Administración In House",
+    "Elaboración de Instrumentos Archivísticos",
+    "Consultas",
+    "Traslado de archivos"
+  ];
 
   // ============================================================
   // 💰 FORMATEO COP AUXILIAR (solo para inputs de subprocesos)
@@ -51,6 +51,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // usando agregarOActualizarResumen si existe (tabla_resumen.js)
   function agregarAlResumen(item) {
     window.resumen = window.resumen || [];
+
+    // 🩹 Normalizador: garantizar que todas las filas tengan tiempo
+    if (!item.tiempo || item.tiempo.trim() === "") {
+      item.tiempo = "—";
+    }
+
     if (typeof window.agregarOActualizarResumen === "function") {
       window.agregarOActualizarResumen(item);
     } else {
@@ -59,6 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (typeof window.renderTabla === "function") window.renderTabla();
     }
   }
+
 
   // 🔧 Variables globales por carga de proceso
   let chkTodoProcesoRef = null;
@@ -257,21 +264,21 @@ document.addEventListener("DOMContentLoaded", () => {
           subprocesosList.querySelectorAll(".chk-subproceso:checked")
         )
           .map((chk) => {
-              const fila = chk.closest(".subproceso-row");
+            const fila = chk.closest(".subproceso-row");
 
-              return {
-                nombre: chk.value,
-                unidad: fila.querySelector(".unidad-sub")
-                  ? fila.querySelector(".unidad-sub").value
-                  : "",
-                cantidad: parseInt(
-                  fila.querySelector(".cantidad-sub").value || "0",
-                  10
-                ),
-                valor: parseFloat(
-                  fila.querySelector(".valor-subproceso").dataset.real || "0"
-                ),
-              };
+            return {
+              nombre: chk.value,
+              unidad: fila.querySelector(".unidad-sub")
+                ? fila.querySelector(".unidad-sub").value
+                : "",
+              cantidad: parseInt(
+                fila.querySelector(".cantidad-sub").value || "0",
+                10
+              ),
+              valor: parseFloat(
+                fila.querySelector(".valor-subproceso").dataset.real || "0"
+              ),
+            };
           })
 
           .filter((sp) => sp.cantidad > 0 && sp.valor > 0);
@@ -282,7 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         seleccionados.forEach((sp) => {
           const fila = subprocesosList.querySelector(
-              `.chk-subproceso[value="${sp.nombre}"]`
+            `.chk-subproceso[value="${sp.nombre}"]`
           ).closest(".subproceso-row");
 
           const duracion = fila.querySelector(".duracion-sub")?.value || "Único";
@@ -365,9 +372,9 @@ document.addEventListener("DOMContentLoaded", () => {
       duracionGeneralProcesoRef = divGeneral.querySelector("#duracionGeneralProceso");
 
       if (PROCESOS_SIN_UNIDAD.includes(proceso)) {
-          unidadGeneralProcesoRef.style.display = "none";
+        unidadGeneralProcesoRef.style.display = "none";
       } else {
-          unidadGeneralProcesoRef.style.display = "inline-block";
+        unidadGeneralProcesoRef.style.display = "inline-block";
       }
 
 
@@ -407,7 +414,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const div = document.createElement("div");
       div.className = "subproceso-row";
 
-      
+
 
       let htmlUnidad = "";
 
@@ -572,22 +579,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
       seleccionados.forEach((sp) => {
         const key = sp.nombre
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase();
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase();
 
         const nombreLimpio = nombreSubprocesoEstandar[key] || sp.nombre;
 
         const fila = subprocesosList.querySelector(
-            `.chk-subproceso[value="${sp.nombre}"]`
+          `.chk-subproceso[value="${sp.nombre}"]`
         ).closest(".subproceso-row");
 
         agregarAlResumen({
           area,
           proceso: proceso,
           unidad: PROCESOS_SIN_UNIDAD.includes(proceso)
-                  ? ""
-                  : fila.querySelector(".unidad-sub")?.value || "",
+            ? ""
+            : fila.querySelector(".unidad-sub")?.value || "",
           cantidad: sp.cantidad,
           valor: sp.valor,
           costo: sp.valor * sp.cantidad,
@@ -643,8 +650,10 @@ document.addEventListener("DOMContentLoaded", () => {
         cantidad: 1,
         valor: precio,
         costo: precio,
+        tiempo: "—", // <--- AGREGADO
         subprocesos: nombreSub ? [nombreSub] : [],
       });
+
 
       // Podrías listar los subprocesos manuales en la UL si quieres verlos:
       listaSubprocesosManuales.innerHTML = "";
@@ -722,6 +731,7 @@ document.addEventListener("DOMContentLoaded", () => {
         cantidad: 1,
         valor: srv.valor,
         costo: srv.valor,
+        tiempo: "—", // <--- AGREGADO
       });
 
       // Reset visual
