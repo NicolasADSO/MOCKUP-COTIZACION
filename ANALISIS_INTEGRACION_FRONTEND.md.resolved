@@ -1,0 +1,61 @@
+# Análisis de Integración Frontend (Paso a Producción)
+
+## 🎯 Objetivo
+Conectar la interfaz existente ([cotizacion.html](file:///c:/xampp/htdocs/GADIER-PRODUCCION/cotizacion.html) + JS) con la nueva API PHP, sin romper la funcionalidad actual y minimizando los tiempos de carga.
+
+## ⚠️ Desafío Crítico: Sincronía vs Asincronía
+Actualmente, [procesos_data.js](file:///c:/xampp/htdocs/GADIER-PRODUCCION/assets/js/procesos_data.js) define los datos instantáneamente:
+```javascript
+// Actual (Síncrono)
+window.dataProcesos = { ... };
+// cotizacion.js lee dataProcesos inmediatamente al cargar.
+```
+
+Al pasar a API, `fetch` es **Asíncrono** (tarda unos milisegundos en ir al servidor):
+```javascript
+// Nuevo (Asíncrono)
+fetch('/api/data/servicios.php').then(data => window.dataProcesos = data);
+// ¡PELIGRO! cotizacion.js intentará leer dataProcesos ANTES de que llegue la respuesta.
+```
+
+## 🛠 Estrategia de Solución
+
+### 1. Inicialización Controlada (`initApp`)
+No ejecutaremos la lógica de [cotizacion.js](file:///c:/xampp/htdocs/GADIER-PRODUCCION/assets/js/cotizacion.js) inmediatamente. En su lugar:
+1.  Crearemos una función `initCotizador()` en [cotizacion.js](file:///c:/xampp/htdocs/GADIER-PRODUCCION/assets/js/cotizacion.js).
+2.  [procesos_data.js](file:///c:/xampp/htdocs/GADIER-PRODUCCION/assets/js/procesos_data.js) será responsable de llamar a esta función **solo cuando los datos estén listos**.
+
+### 2. Manejo de Sesión ([auth.js](file:///c:/xampp/htdocs/GADIER-PRODUCCION/assets/js/auth.js))
+*   **Actual**: Verifica `localStorage.getItem("usuario_logueado")`.
+*   **Cambio**: Verificar `localStorage`; si existe, validar con API en segundo plano. Para producción real, lo ideal es una petición inicial `/api/auth/me`.
+    *   *Decisión Práctica*: Mantener la verificación visual por `localStorage` para velocidad, pero si cualquier petición a la API devuelve `401 Unauthorized`, redirigir al login inmediatamente.
+
+### 3. Autocompletado de Clientes
+*   **Actual**: Lee de `localStorage`.
+*   **Cambio**: `fetch('/api/clientes')` al abrir el modal de clientes.
+
+## 📋 Plan de Modificación de Archivos
+
+### A. [assets/js/procesos_data.js](file:///c:/xampp/htdocs/GADIER-PRODUCCION/assets/js/procesos_data.js) (El Cargador)
+Se convertirá en un orquestador de inicio.
+1.  Mostrará un "loader" (overlay de carga).
+2.  Hará `fetch` a [/api/data/servicios.php](file:///c:/xampp/htdocs/GADIER-PRODUCCION/api/data/servicios.php).
+3.  Guardará la respuesta en `window.dataProcesos`.
+4.  Despachará un evento personalizado `Event("GadierDataReady")`.
+5.  Ocultará el loader.
+
+### B. [assets/js/cotizacion.js](file:///c:/xampp/htdocs/GADIER-PRODUCCION/assets/js/cotizacion.js) (El Consumidor)
+1.  Eliminará su `DOMContentLoaded` actual.
+2.  Envolverá su inicio en:
+    ```javascript
+    document.addEventListener("GadierDataReady", () => {
+        // ... toda la lógica actual ...
+    });
+    ```
+
+## ✅ Beneficios de esta Estrategia
+1.  **Cero Race Conditions**: Garantizamos 100% que los datos existen antes de pintar la pantalla.
+2.  **Feedback Visual**: El usuario verá un indicador de "Cargando tarifas actualizado..." en lugar de una pantalla blanca o rota.
+3.  **Modularidad**: Si mañana cambia la API, solo tocamos [procesos_data.js](file:///c:/xampp/htdocs/GADIER-PRODUCCION/assets/js/procesos_data.js).
+
+¿Procedemos con este enfoque de "Event Bus"?

@@ -11,10 +11,7 @@ const cotComb = localStorage.getItem("cotizacion_combinada");
 
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log(
-    "%c🚀 Inicializando módulo de Cotización - Gadier Sistemas (Mock9)",
-    "color:#990f0c;font-weight:bold;"
-  );
+
 
   // ===========================================
   // 📌 CLIENTES GUARDADOS — Memoria local
@@ -205,8 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let duracionGeneralProcesoRef = null;
 
 
-  const dataProcesos = window.dataProcesos;
-  const dataSubprocesos = window.dataSubprocesos;
+
 
   // ============================================================
   // 🌍 VARIABLES GLOBALES Y ELEMENTOS UI
@@ -263,7 +259,15 @@ document.addEventListener("DOMContentLoaded", () => {
         otroProcesoContainer.style.display = "none";
       }
 
-      const listaProcesos = dataProcesos[area] || [];
+      // 🔧 FIX: Búsqueda case-insensitive porque la BD guarda en minúsculas
+
+      const areaKey = Object.keys(window.dataProcesos).find(
+        key => key.toLowerCase() === area.toLowerCase()
+      );
+
+
+      const listaProcesos = areaKey ? window.dataProcesos[areaKey] : [];
+
       if (listaProcesos.length > 0) {
         listaProcesos.forEach((proc) => {
           const opt = document.createElement("option");
@@ -283,6 +287,8 @@ document.addEventListener("DOMContentLoaded", () => {
         procesoSelect.disabled = false;
       } else {
         console.warn(`⚠️ No hay procesos definidos para el área: ${area}`);
+        procesoSelect.disabled = true;
+        procesoSelect.innerHTML = '<option value="">No hay procesos disponibles</option>';
       }
     });
   }
@@ -306,7 +312,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (!proceso) return;
 
-    const subps = dataSubprocesos[proceso] || [];
+    // 🔧 FIX: Usar global porque variable local está obsoleta
+    const subps = window.dataSubprocesos[proceso] || [];
     if (subps.length === 0) {
       return;
     }
@@ -794,7 +801,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ============================================================
   // 🤝 ALIADOS ESTRATÉGICOS — INTEGRACIÓN A COTIZACIÓN
   // ============================================================
-  console.log("🤝 Cargando módulo de Aliados en Cotización...");
+
 
   const selectAliado = document.getElementById("selectAliado");
   const selectServicioAliado = document.getElementById("selectServicioAliado");
@@ -897,83 +904,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
 
-  // ============================================================
-  // 📦 OBTENER COTIZACIÓN ACTUAL (Para guardar PDF / PPT)
-  // ============================================================
-  window.obtenerCotizacionActual = function () {
 
-    if (!window.resumen || window.resumen.length === 0) return null;
-
-    const visibles = window.resumen.filter(r => r.visible !== false);
-
-    // --- Datos del cliente ---
-    const d = window.datosClienteGlobal || {};
-
-    // --- Gastos, IVA, Descuento ---
-    const gastos = parseFloat(document.getElementById("gastosInput")?.dataset.real || 0) || 0;
-    const descuento = parseFloat(document.getElementById("descuentoInput")?.value || 0) || 0;
-    const aplicarIVA = document.getElementById("chkIVA")?.checked || false;
-
-    // --- Totales ---
-    let subtotal = 0;
-    visibles.forEach(r => {
-      const base = r.costo ?? (r.cantidad * (r.valor || 0));
-      subtotal += base;
-    });
-
-    const descValor = subtotal * (descuento / 100);
-    const subDesc = subtotal - descValor;
-    const iva = aplicarIVA ? subDesc * 0.19 : 0;
-    const totalFinal = subDesc + iva + gastos;
-
-    return {
-      id: "COT-" + Date.now(),
-      fecha: new Date().toLocaleString("es-CO"),
-      cliente: {
-        nombre: d.nombre || "",
-        correo: d.correo || "",
-        telefono: d.telefono || "",
-        destinatario: d.destinatario || "",
-        tipoIdent: d.tipoIdent || "",
-        numeroIdent: d.numeroIdent || ""
-      },
-      configuracion: {
-        descuento,
-        gastos,
-        aplicarIVA
-      },
-      items: visibles.map(r => ({
-        area: r.area,
-        proceso: r.proceso,
-        subprocesos: r.subprocesos || [],
-        unidad: r.unidad,
-        cantidad: r.cantidad,
-        valor: r.valor,
-        costo: r.costo ?? (r.cantidad * r.valor),
-        tiempo: r.tiempo
-      })),
-      subtotal,
-      descValor,
-      iva,
-      totalFinal
-    };
-  };
-
-  // ============================================================
-  // 💾 GUARDAR COTIZACIÓN EN HISTORIAL
-  // ============================================================
-  window.guardarCotizacion = function (cotizacion) {
-
-    if (!cotizacion) return;
-
-    const guardadas = JSON.parse(localStorage.getItem("cotizaciones_guardadas")) || [];
-
-    guardadas.push(cotizacion);
-
-    localStorage.setItem("cotizaciones_guardadas", JSON.stringify(guardadas));
-
-    console.log("💾 Cotización guardada:", cotizacion.id);
-  };
 
 
 
@@ -995,6 +926,102 @@ document.addEventListener("DOMContentLoaded", () => {
     window.cargarCotizacionEnEditor(cot);
   }
 
+  // ============================================================
+  // 👥 CARGAR CLIENTES DESDE API (SOLUCIÓN DEL BUG DE PDF)
+  // ============================================================
+  fetch('api/clientes/index.php')
+    .then(r => r.json())
+    .then(data => {
+      // 🔧 Normalizar estructura para el modal
+      window.listaClientesGlobal = data.map(c => ({
+        nombre: c.nombre_contacto,
+        correo: c.correo,
+        telefono: c.telefono,
+        destinatario: c.empresa || "",
+        tipoIdent: c.tipo_identificacion,
+        numeroIdent: c.numero_identificacion
+      }));
+
+    })
+    .catch(e => console.error("❌ Error cargando clientes:", e));
+
 
 
 });
+
+// ============================================================
+// 📦 OBTENER COTIZACIÓN ACTUAL (GLOBAL)
+// ============================================================
+window.obtenerCotizacionActual = function () {
+
+  if (!window.resumen || window.resumen.length === 0) return null;
+
+  const visibles = window.resumen.filter(r => r.visible !== false);
+
+  // --- Datos del cliente ---
+  const d = window.datosClienteGlobal || {};
+
+  // --- Gastos, IVA, Descuento ---
+  const gastos = parseFloat(document.getElementById("gastosInput")?.dataset.real || 0) || 0;
+  const descuento = parseFloat(document.getElementById("descuentoInput")?.value || 0) || 0;
+  // Checkbox IVA might be dynamically added
+  const aplicarIVA = document.getElementById("chkIVA")?.checked || false;
+
+  // --- Totales ---
+  let subtotal = 0;
+  visibles.forEach(r => {
+    const base = r.costo ?? (r.cantidad * (r.valor || 0));
+    subtotal += base;
+  });
+
+  const descValor = subtotal * (descuento / 100);
+  const subDesc = subtotal - descValor;
+  const iva = aplicarIVA ? subDesc * 0.19 : 0;
+  const totalFinal = subDesc + iva + gastos;
+
+  return {
+    id: "COT-" + Date.now(),
+    fecha: new Date().toLocaleString("es-CO"),
+    cliente: {
+      nombre: d.nombre || "",
+      correo: d.correo || "",
+      telefono: d.telefono || "",
+      destinatario: d.destinatario || "",
+      tipoIdent: d.tipoIdent || "",
+      numeroIdent: d.numeroIdent || ""
+    },
+    configuracion: {
+      descuento,
+      gastos,
+      aplicarIVA
+    },
+    items: visibles.map(r => ({
+      area: r.area,
+      proceso: r.proceso,
+      subprocesos: r.subprocesos || [],
+      unidad: r.unidad,
+      cantidad: r.cantidad,
+      valor: r.valor,
+      costo: r.costo ?? (r.cantidad * r.valor),
+      tiempo: r.tiempo
+    })),
+    subtotal,
+    descValor,
+    iva,
+    totalFinal
+  };
+};
+
+// ============================================================
+// 💾 GUARDAR COTIZACIÓN (GLOBAL - BASE)
+// NOTA: Cotizacion_Editor.js sobreescribe esto para manejar BD
+// ============================================================
+if (!window.guardarCotizacion) {
+  window.guardarCotizacion = function (cotizacion) {
+    if (!cotizacion) return;
+    const guardadas = JSON.parse(localStorage.getItem("cotizaciones_guardadas")) || [];
+    guardadas.push(cotizacion);
+    localStorage.setItem("cotizaciones_guardadas", JSON.stringify(guardadas));
+
+  };
+}

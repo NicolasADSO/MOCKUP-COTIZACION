@@ -114,12 +114,15 @@ En Gadier Sistemas creemos que la tecnología es más que herramientas: es un pu
   // 🔥 REDISTRIBUCIÓN INVERSA (incluye gastos adicionales)
   // ============================================================
 
-  const gastosAdicionales = parseFloat(
-    document.getElementById("gastosInput")?.dataset.real || "0"
-  );
+  const config = window.configuracionGlobal || {};
 
-  const chkG = document.getElementById("ocultarGastos");
-  const ocultarGastos = chkG ? chkG.checked : false;
+  const gastosAdicionales = config.gastosAdicionales !== undefined
+    ? parseFloat(config.gastosAdicionales)
+    : parseFloat(document.getElementById("gastosInput")?.dataset.real || "0");
+
+  const ocultarGastos = config.ocultarGastos !== undefined
+    ? config.ocultarGastos
+    : (document.getElementById("ocultarGastos")?.checked || false);
 
   // 1️⃣ Subtotal total incluyendo ocultos + gastos
   let subtotalTotal = 0;
@@ -162,8 +165,13 @@ En Gadier Sistemas creemos que la tecnología es más que herramientas: es un pu
   // 🎯 CALCULAR VALORES QUE FALTABAN (AQUÍ ESTABA EL ERROR)
   // ============================================================
 
-  const descuento = parseFloat(document.getElementById("descuentoInput")?.value || 0);
-  const aplicarIVA = document.getElementById("chkIVA")?.checked || false;
+  const descuento = config.descuento !== undefined
+    ? parseFloat(config.descuento)
+    : parseFloat(document.getElementById("descuentoInput")?.value || 0);
+
+  const aplicarIVA = config.incluirIVA !== undefined
+    ? config.incluirIVA
+    : (document.getElementById("chkIVA")?.checked || false);
 
   const subtotal = visibles.reduce((acc, r) => acc + obtenerCostoFinal(r), 0);
 
@@ -172,7 +180,7 @@ En Gadier Sistemas creemos que la tecnología es más que herramientas: es un pu
 
   const valorIVA = aplicarIVA ? subtotalConDescuento * 0.19 : 0;
 
-  const totalFinal = subtotalConDescuento + valorIVA + gastosAdicionales;
+  const totalFinal = subtotalConDescuento + valorIVA;
 
   // ============================================================
   // 📊 TABLA DINÁMICA (AUTO TABLE)

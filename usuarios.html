@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios - Gadier Sistemas</title>
+
+    <!-- Estilos BASE (Reutilizamos variables y layouts) -->
+    <link rel="stylesheet" href="./assets/css/index.css">
+    <link rel="stylesheet" href="./assets/css/components/sidebar.css">
+    <link rel="stylesheet" href="./assets/css/components/header.css">
+
+    <!-- Estilo específico (basado en historial) -->
+    <style>
+        /* Reutilizamos estilos de tabla glass */
+        .glass-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: var(--white);
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .btn-action {
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            transition: all 0.2s;
+        }
+
+        .btn-edit {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .btn-edit:hover {
+            background: rgba(255, 193, 7, 0.4);
+        }
+
+        .btn-delete {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+        }
+
+        .btn-delete:hover {
+            background: rgba(220, 53, 69, 0.4);
+        }
+
+        /* Modal Styles (Simple) */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            border: 1px solid var(--color-primary);
+            padding: 25px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(153, 15, 12, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--gray-light);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar-container">
+            <!-- Se carga dinámicamente -->
+        </aside>
+
+        <!-- CONTENT -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>Gestión de Usuarios</h1>
+
+                <button class="btn-primary" onclick="abrirModalCrear()">
+                    + Nuevo Usuario
+                </button>
+            </header>
+
+            <section class="glass-container">
+                <table id="tablaUsuarios">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyUsuarios">
+                        <!-- JS carga filas -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL CREAR -->
+    <div id="modalCrear" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="color:var(--color-primary); margin-bottom:15px;">Crear Usuario</h3>
+            <form id="formCrear">
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" id="nombreNew" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="emailNew" required>
+                </div>
+                <div class="form-group">
+                    <label>Rol</label>
+                    <select id="rolNew">
+                        <option value="cotizador">Cotizador</option>
+                        <option value="admin">Administrador</option>
+                        <option value="soporte">Soporte</option>
+                        <option value="tecnica">Técnica</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="passNew" required minlength="6">
+                </div>
+
+                <div style="text-align:right; margin-top:20px;">
+                    <button type="button" class="btn-secondary" onclick="cerrarModales()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Crear</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL RESET PASS -->
+    <div id="modalReset" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="color:var(--color-primary); margin-bottom:15px;">Cambiar Contraseña</h3>
+            <p id="userResetName" style="color:gray; margin-bottom:15px; font-size:0.9rem;"></p>
+            <form id="formReset">
+                <input type="hidden" id="idReset">
+                <div class="form-group">
+                    <label>Nueva Contraseña</label>
+                    <input type="password" id="passReset" required minlength="6">
+                </div>
+
+                <div style="text-align:right; margin-top:20px;">
+                    <button type="button" class="btn-secondary" onclick="cerrarModales()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="./assets/js/sidebar.js"></script>
+    <script src="./assets/js/usuarios.js"></script>
+
+</body>
+
+</html>

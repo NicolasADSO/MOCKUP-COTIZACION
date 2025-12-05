@@ -18,16 +18,16 @@ window.nombreSubprocesoEstandar = {
 // ⭐ MANEJO DE CLIENTES FAVORITOS
 // ===========================
 window.obtenerFavoritos = function () {
-  return JSON.parse(localStorage.getItem("clientesFavoritos") || "[]");
+  // ACTUALIZADO: Ahora devuelve datos de la API en lugar de localStorage
+  return window.listaClientesGlobal || [];
 };
 
 window.guardarFavorito = function (cliente) {
-  let favs = window.obtenerFavoritos();
-
-  // evitar duplicados por nombre
-  if (!favs.some(f => f.nombre === cliente.nombre)) {
-    favs.push(cliente);
-    localStorage.setItem("clientesFavoritos", JSON.stringify(favs));
+  // Delegar a la lógica centralizada de API (definida en cotizacion.js)
+  if (window.guardarClienteEnBaseDatos) {
+    window.guardarClienteEnBaseDatos(cliente);
+  } else {
+    console.warn("⚠️ guardarClienteEnBaseDatos no está disponible aún.");
   }
 };
 
@@ -123,48 +123,78 @@ if (!window.abrirModalDatosCliente) {
     const radioCC = modal.querySelector("#identCC");
     const inputNumeroIdent = modal.querySelector("#modalNumeroIdent");
 
-    // ====== SELECT DE FAVORITOS ======
+    // ====== SELECT DE FAVORITOS (Desde API) ======
     const selectFav = modal.querySelector("#clienteExistenteSelect");
-    const favoritos = window.obtenerFavoritos();
 
-    // Rellenar el select
-    if (selectFav) {
-      selectFav.innerHTML = `<option value="">— Cliente nuevo —</option>`;
+    // Función interna para renderizar
+    const renderOpciones = () => {
+      const clientesDB = window.listaClientesGlobal || [];
+      if (!selectFav) return;
 
-      favoritos.forEach((f, idx) => {
-        selectFav.innerHTML += `<option value="${idx}">${f.nombre} (${f.correo || "sin correo"})</option>`;
+      selectFav.innerHTML = `<option value="">— Cliente nuevo / Buscar —</option>`;
+      clientesDB.forEach((c) => {
+        // Diferenciar empresa del contacto
+        const label = c.empresa ? `${c.empresa} (${c.nombre_contacto})` : c.nombre_contacto;
+        selectFav.innerHTML += `<option value="${c.id}">${label}</option>`;
       });
+    };
 
-      // Al seleccionar un favorito → cargarlo al formulario
+    // Intentar refrescar desde la API siempre al abrir
+    if (window.cargarClientesDesdeDB) {
+      // Mostrar estado de carga temporalmente
+      if (selectFav) selectFav.innerHTML = `<option>Obteniendo clientes...</option>`;
+
+      window.cargarClientesDesdeDB().then(() => {
+        renderOpciones();
+      });
+    } else {
+      // Fallback si no existe la fn
+      renderOpciones();
+    }
+
+    // Listener de cambio
+    if (selectFav) {
+      // Al seleccionar → cargarlo al formulario
       selectFav.onchange = () => {
-        const idx = selectFav.value;
+        const id = selectFav.value;
 
-        if (idx === "") {
+        if (!id) {
           // Limpia porque eligieron cliente nuevo
           inputNombre.value = "";
           inputCorreo.value = "";
           inputTelefono.value = "";
           inputDestinatario.value = "";
-          radioRUNT.checked = false;
-          radioCC.checked = false;
+          if (radioRUNT) radioRUNT.checked = false;
+          if (radioCC) radioCC.checked = false;
           inputNumeroIdent.style.display = "none";
           inputNumeroIdent.value = "";
           return;
         }
 
-        const fav = favoritos[idx];
+        // Buscar en el array
+        // Comparación laxa porque value es string
+        const cliente = clientesDB.find(c => c.id == id);
+        if (!cliente) return;
 
-        inputNombre.value = fav.nombre || "";
-        inputCorreo.value = fav.correo || "";
-        inputTelefono.value = fav.telefono || "";
-        inputDestinatario.value = fav.destinatario || "";
+        // Mapeo DB -> Campos Formulario
+        inputNombre.value = cliente.nombre_contacto || ""; // nombre_contacto en DB
+        inputCorreo.value = cliente.correo || "";
+        inputTelefono.value = cliente.telefono || "";
+        inputDestinatario.value = cliente.nombre_contacto || ""; // Default
 
-        if (fav.tipoIdent === "RUNT") radioRUNT.checked = true;
-        else if (fav.tipoIdent === "Documento") radioCC.checked = true;
+        // Identificación
+        if (cliente.tipo_identificacion === "RUNT") {
+          if (radioRUNT) radioRUNT.checked = true;
+        } else {
+          if (radioCC) radioCC.checked = true;
+        }
 
-        if (fav.numeroIdent) {
+        if (cliente.numero_identificacion) {
           inputNumeroIdent.style.display = "block";
-          inputNumeroIdent.value = fav.numeroIdent;
+          inputNumeroIdent.value = cliente.numero_identificacion;
+        } else {
+          inputNumeroIdent.style.display = "none";
+          inputNumeroIdent.value = "";
         }
       };
     }
@@ -185,7 +215,7 @@ if (!window.abrirModalDatosCliente) {
         if (d.destinatario) inputDestinatario.value = d.destinatario;
         if (d.tipoIdent === "RUNT") {
           radioRUNT.checked = true;
-        } else if (d.tipoIdent === "Documento de identidad") {
+        } else if (d.tipoIdent === "CC" || d.tipoIdent === "Documento de identidad") {
           radioCC.checked = true;
         }
         if (d.numeroIdent) {
@@ -233,12 +263,20 @@ if (!window.abrirModalDatosCliente) {
 
       let tipoIdent = "";
       if (radioRUNT.checked) tipoIdent = "RUNT";
-      else if (radioCC.checked) tipoIdent = "Documento de identidad";
+      else if (radioCC.checked) tipoIdent = "CC";
 
       const numeroIdent = (inputNumeroIdent.value || "").trim();
 
+      // ID del cliente (si viene de select)
+      let clienteId = null;
+      if (selectFav && selectFav.value) {
+        // El value del select es el ID del cliente en DB (ver cotizacion.js load logic)
+        clienteId = selectFav.value;
+      }
+
       // Guardar global + sessionStorage
       const datos = {
+        id: clienteId, // <--- Importante para guardar cotización vinculada
         nombre,
         correo,
         telefono,

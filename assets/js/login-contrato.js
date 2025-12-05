@@ -87,28 +87,76 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Validar contraseña incorrecta
-    if (password.value !== clavesPorRol[rolElegido]) {
-      msg.textContent = "❌ Contraseña incorrecta para este rol.";
+    // ============================================================
+    // 🚀 LOGIN VIA API (PRODUCCIÓN)
+    // ============================================================
+
+    // Mapeo temporal de Roles -> Emails (Ya que el login pide Rol, no Email)
+    const correoPorRol = {
+      admin: "admin@gadier.com",
+      cotizador: "cotizador@gadier.com",
+      soporte: "soporte@gadier.com",
+      tecnica: "tecnica@gadier.com"
+    };
+
+    const email = correoPorRol[rolElegido];
+
+    if (!email) {
+      msg.textContent = "⚠ Este rol no tiene usuario asignado en DB.";
       return;
     }
 
-    // Login válido
-    msg.textContent = "";
+    msg.textContent = "⌛ Validando credenciales...";
+    btn.disabled = true;
 
-    // Guardar sesión
-    const usuarioActivo = { rol: rolElegido };
-    localStorage.setItem("usuario_activo", JSON.stringify(usuarioActivo));
-    localStorage.setItem("usuario_logueado", "true");
+    fetch('api/auth/login.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: email,
+        password: password.value
+      })
+    })
+      .then(r => r.json())
+      .then(data => {
+        btn.disabled = false;
 
-    // Mostrar pantalla de carga
-    pantallaCarga.style.display = "flex";
-    setTimeout(() => { barra.style.width = "100%"; }, 60);
+        if (data.success) {
+          // ✅ Login Exitoso
+          msg.textContent = "";
 
-    // Redirigir
-    setTimeout(() => {
-      window.location.href = "cotizacion.html";
-    }, 2000);
+          // Guardar sesión en LocalStorage (para compatibilidad con resto de la app)
+          // Y la sesión PHP ya quedó activa en el servidor (cookie PHPSESSID)
+          const usuarioActivo = {
+            id: data.usuario.id,
+            rol: data.usuario.rol, // Asegurar que coincida con lo esperado
+            nombre: data.usuario.nombre
+          };
+
+          localStorage.setItem("usuario_activo", JSON.stringify(usuarioActivo));
+          localStorage.setItem("usuario_logueado", "true");
+
+          // Mostrar pantalla de carga
+          pantallaCarga.style.display = "flex";
+          setTimeout(() => { barra.style.width = "100%"; }, 60);
+
+          // Redirigir
+          setTimeout(() => {
+            window.location.href = "cotizacion.html";
+          }, 2000);
+
+        } else {
+          // ❌ Login Fallido
+          msg.textContent = "❌ " + data.message;
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        btn.disabled = false;
+        msg.textContent = "❌ Error de conexión con el servidor.";
+      });
+
   });
 
 });
+
