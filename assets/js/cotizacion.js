@@ -154,6 +154,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       chk.checked = !chk.checked;
       rowElement.classList.toggle("selected", chk.checked);
+
+      // 🔥 Disparar evento change manual para que los listeners (como el de "Todo el proceso") reaccionen
+      chk.dispatchEvent(new Event("change"));
     });
   }
 

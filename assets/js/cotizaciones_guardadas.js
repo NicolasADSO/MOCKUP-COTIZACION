@@ -226,10 +226,12 @@ function abrirCotizacion(id) {
 }
 
 
+
 // ============================================================
-// 📂 VER LISTA DE COTIZACIONES DE UN CLIENTE
+// 📂 VER COTIZACIONES DE UN CLIENTE (CON CHECKBOX + UNIR)
 // ============================================================
 function verCotizacionesCliente(key) {
+
     const grupos = agruparPorCliente(window.cotizacionesBase);
     const grupo = grupos[key];
 
@@ -245,19 +247,25 @@ function verCotizacionesCliente(key) {
             Cotizaciones de ${grupo.cliente.nombre}
         </h2>
 
-        <table class="tabla-cotizaciones">
+        <button class="btn-ver-cot" onclick="unirCotizacionesCliente('${key}')">
+            📄 Unir seleccionadas
+        </button>
+
+        <table class="tabla-cotizaciones" style="margin-top:15px;">
             <thead>
                 <tr>
+                    <th><input type="checkbox" id="chkClienteTodo"></th>
                     <th>ID</th>
                     <th>Fecha</th>
                     <th>Total</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
+
             <tbody>
-                ${grupo.cotizaciones
-            .map(c => `
+                ${grupo.cotizaciones.map(c => `
                     <tr>
+                        <td><input type="checkbox" class="chkCliente" value="${c.id}"></td>
                         <td>${c.id}</td>
                         <td>${c.fecha}</td>
                         <td>$${Number(c.total).toLocaleString("es-CO")}</td>
@@ -268,9 +276,83 @@ function verCotizacionesCliente(key) {
                             <button class="btn-eliminar" onclick="eliminarCotizacion('${c.id}')">Eliminar</button>
                         </td>
                     </tr>
-                `)
-            .join("")}
+                `).join("")}
             </tbody>
         </table>
     `;
+
+    // marcar/desmarcar todos
+    document.getElementById("chkClienteTodo").addEventListener("change", (e) => {
+        const estado = e.target.checked;
+        document.querySelectorAll(".chkCliente").forEach(chk => chk.checked = estado);
+    });
 }
+
+function unirCotizacionesCliente(key) {
+    const cotizaciones = window.cotizacionesBase.filter(c => c.cliente.id === key);
+    const idsSeleccionados = document.querySelectorAll(".chkCliente:checked").map(chk => chk.value);
+
+    if (idsSeleccionados.length === 0) return alert("Debe seleccionar al menos una cotización.");
+
+    const cotizacionesSeleccionadas = cotizaciones.filter(c => idsSeleccionados.includes(c.id));
+
+    const cotizacionUnida = {
+        id: "UNIDOS_" + Date.now(),
+        cliente: cotizacionesSeleccionadas[0].cliente,
+        fecha: new Date().toISOString().split("T")[0],
+        items: [],
+        total: 0,
+        estado: "pendiente",
+    };
+
+    cotizacionesSeleccionadas.forEach(c => {
+        cotizacionUnida.items.push(...c.items);
+        cotizacionUnida.total += Number(c.total);
+    });
+
+    cotizacionUnida.items = cotizacionUnida.items.map((item, index) => ({
+        ...item,
+        id: "UNIDOS_" + index,
+    }));
+
+    window.cotizacionesBase.push(cotizacionUnida);
+    localStorage.setItem("cotizaciones_guardadas", JSON.stringify(window.cotizacionesBase));
+    mostrarCotizaciones(window.cotizacionesBase);
+}
+// ============================================================
+// 🔄 UNIR COTIZACIONES SELECCIONADAS DE UN CLIENTE
+// ============================================================
+function unirCotizacionesCliente(key) {
+
+    const seleccionados = [...document.querySelectorAll(".chkCliente:checked")]
+        .map(chk => chk.value);
+
+    if (seleccionados.length === 0) {
+        alert("Selecciona al menos 1 cotización.");
+        return;
+    }
+
+    const grupos = agruparPorCliente(window.cotizacionesBase);
+    const grupo = grupos[key];
+
+    const cotizaciones = grupo.cotizaciones.filter(c => seleccionados.includes(c.id));
+
+    // Unir items
+    let itemsCombinados = [];
+    cotizaciones.forEach(c => itemsCombinados = itemsCombinados.concat(c.items));
+
+    // Crear cotización combinada
+    const cotCombinada = {
+        id: "COMBO-" + Date.now(),
+        fecha: new Date().toLocaleString("es-CO"),
+        cliente: grupo.cliente,
+        items: itemsCombinados
+    };
+
+    // Guardar en localStorage para abrir en cotizacion.html
+    localStorage.setItem("cotizacion_combinada", JSON.stringify(cotCombinada));
+
+    // Redirigir
+    window.location.href = "cotizacion.html";
+}
+

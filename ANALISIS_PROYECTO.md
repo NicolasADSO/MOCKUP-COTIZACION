@@ -1,46 +1,53 @@
 # Análisis del Proyecto: Gadier Sistemas (Mockup Cotización)
 
 ## 1. Visión General
-El proyecto es una aplicación web estática (HTML/CSS/JS) diseñada para generar, gestionar y visualizar cotizaciones de servicios (principalmente archivísticos y bibliotecológicos). Funciona como un prototipo de alta fidelidad (Mockup) con lógica funcional implementada en JavaScript del lado del cliente.
+El proyecto es una aplicación web ("Single Page Application" en práctica) diseñada para generar, gestionar y visualizar cotizaciones de servicios especializados (archivísticos y bibliotecológicos). Funciona como un prototipo de alta fidelidad con funcionalidad productiva en el lado del cliente.
+
+Permite al usuario componer una cotización compleja agregando procesos, subprocesos, suministros, equipos, funcionarios y servicios de aliados, para finalmente exportar documentos corporativos (PDF) o presentaciones de propuesta de valor (PowerPoint/PPTX).
 
 ## 2. Arquitectura y Tecnologías
-*   **Frontend**: HTML5, CSS3 (Vanilla), JavaScript (ES6+).
-*   **Persistencia**: `localStorage` del navegador (No hay base de datos backend).
-*   **Generación de Documentos**:
-    *   **PDF**: `jspdf` y `jspdf-autotable`.
-    *   **PowerPoint**: `pptxgenjs`.
-*   **Estructura de Archivos**:
-    *   `assets/js/`: Lógica modularizada (`cotizacion.js`, `procesos_data.js`, etc.).
-    *   `assets/css/`: Estilos separados por módulo.
-    *   `data/`: Archivos JSON estáticos (aunque `procesos_data.js` actúa como fuente principal de datos).
-    *   `includes/`: Componentes reutilizables (sidebar).
+*   **Frontend**: HTML5 Semántico, CSS3 Modular (Vanilla), JavaScript (ES6+).
+*   **Persistencia**: `localStorage` del navegador.
+    *   *Uso*: Guardado de sesión (`usuario_logueado`), historial de cotizaciones y clientes favoritos.
+*   **Motores de Generación Documental (Client-Side)**:
+    *   **PDF**: `jspdf` y `jspdf-autotable` para reportes tabulares y formales.
+    *   **PowerPoint**: `pptxgenjs` para diapositivas de propuestas comerciales visuales.
+*   **Estructura de Datos**:
+    *   `procesos_data.js`: Fuente de verdad para **precios y estructura taxonómica** (Procesos -> Subprocesos).
+    *   `plantillasProcesos.js`: Fuente de **contenido rico** (descripciones, beneficios, mensajes de venta) para los documentos generados.
 
-## 3. Análisis de Código
+## 3. Estructura de Archivos y Módulos
+El proyecto sigue una arquitectura modular clara en `assets/`:
+
+*   **`assets/js/`**:
+    *   `cotizacion.js`: Controlad principal de la vista de cotización.
+    *   `tabla_resumen.js`: Gestión de la tabla reactiva de ítems cotizados.
+    *   `modulos_extras.js`: Lógica para Suministros, Equipos y Aliados.
+    *   `funcionarios.js`: Lógica compleja para cálculo de distribución de tiempos (días/horas) y gastos de personal.
+    *   `pdf_gadier.js` / `propuesta_valor.js`: Motores de exportación independientes.
+*   **`assets/css/`**: Estilos "scoped" por archivo para mantener el orden (`suministros.css`, `funcionarios.css`, etc.), cargados centralmente en el layout.
+
+## 4. Análisis de Funcionalidad
 
 ### Puntos Fuertes
-*   **Modularidad**: El código JavaScript está bien separado por responsabilidades (lógica de cotización, datos, generación de PDF, autenticación).
-*   **Interfaz Dinámica**: Uso de manipulación del DOM para una experiencia de usuario fluida (cálculos en tiempo real, agregar/eliminar filas).
-*   **Funcionalidad Completa**: Incluye características avanzadas para un mockup, como generación de PDF/PPT y persistencia local.
+1.  **Separación de Datos y Presentación**: La división entre `procesos_data.js` (lógica de negocio) y `plantillasProcesos.js` (narrativa comercial) es excelente para mantener el contenido.
+2.  **Interactividad Avanzada**:
+    *   Cálculos en tiempo real de totales, descuentos y estimaciones.
+    *   Módulo de **Funcionarios** con distribución automática de carga laboral (algoritmo de días hábiles vs total funcionarios).
+3.  **Portabilidad Total**: Al no requerir backend, la aplicación es extremadamente fácil de desplegar y rápida.
+4.  **Generación de Documentos**: La capacidad de generar PPTX editables y PDFs estandarizados directamente en el navegador es un valor agregado alto.
 
-### Áreas de Mejora
-*   **Datos Hardcoded**: La lógica de precios y procesos está "quemada" en `procesos_data.js`. Esto dificulta el mantenimiento sin tocar el código.
-*   **Persistencia Volátil**: Al depender de `localStorage`, los datos se pierden si se borra la caché o se cambia de navegador/dispositivo.
-*   **Seguridad**: La autenticación (`auth.js`) es puramente frontend y no segura para un entorno real.
-*   **Estilos**: No se observa el uso de una metodología CSS robusta (BEM, OOCSS) o preprocesadores, lo que podría dificultar la escalabilidad visual.
+### Áreas de Mejora y Riesgos
+*   **Datos Hardcoded**: Aunque separados, los precios y textos residen en archivos JS. Un cambio de precios requiere despliegue de código.
+*   **Seguridad de Sesión**: La autenticación en `auth.js` valida credenciales quemadas en código. Es funcional para un mockup/herramienta interna desconectada, pero crítico para una web pública.
+*   **Persistencia Local**: Los datos viven en el navegador del usuario. No hay sincronización entre dispositivos ni backup en nube.
 
-## 4. Hallazgos Críticos
+## 5. Estado Actual (Hallazgos Recientes)
+*   ✅ **Corrección de Estilos**: Se verificó la existencia de `cotizaciones_guardadas.css`, resolviendo problemas visuales previos.
+*   ✅ **Módulo de Funcionarios**: Se ha implementado una lógica robusta para calcular costos de personal basados en tiempo, diferenciando entre honorarios y gastos operativos.
+*   ✅ **Favoritos**: Implementación funcional de guardado de datos de clientes frecuentes para agilizar nuevas cotizaciones.
 
-> [!WARNING]
-> **Archivo Faltante**: Se detectó una referencia a `./assets/css/cotizaciones_guardadas.css` en el archivo `cotizaciones_guardadas.html`, pero **este archivo no existe** en el directorio `assets/css/`. Esto provocará que la página de "Cotizaciones Guardadas" se vea sin estilos específicos.
-
-## 5. Recomendaciones
-
-1.  **Crear el CSS Faltante**: Es prioritario crear `assets/css/cotizaciones_guardadas.css` para asegurar la correcta visualización del módulo de cotizaciones guardadas.
-2.  **Refactorizar Datos**: Mover la data de `procesos_data.js` a archivos JSON puros y cargarlos vía `fetch`, simulando una API real.
-3.  **Validación de Formularios**: Mejorar la validación de entrada de datos para evitar errores en los cálculos o en la generación de documentos.
-4.  **Backup de Datos**: Implementar una función para exportar/importar el `localStorage` a un archivo JSON, permitiendo "guardar" el trabajo externamente.
-
-## 6. Próximos Pasos Sugeridos
-*   [x] Crear el archivo `assets/css/cotizaciones_guardadas.css`.
-*   [x] Revisar y ajustar la lógica de filtrado en `cotizaciones_guardadas.js`.
-*   [x] Implementar la vista de detalle completa para una cotización guardada.
+## 6. Recomendaciones Técnicas
+1.  **Refactorización a JSON**: Mover los objetos de `plantillasProcesos.js` y `procesos_data.js` a archivos `.json` reales en la carpeta `data/` y cargarlos vía `fetch`. Esto permitiría editar precios sin tocar lógica JS.
+2.  **Validación de Tipos**: Al crecer la lógica matemática (especialmente en funcionarios), implementar validaciones más estrictas o usar JSDoc para asegurar que los cálculos operan sobre números y no strings concatenados.
+3.  **Backup de Datos**: Crear una utilidad pequeña para "Exportar Datos" que genere un JSON con todas las cotizaciones guardadas y favoritos, permitiendo al usuario respaldar su información local.

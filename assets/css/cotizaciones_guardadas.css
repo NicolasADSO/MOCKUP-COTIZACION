@@ -292,3 +292,19 @@
 .btn-ver:hover {
     background: #004f99;
 }
+
+.btn-unir {
+    background: #990f0c;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.btn-unir:hover {
+    background: #7d0c0a;
+}
