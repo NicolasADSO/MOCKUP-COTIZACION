@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cotizaciones Guardadas - Gadier Sistemas</title>
+
+    <!-- === ESTILOS PRINCIPALES === -->
+    <link rel="stylesheet" href="./assets/css/layout.css" />
+    <link rel="stylesheet" href="./assets/css/sidebar.css" />
+    <link rel="stylesheet" href="./assets/css/cotizaciones_guardadas.css" />
+</head>
+
+<body>
+
+    <!-- ========================================================= -->
+    <!-- SIDEBAR -->
+    <!-- ========================================================= -->
+    <div id="sidebar-container">
+        <!-- Aquí carga tu sidebar actual automáticamente -->
+        <script>
+            fetch("./includes/sidebar.html")
+                .then(res => res.text())
+                .then(html => { document.getElementById("sidebar-container").innerHTML = html; });
+        </script>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- CONTENIDO PRINCIPAL -->
+    <!-- ========================================================= -->
+    <main class="main-content">
+        <h1 class="titulo-modulo">📁 Cotizaciones Guardadas</h1>
+
+        <!-- ========================== -->
+        <!-- BUSCADOR Y FILTROS -->
+        <!-- ========================== -->
+        <div class="filtros-container">
+            <input type="text" id="buscarCotizacion" placeholder="Buscar por cliente, empresa o NIT..." />
+
+            <select id="filtroFecha">
+                <option value="">Todas las fechas</option>
+                <option value="hoy">Hoy</option>
+                <option value="semana">Últimos 7 días</option>
+                <option value="mes">Últimos 30 días</option>
+            </select>
+
+            <select id="filtroEstado">
+                <option value="">Todos los estados</option>
+                <option value="generada">Generada</option>
+            </select>
+        </div>
+
+        <!-- ========================== -->
+        <!-- TABLA -->
+        <!-- ========================== -->
+        <table class="tabla-cotizaciones">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Empresa</th>
+                    <th>Total</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="listaCotizaciones">
+                <!-- Cargado desde JS -->
+            </tbody>
+        </table>
+    </main>
+
+    <!-- ========================================================= -->
+    <!-- MODAL DETALLE COTIZACIÓN -->
+    <!-- ========================================================= -->
+    <div id="modalDetalle" class="modal-cliente-overlay" style="display:none;">
+        <div class="modal-cliente-contenedor" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2 style="color:#990f0c; margin:0;">📋 Detalle de Cotización</h2>
+                <button id="btnCerrarModal" class="btn-modal-close" style="width:auto;">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Info Cliente -->
+                <div class="info-cliente-box">
+                    <p><strong>Cliente:</strong> <span id="detCliente"></span></p>
+                    <p><strong>Empresa:</strong> <span id="detEmpresa"></span></p>
+                    <p><strong>NIT/CC:</strong> <span id="detNit"></span></p>
+                    <p><strong>Fecha:</strong> <span id="detFecha"></span></p>
+                </div>
+
+                <!-- Tabla Items -->
+                <div class="tabla-scroll" style="margin-top:20px; max-height:300px; overflow-y:auto;">
+                    <table class="tabla-cotizaciones" style="font-size:13px;">
+                        <thead>
+                            <tr>
+                                <th>Proceso / Item</th>
+                                <th>Unidad</th>
+                                <th>Cant.</th>
+                                <th>Valor Unit.</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detTablaBody">
+                            <!-- JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Totales -->
+                <div class="total-box" style="margin-top:20px; text-align:right; font-size:18px;">
+                    <strong>Total General:</strong> <span id="detTotal" style="color:#990f0c;">$0</span>
+                </div>
+            </div>
+
+            <div class="modal-botones" style="margin-top:20px;">
+                <button id="btnCerrarModalAbajo" class="btn-cancelar">Cerrar</button>
+                <button id="btnImprimirDetalle" class="btn-guardar">🖨️ Imprimir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- SCRIPT PRINCIPAL -->
+    <!-- ========================================================= -->
+    <script src="./assets/js/cotizaciones_guardadas.js"></script>
+</body>
+
+</html>

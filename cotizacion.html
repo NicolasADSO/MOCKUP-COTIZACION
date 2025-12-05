@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,7 +24,7 @@
   <script>
     // Si NO hay sesión → enviar al login
     if (!localStorage.getItem("usuario_logueado")) {
-        window.location.href = "login.html";
+      window.location.href = "login.html";
     }
   </script>
 
@@ -34,14 +35,14 @@
   <!-- ========== CONTENIDO PRINCIPAL MOVERÁNDOSE ========== -->
   <main class="main-content">
 
-  <!-- === HEADER === -->
+    <!-- === HEADER === -->
     <header class="navbar-fija">
       <h1>📂 Generador de Cotización (Mockup Gadier)</h1>
     </header>
 
-  <!-- === CONTENIDO === -->
+    <!-- === CONTENIDO === -->
     <div class="cotizacion-layout">
-      
+
       <!-- ============================================================
            🧩 COLUMNA IZQUIERDA: FORMULARIO DE DATOS
       ============================================================ -->
@@ -93,18 +94,16 @@
           <h3 class="titulo-extra">📦 Suministros</h3>
 
           <select id="selectSuministro" class="input-extra">
-              <option value="">Seleccione suministro...</option>
+            <option value="">Seleccione suministro...</option>
           </select>
 
           <div class="fila-extra">
-              <input id="cantidadSuministro" type="number" class="input-extra"
-                    placeholder="Cantidad de unidades" min="1">
-              <input id="valorSuministro" type="text" class="input-extra"
-                    placeholder="Valor unitario ($)" readonly>
+            <input id="cantidadSuministro" type="number" class="input-extra" placeholder="Cantidad de unidades" min="1">
+            <input id="valorSuministro" type="text" class="input-extra" placeholder="Valor unitario ($)" readonly>
           </div>
 
           <button id="btnAgregarSuministro" class="btn-extra">
-              ➕ Agregar suministro
+            ➕ Agregar suministro
           </button>
         </div>
 
@@ -115,18 +114,16 @@
           <h3 class="titulo-extra">⚙️ Equipos</h3>
 
           <select id="selectEquipo" class="input-extra">
-              <option value="">Seleccione equipo...</option>
+            <option value="">Seleccione equipo...</option>
           </select>
 
           <div class="fila-extra">
-              <input id="cantidadEquipo" type="number" class="input-extra"
-                    placeholder="Cantidad de equipos" min="1">
-              <input id="valorEquipo" type="text" class="input-extra"
-                    placeholder="Valor unitario ($)" readonly>
+            <input id="cantidadEquipo" type="number" class="input-extra" placeholder="Cantidad de equipos" min="1">
+            <input id="valorEquipo" type="text" class="input-extra" placeholder="Valor unitario ($)" readonly>
           </div>
 
           <button id="btnAgregarEquipo" class="btn-extra">
-              ➕ Agregar equipo
+            ➕ Agregar equipo
           </button>
         </div>
 
@@ -137,54 +134,54 @@
             👥 FUNCIONARIOS — BLOQUE DENTRO DE COTIZACIÓN (NUEVO ORDEN)
         ============================================================ -->
         <div class="bloque-funcionarios bloque-extra">
-            <h3 class="titulo-extra">👥 Funcionarios</h3>
+          <h3 class="titulo-extra">👥 Funcionarios</h3>
 
-            <!-- 1️⃣ SELECT PRINCIPAL (ARRIBA) -->
-            <select id="selectFuncionario" class="input-extra">
-                <option value="">Seleccione funcionario...</option>
-            </select>
+          <!-- 1️⃣ SELECT PRINCIPAL (ARRIBA) -->
+          <select id="selectFuncionario" class="input-extra">
+            <option value="">Seleccione funcionario...</option>
+          </select>
 
-            <!-- 2️⃣ PLANIFICACIÓN AUTOMÁTICA -->
-            <div class="fila-extra" style="margin-top:10px; margin-bottom:6px;">
-                <input id="totalFuncionariosProyecto" type="number" class="input-extra"
-                      placeholder="Total funcionarios del proyecto" min="1" />
+          <!-- 2️⃣ PLANIFICACIÓN AUTOMÁTICA -->
+          <div class="fila-extra" style="margin-top:10px; margin-bottom:6px;">
+            <input id="totalFuncionariosProyecto" type="number" class="input-extra"
+              placeholder="Total funcionarios del proyecto" min="1" />
 
-                <input id="diasHabilesProyecto" type="number" class="input-extra"
-                      placeholder="Días hábiles del funcionario" min="1" />
-            </div>
+            <input id="diasHabilesProyecto" type="number" class="input-extra" placeholder="Días hábiles del funcionario"
+              min="1" />
+          </div>
 
-            <button id="btnDistribuirFuncionarios" class="btn-extra" style="margin-bottom:14px;">
-                ⚙️ Calcular distribución automática
-            </button>
+          <button id="btnDistribuirFuncionarios" class="btn-extra" style="margin-bottom:14px;">
+            ⚙️ Calcular distribución automática
+          </button>
 
-            <!-- 📊 MINI-TABLA — EDITABLE -->
-            <div id="tablaDistribucionContainer" style="display:none;margin:10px 0;">
-                <h4 style="margin-bottom:6px;color:#990f0c;font-size:15px;">
-                    📊 Distribución estimada del personal
-                </h4>
+          <!-- 📊 MINI-TABLA — EDITABLE -->
+          <div id="tablaDistribucionContainer" style="display:none;margin:10px 0;">
+            <h4 style="margin-bottom:6px;color:#990f0c;font-size:15px;">
+              📊 Distribución estimada del personal
+            </h4>
 
-                <table id="tablaDistribucion" style="width:100%;border-collapse:collapse;font-size:13px;">
-                    <thead>
-                        <tr style="background:#990f0c;color:white;">
-                            <th style="padding:6px;border:1px solid #bbb;">Funcionario</th>
-                            <th style="padding:6px;border:1px solid #bbb;">Días asignados</th>
-                            <th style="padding:6px;border:1px solid #bbb;">Horas/día</th>
-                            <!-- 🆕 NUEVO CAMPO -->
-                            <th style="padding:6px;border:1px solid #bbb;">Gastos extras</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+            <table id="tablaDistribucion" style="width:100%;border-collapse:collapse;font-size:13px;">
+              <thead>
+                <tr style="background:#990f0c;color:white;">
+                  <th style="padding:6px;border:1px solid #bbb;">Funcionario</th>
+                  <th style="padding:6px;border:1px solid #bbb;">Días asignados</th>
+                  <th style="padding:6px;border:1px solid #bbb;">Horas/día</th>
+                  <!-- 🆕 NUEVO CAMPO -->
+                  <th style="padding:6px;border:1px solid #bbb;">Gastos extras</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
 
 
-            <!-- VALOR POR HORA (AUTOCARGADO) -->
-            <input id="valorHoraFuncionario" type="text" class="input-extra" placeholder="Valor por hora ($)" readonly />
+          <!-- VALOR POR HORA (AUTOCARGADO) -->
+          <input id="valorHoraFuncionario" type="text" class="input-extra" placeholder="Valor por hora ($)" readonly />
 
-            <!-- BOTÓN AGREGAR -->
-            <button id="btnAgregarFuncionarioCot" class="btn-extra" disabled>
-                ➕ Agregar funcionario
-            </button>
+          <!-- BOTÓN AGREGAR -->
+          <button id="btnAgregarFuncionarioCot" class="btn-extra" disabled>
+            ➕ Agregar funcionario
+          </button>
         </div>
 
         <!-- ============================================================
@@ -195,16 +192,16 @@
 
           <!-- Seleccionar aliado -->
           <select id="selectAliado" class="input-extra">
-              <option value="">Seleccione aliado...</option>
+            <option value="">Seleccione aliado...</option>
           </select>
 
           <!-- Seleccionar servicio del aliado -->
           <select id="selectServicioAliado" class="input-extra" style="margin-top:8px;">
-              <option value="">Seleccione servicio...</option>
+            <option value="">Seleccione servicio...</option>
           </select>
 
           <button id="btnAgregarAliado" class="btn-extra" style="margin-top:10px;">
-              ➕ Agregar servicio del aliado
+            ➕ Agregar servicio del aliado
           </button>
         </div>
 
@@ -223,22 +220,22 @@
 
 
         <!-- ✅ TABLA DE RESUMEN (sin switch de vista) -->
-         <div class="tabla-scroll">
-        <table id="tablaResumen">
-         <thead>
-          <tr>
-            <th>Proceso</th>
-            <th>Unidad</th>
-            <th>Cantidad</th>
-            <th>Valor Unitario</th>
-            <th>Costo Estimado</th>
-            <th>Tiempo</th>
-            <th>Acción</th>
-          </tr>
-        </thead>
+        <div class="tabla-scroll">
+          <table id="tablaResumen">
+            <thead>
+              <tr>
+                <th>Proceso</th>
+                <th>Unidad</th>
+                <th>Cantidad</th>
+                <th>Valor Unitario</th>
+                <th>Costo Estimado</th>
+                <th>Tiempo</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
 
-          <tbody></tbody>
-        </table>
+            <tbody></tbody>
+          </table>
         </div>
 
         <!-- Total general -->
@@ -247,28 +244,18 @@
           <span id="totalGeneral">$0</span>
         </div>
 
-       <!-- Descuento -->
+        <!-- Descuento -->
         <div class="form-group descuento-box">
           <label for="descuentoInput">Descuento (%)</label>
-          <input
-            type="number"
-            id="descuentoInput"
-            placeholder="Ej: 10"
-            min="0"
-            max="100"
-            style="width:100%;padding:6px;border-radius:6px;border:1px solid #ccc;text-align:center;"
-          />
+          <input type="number" id="descuentoInput" placeholder="Ej: 10" min="0" max="100"
+            style="width:100%;padding:6px;border-radius:6px;border:1px solid #ccc;text-align:center;" />
         </div>
 
         <!-- Gastos Adicionales (DEBE IR AQUÍ, ANTES DEL IVA) -->
         <div class="form-group gastos-box">
           <label for="gastosInput">Gastos adicionales ($)</label>
-          <input
-            type="text"
-            id="gastosInput"
-            placeholder="Ej: 150000"
-            style="width:100%;padding:6px;border-radius:6px;border:1px solid #ccc;text-align:center;"
-          />
+          <input type="text" id="gastosInput" placeholder="Ej: 150000"
+            style="width:100%;padding:6px;border-radius:6px;border:1px solid #ccc;text-align:center;" />
         </div>
 
         <div class="gastos-extra-opciones" style="margin-top:6px;">
@@ -282,13 +269,11 @@
 
 
         <!-- ⚙️ Checkbox IVA: será insertado dinámicamente por JS -->
-        
+
         <!-- === BOTONES PRINCIPALES === -->
         <button id="btnPDF" class="btn-secundario">📄 Generar PDF Corporativo</button>
 
-        <button
-          id="btnPropuestaValor"
-          style="margin-top:10px;background:#7d0c0a;color:white;border:none;
+        <button id="btnPropuestaValor" style="margin-top:10px;background:#7d0c0a;color:white;border:none;
                  padding:10px 16px;border-radius:8px;font-weight:600;cursor:pointer;width:100%;">
           🎨 Generar Propuesta de Valor (PPT)
         </button>
@@ -306,6 +291,15 @@
       <h2 style="color:#990f0c;margin:0 0 15px 0;font-size:22px;font-weight:700;">
         📋 Datos del Cliente
       </h2>
+
+      <!-- Cliente existente -->
+      <div class="form-group">
+        <label for="clienteExistenteSelect">Cliente guardado</label>
+        <select id="clienteExistenteSelect">
+          <option value="">Cliente nuevo</option>
+        </select>
+      </div>
+
 
       <!-- Nombre -->
       <div class="form-group">
@@ -347,12 +341,7 @@
           </label>
         </div>
 
-        <input
-          type="text"
-          id="modalNumeroIdent"
-          placeholder="Número"
-          style="margin-top:8px;display:none;"
-        >
+        <input type="text" id="modalNumeroIdent" placeholder="Número" style="margin-top:8px;display:none;">
       </div>
 
       <!-- Botones -->
@@ -378,7 +367,7 @@
   <script src="./assets/js/propuesta_valor.js"></script>
   <script src="./assets/js/pdf_gadier.js"></script>
   <script src="./assets/js/cotizacion.js"></script>
- 
+
 
   <!-- ============================================================
        📦 CARGA ASÍNCRONA DEL SIDEBAR
@@ -398,20 +387,20 @@
         const btnLogout = container.querySelector(".logout-btn");
 
         if (btnLogout) {
-            btnLogout.addEventListener("click", () => {
-                document.getElementById("modalLogout").style.display = "flex";
-            });
+          btnLogout.addEventListener("click", () => {
+            document.getElementById("modalLogout").style.display = "flex";
+          });
         }
 
         // Botón cancelar
         document.getElementById("btnLogoutCancelar").addEventListener("click", () => {
-            document.getElementById("modalLogout").style.display = "none";
+          document.getElementById("modalLogout").style.display = "none";
         });
 
         // Botón confirmar cierre
         document.getElementById("btnLogoutConfirmar").addEventListener("click", () => {
-            localStorage.removeItem("usuario_logueado");
-            window.location.href = "login.html";
+          localStorage.removeItem("usuario_logueado");
+          window.location.href = "login.html";
         });
 
         const s = document.createElement("script");
@@ -434,7 +423,7 @@
   <script src="./assets/js/auth.js"></script>
   </div>
 
-    <div id="modalColumnas" class="modal-cliente-overlay" style="display:none;">
+  <div id="modalColumnas" class="modal-cliente-overlay" style="display:none;">
     <div class="modal-cliente-contenedor" style="max-width:380px;">
       <h2 style="color:#990f0c;">⚙️ Columnas visibles</h2>
 
@@ -499,59 +488,67 @@
   </div>
 
   <script>
-// Guarda el modo actual ("PDF" o "PPT")
-let modoActual = "";  
+    // Guarda el modo actual ("PDF" o "PPT")
+    let modoActual = "";
 
-// Abrir modal universal
-function abrirModalDatosCliente(modo) {
-  modoActual = modo;
-  document.getElementById("modalDatosCliente").style.display = "flex";
-}
+    // Abrir modal universal
+    function abrirModalDatosCliente(modo) {
+      modoActual = modo;
+      document.getElementById("modalDatosCliente").style.display = "flex";
 
-// Mostrar input número cuando eligen tipo de documento
-document.addEventListener("change", (e) => {
-  if (e.target.id === "identRUNT" || e.target.id === "identCC") {
-    document.getElementById("modalNumeroIdent").style.display = "block";
-  }
-});
+      // 🟦 Cargar clientes guardados
+      cargarClientesGuardadosEnSelect();
+      activarAutocompletarCliente();
+    }
 
-// Botón cancelar
-document.getElementById("btnModalCancelar").onclick = () => {
-  document.getElementById("modalDatosCliente").style.display = "none";
-};
 
-// Botón continuar
-document.getElementById("btnModalContinuar").onclick = () => {
 
-  const nombre = document.getElementById("modalNombreCliente").value.trim();
-  const correo = document.getElementById("modalCorreoCliente").value.trim();
-  const telefono = document.getElementById("modalTelefonoCliente").value.trim();
-  const destinatario = document.getElementById("modalDestinatario").value.trim();
+    // Mostrar input número cuando eligen tipo de documento
+    document.addEventListener("change", (e) => {
+      if (e.target.id === "identRUNT" || e.target.id === "identCC") {
+        document.getElementById("modalNumeroIdent").style.display = "block";
+      }
+    });
 
-  const tipoIdent = document.querySelector('input[name="tipoIdent"]:checked')?.value || "";
-  const numeroIdent = document.getElementById("modalNumeroIdent").value.trim();
+    // Botón cancelar
+    document.getElementById("btnModalCancelar").onclick = () => {
+      document.getElementById("modalDatosCliente").style.display = "none";
+    };
 
-  if (!nombre) return alert("Ingrese el nombre del cliente.");
-  if (!correo) return alert("Ingrese el correo.");
+    // Botón continuar
+    document.getElementById("btnModalContinuar").onclick = () => {
 
-  // Guardar datos globales
-  window.datosClienteGlobal = {
-    nombre,
-    correo,
-    telefono,
-    destinatario,
-    tipoIdent,
-    numeroIdent
-  };
+      const nombre = document.getElementById("modalNombreCliente").value.trim();
+      const correo = document.getElementById("modalCorreoCliente").value.trim();
+      const telefono = document.getElementById("modalTelefonoCliente").value.trim();
+      const destinatario = document.getElementById("modalDestinatario").value.trim();
 
-  document.getElementById("modalDatosCliente").style.display = "none";
+      const tipoIdent = document.querySelector('input[name="tipoIdent"]:checked')?.value || "";
+      const numeroIdent = document.getElementById("modalNumeroIdent").value.trim();
 
-  // Llamar flujo según modo
-  if (modoActual === "PDF") generarPDFConDatos();
-  if (modoActual === "PPT") generarPPTConDatos();
-};
-</script>
+      if (!nombre) return alert("Ingrese el nombre del cliente.");
+      if (!correo) return alert("Ingrese el correo.");
+
+      // Guardar datos globales
+      window.datosClienteGlobal = {
+        nombre,
+        correo,
+        telefono,
+        destinatario,
+        tipoIdent,
+        numeroIdent
+      };
+      guardarClienteEnMemoria(window.datosClienteGlobal);
+
+      document.getElementById("modalDatosCliente").style.display = "none";
+
+      // Llamar flujo según modo
+      if (modoActual === "PDF") generarPDFConDatos();
+      if (modoActual === "PPT") generarPPTConDatos();
+    };
+  </script>
 
 
 </body>
+
 </html>

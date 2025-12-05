@@ -1,0 +1,246 @@
+/* ============================================================
+   📁 COTIZACIONES GUARDADAS — ESTILOS
+   Compatible con layout.css y sidebar.css
+   ============================================================ */
+
+/* ----- CONTENEDOR PRINCIPAL ----- */
+.main-content {
+    padding: 30px;
+    background: #f8f8f8;
+    min-height: 100vh;
+}
+
+/* ----- TÍTULO DEL MÓDULO ----- */
+.titulo-modulo {
+    font-size: 28px;
+    font-weight: 700;
+    color: #990f0c;
+    margin-bottom: 25px;
+}
+
+/* ============================================================
+   🔍 BUSCADOR Y FILTROS
+   ============================================================ */
+.filtros-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.filtros-container input,
+.filtros-container select {
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    min-width: 200px;
+    outline: none;
+    transition: all .2s ease;
+}
+
+.filtros-container input:focus,
+.filtros-container select:focus {
+    border-color: #990f0c;
+    box-shadow: 0 0 4px rgba(153, 15, 12, 0.3);
+}
+
+/* ============================================================
+   📊 TABLA PRINCIPAL
+   ============================================================ */
+.tabla-cotizaciones {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tabla-cotizaciones thead {
+    background: #990f0c;
+    color: white;
+}
+
+.tabla-cotizaciones th,
+.tabla-cotizaciones td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    font-size: 14px;
+}
+
+.tabla-cotizaciones tbody tr:hover {
+    background: #f3f3f3;
+}
+
+.vacio {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+}
+
+/* ============================================================
+   🎛️ BOTONES DE ACCIÓN
+   ============================================================ */
+.btn-ver {
+    background: #0066cc;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: 0.2s;
+}
+
+.btn-ver:hover {
+    background: #004f99;
+}
+
+.btn-eliminar {
+    background: #d63031;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    margin-left: 8px;
+    transition: 0.2s;
+}
+
+.btn-eliminar:hover {
+    background: #b02526;
+}
+
+/* ============================================================
+   📱 RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+
+    .tabla-cotizaciones th,
+    .tabla-cotizaciones td {
+        font-size: 12px;
+        padding: 10px;
+    }
+
+    .filtros-container {
+        flex-direction: column;
+    }
+}
+
+/* ============================================================
+   🟦 MODAL DETALLE (Estilos importados de cotizacion.css)
+   ============================================================ */
+.modal-cliente-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.modal-cliente-contenedor {
+    background: white;
+    padding: 28px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.35);
+    animation: pop-in 0.25s ease;
+}
+
+@keyframes pop-in {
+    from {
+        transform: scale(0.85);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+}
+
+.btn-modal-close {
+    background: #eee;
+    color: #333;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btn-modal-close:hover {
+    background: #ddd;
+}
+
+.info-cliente-box {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.info-cliente-box p {
+    margin: 0;
+    font-size: 14px;
+    color: #444;
+}
+
+.modal-botones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 2px solid #f0f0f0;
+    padding-top: 15px;
+}
+
+.btn-cancelar {
+    background: #e0e0e0;
+    color: #333;
+    border: none;
+    padding: 9px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-guardar {
+    background: #990f0c;
+    color: white;
+    border: none;
+    padding: 9px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-guardar:hover {
+    background: #7d0c0a;
+}

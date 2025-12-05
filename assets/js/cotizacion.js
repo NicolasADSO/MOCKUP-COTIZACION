@@ -9,6 +9,12 @@ document.addEventListener("DOMContentLoaded", () => {
     "color:#990f0c;font-weight:bold;"
   );
 
+  // ===========================================
+  // 📌 CLIENTES GUARDADOS — Memoria local
+  // ===========================================
+  let clientesGuardados = JSON.parse(localStorage.getItem("clientes_guardados")) || [];
+
+
   // 🚫 PROCESOS QUE NO DEBEN MOSTRAR "UNIDAD" EN LA TABLA RESUMEN
   const PROCESOS_SIN_UNIDAD = [
     "Diagnóstico",
@@ -29,6 +35,92 @@ document.addEventListener("DOMContentLoaded", () => {
       maximumFractionDigits: 0,
     });
   }
+
+  // ===========================================
+  // 💾 Guardar cliente en memoria
+  // ===========================================
+  function guardarClienteEnMemoria(datos) {
+    let clientes = JSON.parse(localStorage.getItem("clientes_guardados")) || [];
+
+    // Usamos correo como identificador único
+    const existente = clientes.find(c => c.correo === datos.correo);
+
+    if (existente) {
+      existente.nombre = datos.nombre;
+      existente.telefono = datos.telefono;
+      existente.destinatario = datos.destinatario;
+      existente.tipoIdent = datos.tipoIdent;
+      existente.numeroIdent = datos.numeroIdent;
+    } else {
+      clientes.push({
+        id: "CLI-" + Date.now(),
+        ...datos
+      });
+    }
+
+    localStorage.setItem("clientes_guardados", JSON.stringify(clientes));
+  }
+
+
+  // ===========================================
+  // 📤 Cargar clientes al select del modal
+  // ===========================================
+  function cargarClientesGuardadosEnSelect() {
+    const select = document.getElementById("clienteExistenteSelect");
+    if (!select) return;
+
+    const clientes = JSON.parse(localStorage.getItem("clientes_guardados")) || [];
+
+    select.innerHTML = `<option value="">Cliente nuevo</option>`;
+
+    clientes.forEach(c => {
+      const option = document.createElement("option");
+      option.value = c.id;
+      option.textContent = `${c.nombre} (${c.empresa})`;
+      select.appendChild(option);
+    });
+  }
+
+  // ===========================================
+  // ✏️ Autocompletar datos del cliente
+  // ===========================================
+  function activarAutocompletarCliente() {
+    const select = document.getElementById("clienteExistenteSelect");
+    if (!select) return;
+
+    select.addEventListener("change", e => {
+      const id = e.target.value;
+
+      if (!id) {
+        document.getElementById("modalNombreCliente").value = "";
+        document.getElementById("modalCorreoCliente").value = "";
+        document.getElementById("modalTelefonoCliente").value = "";
+        document.getElementById("modalDestinatario").value = "";
+        document.getElementById("modalNumeroIdent").value = "";
+        return;
+      }
+
+      const clientes = JSON.parse(localStorage.getItem("clientes_guardados")) || [];
+      const cliente = clientes.find(c => c.id === id);
+
+      if (cliente) {
+        document.getElementById("modalNombreCliente").value = cliente.nombre;
+        document.getElementById("modalCorreoCliente").value = cliente.correo;
+        document.getElementById("modalTelefonoCliente").value = cliente.telefono;
+        document.getElementById("modalDestinatario").value = cliente.destinatario;
+        document.getElementById("modalNumeroIdent").value = cliente.numeroIdent;
+
+        // Seleccionar el tipo Ident
+        if (cliente.tipoIdent === "RUNT")
+          document.getElementById("identRUNT").checked = true;
+        else if (cliente.tipoIdent === "Documento")
+          document.getElementById("identCC").checked = true;
+      }
+    });
+  }
+
+
+
 
   // ============================================================
   // 🧱 MANEJADOR UNIFICADO DE CLIC EN FILAS DE SUBPROCESO
