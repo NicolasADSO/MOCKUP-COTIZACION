@@ -3,11 +3,7 @@
    ============================================================ */
 
 /* ----- CONTENEDOR PRINCIPAL ----- */
-.main-content {
-    padding: 30px;
-    background: #f8f8f8;
-    min-height: 100vh;
-}
+/* Main content hereda de layout.css */
 
 /* ----- TÍTULO DEL MÓDULO ----- */
 .titulo-modulo {

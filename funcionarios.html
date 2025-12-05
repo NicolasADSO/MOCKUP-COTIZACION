@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,86 +12,85 @@
   <link rel="stylesheet" href="./assets/css/funcionarios.css" />
 </head>
 
-<body class="page-funcionarios">
+<body>
 
   <script>
     // Si NO hay sesión → enviar al login
     if (!localStorage.getItem("usuario_logueado")) {
-        window.location.href = "login.html";
+      window.location.href = "login.html";
     }
   </script>
 
   <!-- === SIDEBAR === -->
-  <div id="sidebar-container"></div>
-
-  <!-- === HEADER FIJO === -->
-  <header class="navbar-fija">
-    <h1>👥 Gestión de Funcionarios (Mockup Gadier)</h1>
-  </header>
+  <div id="sidebar"></div>
 
   <!-- === CONTENIDO PRINCIPAL === -->
   <main class="main-content">
-    <section class="organigrama-container">
-      <h2>🏗️ Estructura Jerárquica de Funcionarios</h2>
-      <p class="descripcion">
-        Visualiza los niveles y cargos dentro del equipo institucional Gadier.
-      </p>
 
-      <div class="organigrama">
+    <!-- === HEADER FIJO === -->
+    <header class="navbar-fija">
+      <h1>👥 Gestión de Funcionarios (Mockup Gadier)</h1>
+    </header>
 
-        <!-- === GRUPO 1: COORDINADORES === -->
-        <div class="grupo-cargo" data-grupo="Coordinador">
+    <div class="content-wrapper" style="padding-top:20px;">
+      <section class="organigrama-container">
+        <h2>🏗️ Estructura Jerárquica de Funcionarios</h2>
+        <p class="descripcion">
+          Visualiza los niveles y cargos dentro del equipo institucional Gadier.
+        </p>
+
+        <div class="organigrama">
+
+          <!-- === GRUPO 1: COORDINADORES === -->
+          <div class="grupo-cargo" data-grupo="Coordinador">
             <h3 class="titulo-grupo">👔 Coordinadores</h3>
             <div class="nivel"></div>
             <button class="btn-agregar-cargo" data-grupo="Coordinador">➕ Añadir Coordinador</button>
-        </div>
+          </div>
 
-        <!-- === GRUPO 2: LÍDERES === -->
-        <div class="grupo-cargo" data-grupo="Líder">
+          <!-- === GRUPO 2: LÍDERES === -->
+          <div class="grupo-cargo" data-grupo="Líder">
             <h3 class="titulo-grupo">🧱 Líderes</h3>
             <div class="nivel"></div>
             <button class="btn-agregar-cargo" data-grupo="Líder">➕ Añadir Líder</button>
-        </div>
+          </div>
 
-        <!-- === GRUPO 3: ANALISTAS === -->
-        <div class="grupo-cargo" data-grupo="Analista">
+          <!-- === GRUPO 3: ANALISTAS === -->
+          <div class="grupo-cargo" data-grupo="Analista">
             <h3 class="titulo-grupo">💼 Analistas</h3>
             <div class="nivel"></div>
             <button class="btn-agregar-cargo" data-grupo="Analista">➕ Añadir Analista</button>
-        </div>
+          </div>
 
-        <!-- === GRUPO 4: AUXILIARES === -->
-        <div class="grupo-cargo" data-grupo="Auxiliar">
+          <!-- === GRUPO 4: AUXILIARES === -->
+          <div class="grupo-cargo" data-grupo="Auxiliar">
             <h3 class="titulo-grupo">🧰 Auxiliares</h3>
             <div class="nivel"></div>
             <button class="btn-agregar-cargo" data-grupo="Auxiliar">➕ Añadir Auxiliar</button>
-        </div>
+          </div>
 
         </div>
-
-
-        </div>
-
-    </section>
+      </section>
+    </div>
   </main>
 
   <!-- === MODAL PARA NUEVO FUNCIONARIO === -->
-    <div id="modalFuncionario" class="modal-overlay" style="display:none;">
+  <div id="modalFuncionario" class="modal-overlay" style="display:none;">
     <div class="modal-container">
-        <div class="modal-header">
+      <div class="modal-header">
         <h3>➕ Nuevo cargo</h3>
         <button id="btnCerrarModal" class="btn-cerrar-modal">✖</button>
-        </div>
+      </div>
 
-        <div class="modal-body">
+      <div class="modal-body">
         <label>Cargo:</label>
         <input type="text" id="cargoInput" placeholder="Ej. Coordinador Nivel 3" readonly />
 
         <label>Nivel:</label>
         <select id="nivelSelect">
-            <option value="3">Nivel 3</option>
-            <option value="2">Nivel 2</option>
-            <option value="1">Nivel 1</option>
+          <option value="3">Nivel 3</option>
+          <option value="2">Nivel 2</option>
+          <option value="1">Nivel 1</option>
         </select>
 
         <label>Producción diaria:</label>
@@ -98,15 +98,32 @@
 
         <label>Valor por hora ($):</label>
         <input type="number" id="pagoHoraInput" placeholder="Ej. 12000" />
-        </div>
+      </div>
 
-        <div class="modal-footer">
+      <div class="modal-footer">
         <button class="btn-guardar" id="btnGuardarFuncionario">Guardar</button>
         <button class="btn-cancelar" id="btnCancelarFuncionario">Cancelar</button>
-        </div>
+      </div>
     </div>
-    </div>
+  </div>
 
+  <!-- ========================================================= -->
+  <!-- 🔴 MODAL CONFIRMACIÓN DE CIERRE DE SESIÓN -->
+  <!-- ========================================================= -->
+  <div id="modalLogout" class="modal-cliente-overlay" style="display:none;">
+    <div class="modal-cliente-contenedor" style="max-width:360px;text-align:center;">
+      <h2 style="color:#990f0c;margin-bottom:10px;">⏻ Cerrar sesión</h2>
+      <p style="font-size:15px;line-height:1.4;color:#333;">
+        ¿Seguro que deseas cerrar tu sesión en Gadier Sistemas?
+      </p>
+      <div class="modal-botones" style="margin-top:20px;">
+        <button id="btnLogoutCancelar" class="btn-cancelar">Cancelar</button>
+        <button id="btnLogoutConfirmar" class="btn-guardar" style="background:#990f0c;color:white;">
+          Sí, cerrar sesión
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- === JS === -->
   <script src="./assets/js/funcionarios.js"></script>
@@ -115,10 +132,25 @@
   <script>
     async function loadSidebar() {
       try {
-        const container = document.getElementById("sidebar-container");
+        const container = document.getElementById("sidebar");
         const res = await fetch("./includes/sidebar.html");
         const html = await res.text();
         container.innerHTML = html;
+
+        // 🔥 Lógica de Logout
+        const btnLogout = container.querySelector(".logout-btn");
+        if (btnLogout) {
+          btnLogout.addEventListener("click", () => {
+            document.getElementById("modalLogout").style.display = "flex";
+          });
+        }
+        document.getElementById("btnLogoutCancelar").addEventListener("click", () => {
+          document.getElementById("modalLogout").style.display = "none";
+        });
+        document.getElementById("btnLogoutConfirmar").addEventListener("click", () => {
+          localStorage.removeItem("usuario_logueado");
+          window.location.href = "login.html";
+        });
 
         const s = document.createElement("script");
         s.src = "./assets/js/sidebar.js";
@@ -136,7 +168,8 @@
     window.addEventListener("load", loadSidebar);
   </script>
 
-   <!-- === CONTROL DE ROLES === -->
+  <!-- === CONTROL DE ROLES === -->
   <script src="./assets/js/auth.js"></script>
 </body>
+
 </html>

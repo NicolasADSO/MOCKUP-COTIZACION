@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,21 +17,21 @@
   <script async function loadSidebarpt>
     // Si NO hay sesión → enviar al login
     if (!localStorage.getItem("usuario_logueado")) {
-        window.location.href = "login.html";
+      window.location.href = "login.html";
     }
   </script>
 
   <!-- === CONTENEDOR DE SIDEBAR === -->
-  <div id="sidebar-container"></div>
-
-  <!-- === ENCABEZADO === -->
-  <header class="navbar-fija">
-    <h1>⚙️ Gestión de Equipos</h1>
-  </header>
+  <div id="sidebar"></div>
 
   <!-- === CONTENIDO PRINCIPAL === -->
   <main class="main-content">
-    <section class="equipos-container">
+    <!-- === ENCABEZADO === -->
+    <header class="navbar-fija">
+      <h1>⚙️ Gestión de Equipos</h1>
+    </header>
+
+    <section class="equipos-container" style="padding-top:20px;">
       <h2>Registro de Equipos</h2>
 
       <!-- === FORMULARIO AGREGAR EQUIPO === -->
@@ -79,15 +80,48 @@
   <!-- === LÓGICA PRINCIPAL === -->
   <script src="./assets/js/equipos.js"></script>
 
+  <!-- ========================================================= -->
+  <!-- 🔴 MODAL CONFIRMACIÓN DE CIERRE DE SESIÓN -->
+  <!-- ========================================================= -->
+  <div id="modalLogout" class="modal-cliente-overlay" style="display:none;">
+    <div class="modal-cliente-contenedor" style="max-width:360px;text-align:center;">
+      <h2 style="color:#990f0c;margin-bottom:10px;">⏻ Cerrar sesión</h2>
+      <p style="font-size:15px;line-height:1.4;color:#333;">
+        ¿Seguro que deseas cerrar tu sesión en Gadier Sistemas?
+      </p>
+      <div class="modal-botones" style="margin-top:20px;">
+        <button id="btnLogoutCancelar" class="btn-cancelar">Cancelar</button>
+        <button id="btnLogoutConfirmar" class="btn-guardar" style="background:#990f0c;color:white;">
+          Sí, cerrar sesión
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- === CARGA ASÍNCRONA DEL SIDEBAR === -->
   <script>
     async function loadSidebar() {
       try {
-        const container = document.getElementById("sidebar-container");
+        const container = document.getElementById("sidebar");
         const res = await fetch("./includes/sidebar.html");
         const html = await res.text();
 
         container.innerHTML = html;
+
+        // 🔥 Lógica de Logout
+        const btnLogout = container.querySelector(".logout-btn");
+        if (btnLogout) {
+          btnLogout.addEventListener("click", () => {
+            document.getElementById("modalLogout").style.display = "flex";
+          });
+        }
+        document.getElementById("btnLogoutCancelar").addEventListener("click", () => {
+          document.getElementById("modalLogout").style.display = "none";
+        });
+        document.getElementById("btnLogoutConfirmar").addEventListener("click", () => {
+          localStorage.removeItem("usuario_logueado");
+          window.location.href = "login.html";
+        });
 
         const s = document.createElement("script");
         s.src = "./assets/js/sidebar.js";
@@ -112,4 +146,5 @@
   <!-- === CONTROL DE ROLES === -->
   <script src="./assets/js/auth.js"></script>
 </body>
+
 </html>

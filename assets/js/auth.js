@@ -38,16 +38,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const pagina = location.pathname.split("/").pop().replace(".html", "");
 
   const permisos = {
-    admin:      ["cotizacion","suministros","equipos","funcionarios","aliados"],
-    cotizador:  ["cotizacion"],
-    soporte:    ["equipos"],
-    tecnica:    ["funcionarios"]
+    admin: ["cotizacion", "suministros", "equipos", "funcionarios", "aliados", "cotizaciones_guardadas"],
+    cotizador: ["cotizacion", "cotizaciones_guardadas"],
+    soporte: ["equipos"],
+    tecnica: ["funcionarios"]
   };
 
   const permitidas = permisos[rol] || [];
 
   if (!permitidas.includes(pagina)) {
-    const destino = permitidas[0] + ".html"; 
+    const destino = permitidas[0] + ".html";
     alert("⚠ No tienes acceso a esta sección.");
     window.location.href = destino;
   }
@@ -77,12 +77,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }, 100);
 
-   // ===============================================
-    // 👤 MOSTRAR ROL EN EL HEADER (A LA DERECHA)
-    // ===============================================
-    const header = document.querySelector(".navbar-fija");
+  // ===============================================
+  // 👤 MOSTRAR ROL EN EL HEADER (A LA DERECHA)
+  // ===============================================
+  const header = document.querySelector(".navbar-fija");
 
-    if (header) {
+  if (header) {
     const badge = document.createElement("span");
     badge.id = "rolUsuarioBadge";
 
@@ -106,6 +106,6 @@ document.addEventListener("DOMContentLoaded", () => {
     header.style.position = "relative";
 
     header.appendChild(badge);
-    }
+  }
 
 });

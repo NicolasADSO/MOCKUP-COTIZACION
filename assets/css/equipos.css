@@ -14,31 +14,10 @@
 }
 
 /* === GENERAL === */
-body {
-  font-family: var(--fuente);
-  background: var(--gris-fondo);
-  color: var(--gris-texto);
-  margin: 0;
-}
+/* Body hereda de layout.css */
 
 /* === HEADER === */
-.navbar-fija {
-  background: var(--rojo);
-  color: var(--blanco);
-  padding: 14px 24px;
-  font-size: 20px;
-  font-weight: 600;
-  box-shadow: var(--sombra);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.navbar-fija h1 {
-  margin: 0;
-  font-size: 20px;
-  letter-spacing: 0.5px;
-}
+/* Navbar hereda de layout.css */
 
 /* === CONTENEDOR PRINCIPAL === */
 .equipos-container {
@@ -62,6 +41,7 @@ body {
   align-items: center;
   gap: 8px;
 }
+
 .equipos-container h2::before {
   content: "📋";
 }

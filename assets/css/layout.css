@@ -9,13 +9,21 @@
   --gris-borde: #e5e5e5;
   --texto: #2d2d2d;
   --blanco: #ffffff;
+  --fuente: "Poppins", "Helvetica", sans-serif;
+}
+
+body {
+  font-family: var(--fuente);
+  background: var(--gris-fondo);
+  color: var(--texto);
+  margin: 0;
 }
 
 /* === HEADER FIJO === */
 .navbar-fija {
   background: var(--rojo);
   color: #fff;
-  padding: 12px 25px;
+  padding: 10px 24px;
   font-size: 20px;
   font-weight: 600;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
@@ -24,22 +32,37 @@
   z-index: 100;
 }
 
-/* === CONTENEDOR PRINCIPAL === */
+.navbar-fija h1 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+}
+
+/* =======================================================
+   📐 LAYOUT PRINCIPAL (GLOBAL)
+   ======================================================= */
 .main-content {
-  margin-left: 250px; /* se ajusta según el sidebar */
+  margin-left: var(--sidebar-width, 230px);
   transition: margin-left 0.3s ease;
-  background: var(--gris-fondo);
-  min-height: calc(100vh - 60px);
+}
+
+body.sidebar-collapsed .main-content {
+  margin-left: 90px;
+}
+
+/* === ESPACIADO DEL CONTENIDO INTERNO === */
+/* Aplica margen/padding a los contenedores hijos directos que NO son el header */
+.cotizacion-layout,
+.aliados-layout,
+.equipos-container,
+.content-wrapper,
+.page-content {
   padding: 25px;
-}
-/* margen cuando sidebar está colapsado */
-.main-content.collapsed {
-  margin-left: 75px !important;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
-
-
-
+/* === MEDIA QUERIES === */
 @media (max-width: 900px) {
   .main-content {
     margin-left: 0 !important;

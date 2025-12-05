@@ -15,9 +15,9 @@
 /* === SIDEBAR BASE === */
 .sidebar {
   position: fixed;
-  top: 60px;
+  top: 0;
   left: 0;
-  height: calc(100vh - 60px);
+  height: 100vh;
   width: 75px;
   background: var(--blanco);
   border-right: 1px solid var(--borde);
@@ -185,4 +185,3 @@
   background-color: #ddd;
   border-radius: 6px;
 }
-

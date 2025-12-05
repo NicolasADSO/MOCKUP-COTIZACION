@@ -14,31 +14,10 @@
 }
 
 /* === GENERAL === */
-body {
-  font-family: var(--fuente);
-  background: var(--gris-fondo);
-  color: var(--gris-texto);
-  margin: 0;
-}
+/* Body hereda de layout.css */
 
 /* === HEADER === */
-.navbar-fija {
-  background: var(--rojo);
-  color: var(--blanco);
-  padding: 14px 24px;
-  font-size: 20px;
-  font-weight: 600;
-  box-shadow: var(--sombra);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.navbar-fija h1 {
-  margin: 0;
-  font-size: 20px;
-  letter-spacing: 0.5px;
-}
+/* Navbar hereda de layout.css */
 
 /* === ENCABEZADO LOCAL === */
 .page-header {
@@ -84,10 +63,7 @@ body {
   transform: scale(1.05);
 }
 
-/* === CONTENEDOR PRINCIPAL === */
-main {
-  padding: 20px 25px;
-}
+
 
 /* === TABLA DE SUMINISTROS (DISEÑO CENTRADO Y EQUILIBRADO) === */
 .tabla-suministros {
@@ -153,12 +129,15 @@ main {
 .tabla-suministros thead tr:first-child th:first-child {
   border-top-left-radius: 12px;
 }
+
 .tabla-suministros thead tr:first-child th:last-child {
   border-top-right-radius: 12px;
 }
+
 .tabla-suministros tbody tr:last-child td:first-child {
   border-bottom-left-radius: 12px;
 }
+
 .tabla-suministros tbody tr:last-child td:last-child {
   border-bottom-right-radius: 12px;
 }
@@ -279,6 +258,7 @@ main {
   transform: scale(0.98);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
+
 /* =======================================================
    💬 MODAL EMERGENTE (Diseño Corporativo Gadier)
    ======================================================= */
@@ -293,7 +273,8 @@ main {
   visibility: hidden;
   opacity: 0;
   transition: opacity 0.25s ease;
-  z-index: 5000; /* 🔥 MÁS ALTO QUE EL SIDEBAR */
+  z-index: 5000;
+  /* 🔥 MÁS ALTO QUE EL SIDEBAR */
 }
 
 .modal-overlay.activo {
@@ -386,6 +367,7 @@ main {
 .btn-cancelar:hover {
   background: #ccc;
 }
+
 /* ===========================================================
    🧩 NUEVO DISEÑO: ORGANIGRAMA POR TIPO DE CARGO
    =========================================================== */
@@ -426,6 +408,7 @@ main {
   text-align: center;
   transition: 0.3s;
 }
+
 .grupo-cargo .cargo:hover {
   transform: translateY(-3px);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
@@ -437,6 +420,7 @@ main {
   color: var(--rojo);
   font-weight: 600;
 }
+
 .grupo-cargo .cargo small {
   font-size: 12px;
   color: #555;

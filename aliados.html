@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -66,58 +67,53 @@
             🃏 COLUMNA DERECHA — CARDS + PANEL DETALLE
       ============================================================ -->
       <section class="columna-listado">
-    
+
         <h2>🃏 Aliados Registrados</h2>
 
         <!-- 🟦 GRID DE TARJETAS -->
         <div id="gridAliados" class="aliados-grid">
-            <!-- Las cards se insertan por JS -->
+          <!-- Las cards se insertan por JS -->
         </div>
 
         <!-- 🟧 PANEL DE DETALLE DEL ALIADO -->
         <div id="detalleAliado" class="aliado-detalle oculto">
 
-            <button id="btnVolver" class="btn-volver">← Volver</button>
+          <button id="btnVolver" class="btn-volver">← Volver</button>
 
-            <h2 id="detalleNombre" class="detalle-titulo"></h2>
+          <h2 id="detalleNombre" class="detalle-titulo"></h2>
 
-            <p class="detalle-sub"><strong>Tipo de alianza:</strong> 
-              <span id="detalleTipo"></span>
-            </p>
+          <p class="detalle-sub"><strong>Tipo de alianza:</strong>
+            <span id="detalleTipo"></span>
+          </p>
 
-            <p class="detalle-sub"><strong>Correo:</strong> 
-              <span id="detalleCorreo"></span>
-            </p>
+          <p class="detalle-sub"><strong>Correo:</strong>
+            <span id="detalleCorreo"></span>
+          </p>
 
-            <p class="detalle-sub"><strong>Teléfono:</strong> 
-              <span id="detalleTelefono"></span>
-            </p>
+          <p class="detalle-sub"><strong>Teléfono:</strong>
+            <span id="detalleTelefono"></span>
+          </p>
 
-            <hr>
+          <hr>
 
-            <h3>📦 Productos o servicios ofrecidos</h3>
+          <h3>📦 Productos o servicios ofrecidos</h3>
 
-            <ul id="listaServicios" class="lista-servicios"></ul>
+          <ul id="listaServicios" class="lista-servicios"></ul>
 
-            <button id="btnAgregarServicio" class="btn-extra" style="margin-top:15px;">
-                ➕ Agregar servicio
-            </button>
+          <button id="btnAgregarServicio" class="btn-extra" style="margin-top:15px;">
+            ➕ Agregar servicio
+          </button>
 
-            <!-- === FORMULARIO PARA AÑADIR SERVICIO (OCULTO POR DEFECTO) === -->
-            <div id="formServicio" class="oculto form-servicio">
-            <input id="servicioNombre" class="input-extra" 
-                    type="text" 
-                    placeholder="Nombre del servicio o producto" />
+          <!-- === FORMULARIO PARA AÑADIR SERVICIO (OCULTO POR DEFECTO) === -->
+          <div id="formServicio" class="oculto form-servicio">
+            <input id="servicioNombre" class="input-extra" type="text" placeholder="Nombre del servicio o producto" />
 
-            <input id="servicioValor" class="input-extra" 
-                    type="number" 
-                    placeholder="Valor ($)" 
-                    min="0" />
+            <input id="servicioValor" class="input-extra" type="number" placeholder="Valor ($)" min="0" />
 
             <button id="btnGuardarServicio" class="btn-extra" style="margin-top:10px;">
-                💾 Guardar servicio
+              💾 Guardar servicio
             </button>
-            </div>
+          </div>
         </div>
 
       </section>
@@ -125,6 +121,27 @@
     </div>
   </main>
 
+
+  <!-- ============================================================
+       📦 CARGA ASÍNCRONA DEL SIDEBAR (MISMO MÉTODO GADIER)
+  ============================================================ -->
+  <!-- ========================================================= -->
+  <!-- 🔴 MODAL CONFIRMACIÓN DE CIERRE DE SESIÓN -->
+  <!-- ========================================================= -->
+  <div id="modalLogout" class="modal-cliente-overlay" style="display:none;">
+    <div class="modal-cliente-contenedor" style="max-width:360px;text-align:center;">
+      <h2 style="color:#990f0c;margin-bottom:10px;">⏻ Cerrar sesión</h2>
+      <p style="font-size:15px;line-height:1.4;color:#333;">
+        ¿Seguro que deseas cerrar tu sesión en Gadier Sistemas?
+      </p>
+      <div class="modal-botones" style="margin-top:20px;">
+        <button id="btnLogoutCancelar" class="btn-cancelar">Cancelar</button>
+        <button id="btnLogoutConfirmar" class="btn-guardar" style="background:#990f0c;color:white;">
+          Sí, cerrar sesión
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- ============================================================
        📦 CARGA ASÍNCRONA DEL SIDEBAR (MISMO MÉTODO GADIER)
@@ -137,6 +154,21 @@
         const html = await res.text();
 
         container.innerHTML = html;
+
+        // 🔥 Lógica de Logout
+        const btnLogout = container.querySelector(".logout-btn");
+        if (btnLogout) {
+          btnLogout.addEventListener("click", () => {
+            document.getElementById("modalLogout").style.display = "flex";
+          });
+        }
+        document.getElementById("btnLogoutCancelar").addEventListener("click", () => {
+          document.getElementById("modalLogout").style.display = "none";
+        });
+        document.getElementById("btnLogoutConfirmar").addEventListener("click", () => {
+          localStorage.removeItem("usuario_logueado");
+          window.location.href = "login.html";
+        });
 
         const s = document.createElement("script");
         s.src = "./assets/js/sidebar.js";
@@ -162,4 +194,5 @@
   <script src="./assets/js/aliados.js"></script>
 
 </body>
+
 </html>

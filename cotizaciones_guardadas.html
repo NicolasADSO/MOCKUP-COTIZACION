@@ -14,50 +14,50 @@
 
 <body>
 
-    <!-- ========================================================= -->
-    <!-- SIDEBAR -->
-    <!-- ========================================================= -->
-    <div id="sidebar-container">
-        <!-- Aquí carga tu sidebar actual automáticamente -->
-        <script>
-            fetch("./includes/sidebar.html")
-                .then(res => res.text())
-                .then(html => { document.getElementById("sidebar-container").innerHTML = html; });
-        </script>
-    </div>
+    <script>
+        // Si NO hay sesión → enviar al login
+        if (!localStorage.getItem("usuario_logueado")) {
+            window.location.href = "login.html";
+        }
+    </script>
 
-    <!-- ========================================================= -->
-    <!-- CONTENIDO PRINCIPAL -->
-    <!-- ========================================================= -->
+    <!-- ========== SIDEBAR REAL ========== -->
+    <div id="sidebar"></div>
+
+    <!-- ========== CONTENIDO PRINCIPAL ========== -->
     <main class="main-content">
-        <h1 class="titulo-modulo">📁 Cotizaciones Guardadas</h1>
 
-        <!-- ========================== -->
-        <!-- BUSCADOR Y FILTROS -->
-        <!-- ========================== -->
-        <div class="filtros-container">
-            <input type="text" id="buscarCotizacion" placeholder="Buscar por cliente, empresa o NIT..." />
+        <!-- === HEADER FIJO === -->
+        <header class="navbar-fija">
+            <h1>📁 Cotizaciones Guardadas</h1>
+        </header>
 
-            <select id="filtroFecha">
-                <option value="">Todas las fechas</option>
-                <option value="hoy">Hoy</option>
-                <option value="semana">Últimos 7 días</option>
-                <option value="mes">Últimos 30 días</option>
-            </select>
+        <div class="page-content" style="padding-top:20px;">
+            <!-- ========================== -->
+            <!-- BUSCADOR Y FILTROS -->
+            <!-- ========================== -->
+            <div class="filtros-container">
+                <input type="text" id="buscarCotizacion" placeholder="Buscar por cliente, empresa o NIT..." />
 
-            <select id="filtroEstado">
-                <option value="">Todos los estados</option>
-                <option value="generada">Generada</option>
-            </select>
-        </div>
+                <select id="filtroFecha">
+                    <option value="">Todas las fechas</option>
+                    <option value="hoy">Hoy</option>
+                    <option value="semana">Últimos 7 días</option>
+                    <option value="mes">Últimos 30 días</option>
+                </select>
 
+                <select id="filtroEstado">
+                    <option value="">Todos los estados</option>
+                    <option value="generada">Generada</option>
+                </select>
+            </div>
 
-
-        <!-- ========================== -->
-        <!-- LISTA DE COTIZACIONES -->
-        <!-- ========================== -->
-        <div id="listaCotizaciones">
-            <!-- JS insertará la tabla aquí -->
+            <!-- ========================== -->
+            <!-- LISTA DE COTIZACIONES -->
+            <!-- ========================== -->
+            <div id="listaCotizaciones">
+                <!-- JS insertará la tabla aquí -->
+            </div>
         </div>
 
     </main>
@@ -113,9 +113,75 @@
     </div>
 
     <!-- ========================================================= -->
-    <!-- SCRIPT PRINCIPAL -->
+    <!-- 🔴 MODAL CONFIRMACIÓN DE CIERRE DE SESIÓN -->
+    <!-- ========================================================= -->
+    <div id="modalLogout" class="modal-cliente-overlay" style="display:none;">
+        <div class="modal-cliente-contenedor" style="max-width:360px;text-align:center;">
+            <h2 style="color:#990f0c;margin-bottom:10px;">⏻ Cerrar sesión</h2>
+            <p style="font-size:15px;line-height:1.4;color:#333;">
+                ¿Seguro que deseas cerrar tu sesión en Gadier Sistemas?
+            </p>
+            <div class="modal-botones" style="margin-top:20px;">
+                <button id="btnLogoutCancelar" class="btn-cancelar">Cancelar</button>
+                <button id="btnLogoutConfirmar" class="btn-guardar" style="background:#990f0c;color:white;">
+                    Sí, cerrar sesión
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- SCRIPT PRINCIPAL + SIDEBAR -->
     <!-- ========================================================= -->
     <script src="./assets/js/cotizaciones_guardadas.js"></script>
+
+
+    <script>
+        async function loadSidebar() {
+            try {
+                const container = document.getElementById("sidebar");
+                const res = await fetch("./includes/sidebar.html");
+                const html = await res.text();
+
+                container.innerHTML = html;
+
+                // 🔥 Lógica de Logout
+                const btnLogout = container.querySelector(".logout-btn");
+                if (btnLogout) {
+                    btnLogout.addEventListener("click", () => {
+                        document.getElementById("modalLogout").style.display = "flex";
+                    });
+                }
+                document.getElementById("btnLogoutCancelar").addEventListener("click", () => {
+                    document.getElementById("modalLogout").style.display = "none";
+                });
+                document.getElementById("btnLogoutConfirmar").addEventListener("click", () => {
+                    localStorage.removeItem("usuario_logueado");
+                    window.location.href = "login.html";
+                });
+
+                // Cargar script de sidebar
+                const s = document.createElement("script");
+                s.src = "./assets/js/sidebar.js";
+                s.onload = () => { if (window.initSidebar) window.initSidebar(); };
+                document.body.appendChild(s);
+
+                // Active link
+                const current = window.location.pathname.split("/").pop();
+                document.querySelectorAll(".sidebar-link").forEach(a => {
+                    a.classList.toggle("active", a.getAttribute("href") === current);
+                });
+
+            } catch (e) {
+                console.error("Error cargando sidebar:", e);
+            }
+        }
+        window.addEventListener("load", loadSidebar);
+    </script>
+
+    <!-- === CONTROL DE SEGURIDAD Y ROL === -->
+    <script src="./assets/js/auth.js"></script>
+
 </body>
 
 </html>
