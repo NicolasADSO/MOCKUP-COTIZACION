@@ -3,7 +3,7 @@
 // (Descripciones, subprocesos y beneficios por proceso)
 // ============================================================
 
-const plantillasProcesos = {
+window.plantillasProcesos = {
 
   // ======================================================
   // 📂 ACTUALIZACIÓN DE ARCHIVOS ELECTRÓNICOS
@@ -97,9 +97,9 @@ soporte técnico, reemplazo por fallas y disponibilidad garantizada durante todo
   },
 
   // ======================================================
-  // 💬 ASESORÍA
+  // 💬 ASESORÍA Y CUMPLIMIENTO DE LA LEY
   // ======================================================
-  "Asesoría": {
+  "Asesoría y cumplimiento de la ley": {
     descripcion: `
 La Asesoría Archivística de Gadier Sistemas ofrece acompañamiento técnico y estratégico
 en diagnóstico, planeación y mejora de los procesos de gestión documental.
@@ -235,62 +235,85 @@ y estructuración de instrumentos archivísticos esenciales.
     ]
   },
 
-   // ======================================================
-    // 🔎 CONSULTAS DE DOCUMENTOS
-    // ======================================================
-    "Consultas": {
-      descripcion: `
+  // ======================================================
+  // 🔎 CONSULTAS DE DOCUMENTOS
+  // ======================================================
+  "Consultas": {
+    descripcion: `
   El servicio de Consultas Documentales de Gadier Sistemas permite localizar,
   verificar y suministrar información contenida en los archivos institucionales.
   Atendemos solicitudes internas o externas asegurando trazabilidad,
   tiempos de respuesta eficientes y cumplimiento de protocolos de consulta.
       `,
-      mensajeProcesoCompleto: `
+    mensajeProcesoCompleto: `
   Incluye recepción de la solicitud, verificación de disponibilidad,
   búsqueda en fondos documentales físicos y/o digitales, registro de consulta,
   entrega controlada, digitalización cuando aplica y cierre formal del requerimiento.
       `,
-      subprocesos: {
-        // Sin subprocesos definidos en dataSubprocesos, pero dejamos uno general
-        "Atención de consulta": `
-          Gestión completa de la solicitud: búsqueda, verificación, registro,
-          control del préstamo y cierre del requerimiento documental.
+    subprocesos: {
+      "En sede con transporte": `
+          Consulta de documentos realizada directamente en las instalaciones, incluyendo
+          la logística de transporte necesaria para el traslado del material o personal.
+        `,
+      "En sede sin transporte": `
+          Atención de consulta en las instalaciones del cliente, gestionada con los
+          recursos disponibles in situ, sin requerimientos logísticos adicionales de traslado.
+        `,
+      "Fisica urgente con transporte": `
+          Servicio prioritario de consulta física con despliegue logístico inmediato
+          para garantizar acceso rápido a la documentación original crítica.
+        `,
+      "Fisica urgente sin transporte": `
+          Búsqueda y disposición prioritaria de expedientes físicos dentro de la misma sede,
+          asegurando tiempos de respuesta mínimos para requerimientos urgentes.
+        `,
+      "Fisica normal con transporte": `
+          Gestión estándar de consulta física que incluye el traslado programado de
+          unidades documentales desde depósitos externos o sedes alternas.
+        `,
+      "Fisica normal sin transporte": `
+          Procedimiento habitual de consulta física de documentos ubicados en el mismo
+          edificio o complejo, siguiendo los tiempos de respuesta estándar.
+        `,
+      "Digital": `
+          Recuperación y envío electrónico de documentos digitalizados o nativos electrónicos,
+          ofreciendo acceso inmediato y seguro a la información sin manipulación física.
         `
-      },
-      beneficios: [
-        "Trazabilidad completa de cada solicitud de información.",
-        "Reducción de tiempos de respuesta institucional.",
-        "Mejor control y seguridad sobre los documentos consultados."
-      ]
     },
+    beneficios: [
+      "Trazabilidad completa de cada solicitud de información.",
+      "Reducción de tiempos de respuesta institucional.",
+      "Mejor control y seguridad sobre los documentos consultados."
+    ]
+  },
 
-      // ======================================================
-      // 📦 TRASLADO DE ARCHIVOS
-      // ======================================================
-      "Traslado de archivos": {
-        descripcion: `
+  // ======================================================
+  // 📦 TRASLADO DE ARCHIVOS
+  // ======================================================
+  "Traslado de archivos": {
+    descripcion: `
     El Traslado de Archivos de Gadier Sistemas garantiza el movimiento seguro,
     técnico y controlado de fondos documentales dentro o fuera de las instalaciones
     del cliente. Aplicamos protocolos de embalaje, identificación y transporte que
     preservan la integridad física y la organización de los documentos.
         `,
-        mensajeProcesoCompleto: `
+    mensajeProcesoCompleto: `
     Incluye alistamiento, clasificación previa, rotulación de unidades,
     embalaje técnico, cargue y descargue seguro, transporte interno o externo
     y verificación final de entrega. Todo con registro fotográfico y trazabilidad.
         `,
-        subprocesos: {
-          "Cajas": `
+    subprocesos: {
+      "Cajas": `
             Traslado de cajas documentales con embalaje técnico,
             rotulación, registro de unidades y transporte seguro.
           `
-        },
-        beneficios: [
-          "Minimiza riesgos de pérdida o daño documental durante el traslado.",
-          "Preserva la organización original de los fondos documentales.",
-          "Incluye trazabilidad completa y registro técnico del proceso."
-        ]
-      },
+    },
+    beneficios: [
+      "Minimiza riesgos de pérdida o daño documental durante el traslado.",
+      "Preserva la organización original de los fondos documentales.",
+      "Incluye trazabilidad completa y registro técnico del proceso."
+    ]
+  },
 
 
   /// ======================================================
@@ -420,6 +443,51 @@ con recomendaciones estratégicas para la mejora archivística.
     valores: [
       { nombre: "Áreas", valor: 18000 }
     ]
+  },
+
+  // ======================================================
+  // 📚 BIBLIOTECOLOGÍA
+  // ======================================================
+  "Proceso personalizado": {
+    descripcion: `
+  Servicio especializado de Bibliotecología y gestión de unidades de información,
+  adaptado a las necesidades específicas de la institución.
+    `,
+    mensajeProcesoCompleto: `
+  Desarrollo de procesos técnicos, organización de colecciones y servicios de información
+  personalizados según requerimientos.
+    `,
+    subprocesos: {
+      "Procesamiento técnico": "Catalogación, clasificación y análisis de colecciones bibliográficas."
+    },
+    beneficios: [
+      "Organización técnica profesional.",
+      "Mejor acceso a la información especializada."
+    ]
   }
 
 };
+
+// ============================================================
+// 🔄 LIVE UPDATE: MERGE CON EDICIONES DEL ADMINISTRADOR
+// ============================================================
+(function () {
+  try {
+    const edits = localStorage.getItem("plantillasEditadas");
+    if (edits) {
+      const parsedEdits = JSON.parse(edits);
+      // Mezclar las ediciones sobre el objeto original
+      Object.keys(parsedEdits).forEach(key => {
+        if (plantillasProcesos[key]) {
+          plantillasProcesos[key] = {
+            ...plantillasProcesos[key],
+            ...parsedEdits[key]
+          };
+        }
+      });
+      console.log("📝 Plantillas actualizadas con personalizaciones del admin.");
+    }
+  } catch (e) {
+    console.warn("Error cargando plantillas editadas:", e);
+  }
+})();

@@ -74,7 +74,15 @@ window.dataSubprocesos = {
     { nombre: "Descripción", valor: 28000 }
   ],
 
-  "Consultas": [],
+  "Consultas": [
+    { nombre: "En sede con transporte", valor: 25000 },
+    { nombre: "En sede sin transporte", valor: 15000 },
+    { nombre: "Fisica urgente con transporte", valor: 35000 },
+    { nombre: "Fisica urgente sin transporte", valor: 20000 },
+    { nombre: "Fisica normal con transporte", valor: 22000 },
+    { nombre: "Fisica normal sin transporte", valor: 12000 },
+    { nombre: "Digital", valor: 8000 }
+  ],
 
   "Traslado de archivos": [
     { nombre: "Cajas", valor: 15000 },
@@ -101,3 +109,39 @@ window.dataSubprocesos = {
     { nombre: "Entrega o retiro bajo acta de custodia", valor: 25000 }
   ]
 };
+
+// ============================================================
+// 🔄 LIVE SYNC: INTEGRAR SUBPROCESOS CREADOS EN "PLANTILLAS"
+// ============================================================
+(function () {
+  try {
+    const edits = JSON.parse(localStorage.getItem("plantillasEditadas") || "{}");
+
+    // Recorrer cada proceso editado
+    Object.keys(edits).forEach(proceso => {
+      // Si tiene subprocesos definidos
+      if (edits[proceso].subprocesos) {
+        const nuevosNombres = Object.keys(edits[proceso].subprocesos);
+
+        // Verificar si el proceso existe en dataSubprocesos, si no, crearlo
+        if (!window.dataSubprocesos[proceso]) {
+          window.dataSubprocesos[proceso] = [];
+        }
+
+        // Obtener nombres existentes para evitar duplicados
+        const existentes = window.dataSubprocesos[proceso].map(item => item.nombre);
+
+        nuevosNombres.forEach(nuevo => {
+          if (!existentes.includes(nuevo)) {
+            // Agregar el nuevo subproceso a la lista de opciones para cotizar
+            // Se le asigna valor 0 por defecto ya que el editor de texto no gestiona precios
+            console.log(`➕ Agregando nuevo subproceso desde plantillas: [${proceso}] -> ${nuevo}`);
+            window.dataSubprocesos[proceso].push({ nombre: nuevo, valor: 0 });
+          }
+        });
+      }
+    });
+  } catch (e) {
+    console.warn("Error sincronizando subprocesos de plantillas:", e);
+  }
+})();

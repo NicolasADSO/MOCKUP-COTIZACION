@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const pagina = location.pathname.split("/").pop().replace(".html", "");
 
   const permisos = {
-    admin: ["cotizacion", "suministros", "equipos", "funcionarios", "aliados", "cotizaciones_guardadas"],
+    admin: ["cotizacion", "suministros", "equipos", "funcionarios", "aliados", "cotizaciones_guardadas", "textos_plantilla"],
     cotizador: ["cotizacion", "cotizaciones_guardadas"],
     soporte: ["equipos"],
     tecnica: ["funcionarios"]

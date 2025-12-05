@@ -456,6 +456,201 @@ window.generarPPTConDatos = async function () {
     lineasContacto.push(`Tel: ${telefono}`);
   }
   if (correo) {
+    document.body.classList.remove("modal-activo");
+
+    // Disparar acción según modo
+    if (modo === "PPT" && typeof window.generarPPTConDatos === "function") {
+      window.generarPPTConDatos();
+    } else if (modo === "PDF" && typeof window.generarPDFConDatos === "function") {
+      window.generarPDFConDatos();
+    }
+  };
+};
+
+
+// ============================================================
+// 🔥 CLICK EN BOTÓN PPT → ABRE MODAL UNIVERSAL
+// ============================================================
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("#btnPropuestaValor");
+  if (!btn) return;
+
+  if (!window.resumen || window.resumen.length === 0) {
+    alert("⚠ No hay elementos seleccionados.");
+    return;
+  }
+
+  const visiblesCheck = window.resumen.filter(r => r.visible !== false);
+  if (!visiblesCheck.length) {
+    alert("⚠ Todos los elementos están ocultos.");
+    return;
+  }
+
+  // Abrimos modal universal en modo PPT
+  window.abrirModalDatosCliente("PPT");
+});
+
+// ============================================================
+// 🟥 FUNCIÓN — GENERAR PPT USANDO LOS DATOS DEL MODAL UNIVERSAL
+// ============================================================
+window.generarPPTConDatos = async function () {
+  if (!window.resumen || window.resumen.length === 0) {
+    alert("⚠ No hay elementos seleccionados.");
+    return;
+  }
+
+  const visibles = window.resumen.filter(r => r.visible !== false);
+  if (visibles.length === 0) {
+    alert("⚠ Todos los elementos están ocultos.");
+    return;
+  }
+
+  const col = columnasVisiblesResumen();
+
+  const datos = window.datosClienteGlobal || {};
+  const nombreCliente = datos.nombre || "Cliente";
+  const correo = datos.correo || "";
+  const telefono = datos.telefono || "";
+  const destinatario = datos.destinatario || "";
+  const tipoIdent = datos.tipoIdent || "";
+  const numeroIdent = datos.numeroIdent || "";
+
+  const fechaGeneracion = new Date().toLocaleDateString("es-CO");
+
+  // ============================================================
+  // 🧮 REDISTRIBUCIÓN INVERSA
+  // ============================================================
+  const gastosAdicionales = parseFloat(
+    document.getElementById("gastosInput")?.dataset.real || "0"
+  );
+
+  const chkG = document.getElementById("ocultarGastos");
+  const ocultarGastos = chkG ? chkG.checked : false;
+
+  let subtotalTotal = 0;
+  window.resumen.forEach(r => {
+    const valorUnit = r.valor || 0;
+    const costo = r.costo ?? (r.cantidad * valorUnit);
+    subtotalTotal += costo;
+  });
+
+  let subtotalVisible = 0;
+  visibles.forEach(r => {
+    const valorUnit = r.valor || 0;
+    const costo = r.costo ?? (r.cantidad * valorUnit);
+    subtotalVisible += costo;
+  });
+
+  subtotalVisible = Math.round(subtotalVisible);
+  const costoOcultos = subtotalTotal - subtotalVisible;
+
+  let pesos = [];
+  let sumaPesos = 0;
+
+  visibles.forEach(r => {
+    const valorUnit = r.valor || 0;
+    const costoBase = r.costo ?? (r.cantidad * valorUnit);
+
+    const peso = 1 / costoBase; // inverso: barato = mayor peso
+    pesos.push({ r, peso, costoBase });
+    sumaPesos += peso;
+  });
+
+  const obtenerCostoFinal = (r) => {
+    const valorUnit = r.valor || 0;
+    const costoBase = r.costo ?? (r.cantidad * valorUnit);
+
+    const pesoObj = pesos.find(p => p.r === r);
+    if (!pesoObj || sumaPesos === 0) return costoBase;
+
+    const extra = (pesoObj.peso / sumaPesos) * costoOcultos;
+    return Math.round(costoBase + extra);
+  };
+
+  // ============================================================
+  // 📌 PROCESOS + SUBPROCESOS
+  // ============================================================
+  const obtenerProcesoBase = (r) => (r.proceso || "").split(" - ")[0].trim();
+
+  const procesosUnicos = [
+    ...new Set(visibles.filter(r => r.proceso).map(obtenerProcesoBase))
+  ];
+
+  const propuesta = procesosUnicos
+    .map(nombre => {
+      const plantilla = plantillasProcesos[nombre];
+      if (!plantilla) return null;
+
+      const subprocesosVisibles = [
+        ...new Set(
+          visibles
+            .filter(r => obtenerProcesoBase(r) === nombre)
+            .flatMap(r => {
+              if (r.isGlobal) return [];
+              if (Array.isArray(r.subprocesos) && r.subprocesos.length)
+                return r.subprocesos;
+
+              const partes = (r.proceso || "").split(" - ");
+              return partes[1] ? [partes[1]] : [];
+            })
+            .filter(Boolean)
+        )
+      ];
+
+      const detallesSubprocesos = subprocesosVisibles.map(sp =>
+        window.encontrarSubproceso(plantilla.subprocesos || {}, sp)
+      );
+
+      return {
+        nombre,
+        descripcion: plantilla.descripcion?.trim() || "",
+        subprocesos: detallesSubprocesos,
+        beneficios: plantilla.beneficios || [],
+        esGlobal: visibles.some(r => obtenerProcesoBase(r) === nombre && r.isGlobal)
+      };
+    })
+    .filter(Boolean);
+
+  if (!propuesta.length) {
+    alert("⚠ Ningún proceso tiene plantilla disponible.");
+    return;
+  }
+
+  const pptx = new PptxGenJS();
+  pptx.layout = "LAYOUT_16x9";
+
+  // ============================================================
+  // 🟥 PORTADA
+  // ============================================================
+  const slidePortada = pptx.addSlide();
+  try { slidePortada.background = { path: "assets/img/portada-propuesta.png" }; } catch { }
+
+  try {
+    slidePortada.addImage({
+      path: "assets/img/logo-blanco-sin-fondo.png",
+      x: 6.4, y: 3.1, w: 3.8, h: 2.1
+    });
+  } catch { }
+
+  const textoDirigido = destinatario || nombreCliente;
+
+  slidePortada.addText(`Dirigido a: ${textoDirigido}`, {
+    x: 1.0, y: 4.2, w: 8.5, fontSize: 20, color: "222222"
+  });
+
+  slidePortada.addText(`Fecha: ${fechaGeneracion}`, {
+    x: 1.0, y: 4.6, w: 8.5, fontSize: 18, color: "333333"
+  });
+
+  // Línea con identificación (RUNT / Documento) + contacto
+  let lineasContacto = [];
+  if (tipoIdent && numeroIdent) {
+    lineasContacto.push(`${tipoIdent}: ${numeroIdent}`);
+  }
+  if (telefono) {
+    lineasContacto.push(`Tel: ${telefono}`);
+  }
+  if (correo) {
     lineasContacto.push(`Correo: ${correo}`);
   }
 
@@ -470,114 +665,144 @@ window.generarPPTConDatos = async function () {
   });
 
   // ============================================================
-  // 🧩 SLIDES POR CADA PROCESO — DISEÑO DEFINITIVO SIN SUPERPOSICIONES
+  // 🧩 SLIDES POR CADA PROCESO
   // ============================================================
 
   propuesta.forEach(p => {
-    const slide = pptx.addSlide();
-    try { slide.background = { path: "assets/img/textos-propuesto.png" }; } catch { }
+    // ============================================================
+    // 📄 SLIDE 1: CONCEPTO Y DESCRIPCIÓN
+    // ============================================================
+    const slide1 = pptx.addSlide();
+    try { slide1.background = { path: "assets/img/textos-propuesto.png" }; } catch { }
 
-    let y = 1.0; // Margen superior real (no usar menos por diseño del PNG)
-    const maxWidth = 8.2; // Ancho visual seguro dentro del fondo Gadier
+    let y1 = 1.2; // Bajamos un poco el título
+    const maxWidth = 8.2;
 
-    // -------------------------
-    // 🟥 TÍTULO DEL PROCESO
-    // -------------------------
-    slide.addText(p.nombre, {
-      x: 0.6, y, w: maxWidth,
+    // TÍTULO GRANDE
+    slide1.addText(p.nombre, {
+      x: 0.6, y: y1, w: maxWidth,
       fontSize: 30,
       bold: true,
       color: "990f0c",
       autoFit: true,
       valign: "top"
     });
+    y1 += 1.5; // Espacio generoso antes de la descripción
 
-    y += 0.9;
-
-    // -------------------------
-    // 📄 DESCRIPCIÓN DEL PROCESO
-    // -------------------------
+    // DESCRIPCIÓN GENERAL
     if (p.descripcion) {
-      slide.addText(p.descripcion, {
-        x: 0.6, y, w: maxWidth,
-        fontSize: 17,
+      // Limpieza de texto
+      const descLimpia = p.descripcion
+        .replace(/\n/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      slide1.addText(descLimpia, {
+        x: 0.6, y: y1, w: maxWidth,
+        fontSize: 20,
         color: "444444",
-        lineSpacing: 1.2,
+        align: "left",
         autoFit: false,
         breakLine: true,
       });
-      y += 1.2; // Espacio tras el párrafo
     }
 
-    // -------------------------
-    // 📌 SUBPROCESOS
-    // -------------------------
-    if (p.subprocesos.length > 0) {
-      slide.addText("Subprocesos incluidos:", {
-        x: 0.6, y, w: maxWidth,
-        fontSize: 22,
-        bold: true,
-        color: "990f0c"
+    // ============================================================
+    // 🛠 SLIDE 2: SUBPROCESOS Y BENEFICIOS
+    // ============================================================
+    // ============================================================
+    // 🛠 SLIDEs DE DETALLES (Subprocesos + Beneficios) - CON PAGINACIÓN
+    // ============================================================
+
+    // Función auxiliar para crear nueva slide de continuación
+    const createDetailSlide = (titleSuffix = " — Detalles") => {
+      const s = pptx.addSlide();
+      try { s.background = { path: "assets/img/textos-propuesto.png" }; } catch { }
+
+      // Título de referencia
+      s.addText(p.nombre + titleSuffix, {
+        x: 0.6, y: 0.5, w: maxWidth,
+        fontSize: 20, bold: true, color: "990f0c"
       });
-      y += 0.6;
+      return s;
+    };
+
+    let currentSlide = createDetailSlide();
+    let y2 = 1.2; // Start position
+    const maxY = 4.8; // Límite inferior seguro
+
+    // 📌 SUBPROCESOS
+    if (p.subprocesos.length > 0) {
+      currentSlide.addText("Subprocesos incluidos:", {
+        x: 0.6, y: y2, w: maxWidth,
+        fontSize: 18, bold: true, color: "333333"
+      });
+      y2 += 0.5;
 
       p.subprocesos.forEach(sp => {
-        slide.addText(`• ${sp.nombre}`, {
-          x: 0.9, y, w: maxWidth - 0.5,
-          fontSize: 17,
-          color: "333333",
-          breakLine: true
+        // Verificar espacio para título + descripción (estimado 1.0)
+        let espacioNecesario = 0.5;
+        if (sp.descripcion) espacioNecesario += 0.5;
+
+        if (y2 + espacioNecesario > maxY) {
+          currentSlide = createDetailSlide(" — Detalles (Cont.)");
+          y2 = 1.2;
+        }
+
+        // Nombre subproceso
+        currentSlide.addText(`• ${sp.nombre}`, {
+          x: 0.9, y: y2, w: maxWidth - 0.5,
+          fontSize: 16, color: "222222", bold: true
         });
+        y2 += 0.35;
 
-        y += 0.35;
-
+        // Descripción subproceso
         if (sp.descripcion) {
-          slide.addText(sp.descripcion, {
-            x: 1.2, y, w: maxWidth - 1,
-            fontSize: 15,
-            color: "777777",
-            lineSpacing: 1.2,
-            breakLine: true
+          currentSlide.addText(sp.descripcion, {
+            x: 1.2, y: y2, w: maxWidth - 1,
+            fontSize: 14, color: "555555", italic: true
           });
-          y += 0.7;
+          y2 += 0.5;
         } else {
-          y += 0.3;
+          y2 += 0.1;
         }
       });
-
-      y += 0.4;
+      y2 += 0.3;
     }
 
-    // -------------------------
     // 🎯 BENEFICIOS
-    // -------------------------
     if (p.beneficios && p.beneficios.length > 0) {
-      slide.addText("Beneficios:", {
-        x: 0.6, y, w: maxWidth,
-        fontSize: 22,
-        bold: true,
-        color: "990f0c"
-      });
+      // Verificar si cabe el título de beneficios
+      if (y2 + 0.8 > maxY) {
+        currentSlide = createDetailSlide(" — Beneficios");
+        y2 = 1.2;
+      }
 
-      y += 0.6;
+      currentSlide.addText("Beneficios clave:", {
+        x: 0.6, y: y2, w: maxWidth,
+        fontSize: 18, bold: true, color: "333333"
+      });
+      y2 += 0.5;
 
       p.beneficios.forEach(b => {
-        slide.addText(`✔ ${b}`, {
-          x: 0.9, y, w: maxWidth - 0.5,
-          fontSize: 17,
-          color: "333333",
-          breakLine: true
+        // Verificar espacio para cada beneficio
+        if (y2 + 0.4 > maxY) {
+          currentSlide = createDetailSlide(" — Beneficios (Cont.)");
+          y2 = 1.2;
+        }
+
+        currentSlide.addText(`✔ ${b}`, {
+          x: 0.9, y: y2, w: maxWidth - 0.5,
+          fontSize: 16, color: "444444"
         });
-        y += 0.5;
+        y2 += 0.4;
       });
     }
   });
 
 
-
-
   // ============================================================
-  // 💼 SLIDE RESUMEN – IGUAL QUE PDF (con columnas dinámicas)
+  // 💼 SLIDE RESUMEN
   // ============================================================
   const slideResumen = pptx.addSlide();
   try { slideResumen.background = { path: "assets/img/textos-propuesto.png" }; } catch { }

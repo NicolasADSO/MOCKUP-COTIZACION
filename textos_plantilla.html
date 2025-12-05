@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Gadier Sistemas - Edición de Plantillas</title>
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <link rel="stylesheet" href="assets/css/sidebar.css">
+    <link rel="stylesheet" href="assets/css/textos_plantilla.css">
+</head>
+
+<body class="sidebar-collapsed">
+
+    <!-- Sidebar (se carga dinámicamente) -->
+    <div id="sidebar-placeholder"></div>
+
+    <main class="main-content">
+        <header class="navbar-fija">
+            <h1>📝 Edición de Plantillas de Textos (Propuesta de Valor)</h1>
+        </header>
+
+        <div class="editor-container">
+
+            <!-- Panel Izquierdo: Lista de Procesos -->
+            <aside class="process-list-panel">
+                <h3 class="panel-title">Procesos Disponibles</h3>
+                <ul id="listaProcesos" class="process-list">
+                    <!-- Se llena con JS -->
+                </ul>
+                <button id="btnRestaurarTodo" class="btn-secondary btn-full">🔄 Restaurar Todo a Original</button>
+            </aside>
+
+            <!-- Panel Derecho: Formulario de Edición -->
+            <main class="editor-main-panel">
+                <div id="emptyState" class="empty-state">
+                    <p>Selecciona un proceso de la izquierda para editar sus textos.</p>
+                </div>
+
+                <div id="editorForm" class="editor-form" style="display: none;">
+                    <h2 id="tituloProcesoSeleccionado">Nombre del Proceso</h2>
+
+                    <div class="form-group">
+                        <label for="txtDescripcion">Descripción General (Slide 1)</label>
+                        <textarea id="txtDescripcion" rows="5"></textarea>
+                        <small>Este texto aparecerá en la primera diapositiva de la Propuesta de Valor.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Subprocesos (Slide 2)</label>
+                        <div id="containerSubprocesos" class="dynamic-list">
+                            <!-- Items de subproceso -->
+                        </div>
+                        <button class="btn-small" id="btnAddSubproceso">+ Agregar Subproceso</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Beneficios (Slide 2)</label>
+                        <div id="containerBeneficios" class="dynamic-list">
+                            <!-- Items de beneficio -->
+                        </div>
+                        <button class="btn-small" id="btnAddBeneficio">+ Agregar Beneficio</button>
+                    </div>
+
+                    <div class="form-actions">
+                        <button id="btnGuardarCambios" class="btn-primary">💾 Guardar Cambios</button>
+                        <button id="btnRestaurarProceso" class="btn-secondary">↺ Restaurar Original</button>
+                    </div>
+                </div>
+            </main>
+
+        </div>
+        </div>
+
+        <!-- Scripts -->
+        <script src="assets/js/plantillasProcesos.js"></script>
+        <script src="assets/js/auth.js"></script>
+        <script src="assets/js/textos_plantilla.js"></script>
+
+        <script>
+            // Carga del Sidebar
+            fetch('includes/sidebar.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('sidebar-placeholder').innerHTML = data;
+                    const script = document.createElement('script');
+                    script.src = 'assets/js/sidebar.js';
+                    document.body.appendChild(script);
+                });
+        </script>
+
+</body>
+
+</html>

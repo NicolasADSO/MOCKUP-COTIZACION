@@ -7,37 +7,43 @@
 
   <nav class="sidebar-nav">
     <ul>
-      <li>
+      <li data-role="admin,cotizador">
         <a href="cotizacion.html" class="sidebar-link" title="Cotización">
           <span class="sidebar-icon">🧾</span>
           <span class="sidebar-text">Cotización</span>
         </a>
       </li>
-      <li>
+      <li data-role="admin,cotizador">
         <a href="cotizaciones_guardadas.html" class="sidebar-link" title="Cotizaciones Guardadas">
           <span class="sidebar-icon">📁</span>
           <span class="sidebar-text">Cotizaciones Guardadas</span>
         </a>
       </li>
-      <li>
+      <li data-role="admin">
+        <a href="textos_plantilla.html" class="sidebar-link" title="Plantillas de Texto">
+          <span class="sidebar-icon">📝</span>
+          <span class="sidebar-text">Plantillas</span>
+        </a>
+      </li>
+      <li data-role="admin">
         <a href="suministros.html" class="sidebar-link" title="Suministros">
           <span class="sidebar-icon">📦</span>
           <span class="sidebar-text">Suministros</span>
         </a>
       </li>
-      <li>
+      <li data-role="admin,soporte">
         <a href="equipos.html" class="sidebar-link" title="Equipos">
           <span class="sidebar-icon">⚙️</span>
           <span class="sidebar-text">Equipos</span>
         </a>
       </li>
-      <li>
+      <li data-role="admin,tecnica">
         <a href="funcionarios.html" class="sidebar-link" title="Funcionarios">
           <span class="sidebar-icon">👤</span>
           <span class="sidebar-text">Funcionarios</span>
         </a>
       </li>
-      <li>
+      <li data-role="admin">
         <a href="aliados.html" class="sidebar-link" title="Aliados Estratégicos">
           <span class="sidebar-icon">🤝</span>
           <span class="sidebar-text">Aliados Estratégicos</span>
@@ -47,6 +53,20 @@
   </nav>
 
   <div class="sidebar-footer">
-    <button class="logout-btn">⏻ Cerrar sesión</button>
+    <button class="logout-btn">Cerrar sesión</button>
   </div>
 </aside>
+
+<!-- === MODAL LOGOUT === -->
+<div id="modalLogout" class="modal-cliente-overlay" style="display: none;">
+  <div class="modal-cliente-contenedor" style="width: 320px; text-align: center;">
+    <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
+    <h3 style="color: #990f0c; margin: 0 0 10px 0;">¿Cerrar Sesión?</h3>
+    <p style="color: #555; margin-bottom: 20px;">¿Estás seguro que deseas salir del sistema?</p>
+
+    <div class="modal-botones" style="justify-content: center;">
+      <button id="btnLogoutCancelar" class="btn-cancelar">Cancelar</button>
+      <button id="btnLogoutConfirmar" class="btn-confirmar">Sí, Salir</button>
+    </div>
+  </div>
+</div>

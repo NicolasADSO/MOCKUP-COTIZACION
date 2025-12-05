@@ -1,0 +1,319 @@
+/* ===========================================================
+   🎨 EDITOR DE PLANTILLAS - ESTILO CORPORATIVO
+   =========================================================== */
+
+/* Layout general del módulo */
+.editor-container {
+    display: flex;
+    gap: 25px;
+    /* Altura ajustada para no chocar con header/footer */
+    height: calc(100vh - 120px);
+    margin-top: 20px;
+    font-family: var(--fuente);
+}
+
+/* ===========================================================
+   📂 PANEL IZQUIERDO (LISTA)
+   =========================================================== */
+.process-list-panel {
+    width: 320px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--gris-borde, #eee);
+}
+
+.panel-title {
+    padding: 18px 20px;
+    background: var(--rojo);
+    color: white;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.process-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Scrollbar estilizado */
+.process-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.process-list::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.process-item {
+    padding: 14px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    color: var(--texto);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.process-item:hover {
+    background: #fff5f5;
+    color: var(--rojo);
+    padding-left: 24px;
+    /* Efecto slide */
+}
+
+.process-item.active {
+    background: #fff0f0;
+    color: var(--rojo);
+    font-weight: 600;
+    border-left: 4px solid var(--rojo);
+}
+
+/* Botón inferior del panel */
+.btn-full {
+    width: 100%;
+    border-radius: 0;
+    padding: 15px;
+    border: none;
+    background: #f8f9fa;
+    color: #666;
+    font-weight: 500;
+    border-top: 1px solid #ddd;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.btn-full:hover {
+    background: #e9ecef;
+    color: #333;
+}
+
+/* ===========================================================
+   📝 PANEL DERECHO (EDITOR)
+   =========================================================== */
+.editor-main-panel {
+    flex: 1;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    padding: 30px;
+    overflow-y: auto;
+    position: relative;
+    border: 1px solid var(--gris-borde, #eee);
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #999;
+    text-align: center;
+    gap: 15px;
+}
+
+.empty-state p {
+    font-size: 18px;
+    max-width: 400px;
+}
+
+.editor-form h2 {
+    color: var(--rojo);
+    margin-top: 0;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    font-size: 22px;
+}
+
+.form-group {
+    margin-bottom: 30px;
+    background: #fff;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--texto);
+    font-size: 15px;
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: var(--fuente);
+    font-size: 14px;
+    resize: vertical;
+    line-height: 1.5;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group textarea:focus {
+    border-color: var(--rojo);
+    box-shadow: 0 0 0 3px rgba(153, 15, 12, 0.1);
+    outline: none;
+}
+
+.form-group small {
+    display: block;
+    color: #777;
+    margin-top: 8px;
+    font-size: 13px;
+    font-style: italic;
+}
+
+/* ===========================================================
+   ⚡ LISTAS DINÁMICAS (SUBPROCESOS)
+   =========================================================== */
+.dynamic-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.dynamic-item {
+    display: flex;
+    gap: 15px;
+    background: #fdfdfd;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    transition: box-shadow 0.2s;
+}
+
+.dynamic-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-color: #ddd;
+}
+
+.dynamic-item .inputs-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dynamic-item input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.dynamic-item input[type="text"]:focus,
+.dynamic-item textarea:focus {
+    border-color: var(--rojo);
+    outline: none;
+}
+
+.btn-remove {
+    background: #fff;
+    color: #e74c3c;
+    border: 1px solid #e74c3c;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    cursor: pointer;
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.btn-remove:hover {
+    background: #e74c3c;
+    color: white;
+}
+
+/* Botón pequeño (Agregar) */
+.btn-small {
+    background: white;
+    border: 1px dashed #aaa;
+    color: #555;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    width: 100%;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.btn-small:hover {
+    background: #f9f9f9;
+    border-color: var(--rojo);
+    color: var(--rojo);
+}
+
+/* ===========================================================
+   🏁 BOTONES DE ACCIÓN (FOOTER)
+   =========================================================== */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 40px;
+    padding-top: 25px;
+    border-top: 1px solid #eee;
+    justify-content: flex-end;
+}
+
+.btn-primary {
+    background: var(--rojo);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(153, 15, 12, 0.2);
+    transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.btn-primary:hover {
+    background: #b9120f;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(153, 15, 12, 0.3);
+}
+
+.btn-secondary {
+    background: white;
+    color: #555;
+    border: 1px solid #ddd;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #f5f5f5;
+    color: #333;
+    border-color: #ccc;
+}

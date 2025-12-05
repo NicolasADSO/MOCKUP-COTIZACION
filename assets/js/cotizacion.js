@@ -27,7 +27,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "Diagnóstico",
     "Administración In House",
     "Elaboración de Instrumentos Archivísticos",
-    "Consultas",
     "Traslado de archivos"
   ];
 
@@ -555,7 +554,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
       let htmlUnidad = "";
 
-      if (!PROCESOS_SIN_UNIDAD.includes(proceso)) {
+      if (proceso === "Consultas") {
+        htmlUnidad = `
+          <select class="unidad-sub" style="width:120px;">
+            <option value="Cajas">Cajas</option>
+            <option value="Expediente">Expediente</option>
+            <option value="Unidad documental">Unidad documental</option>
+          </select>
+        `;
+      } else if (!PROCESOS_SIN_UNIDAD.includes(proceso)) {
         htmlUnidad = `
           <select class="unidad-sub" style="width:100px;">
             <option value="Documentos">Documentos</option>
@@ -565,13 +572,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <option value="Cajas">Cajas</option>
           </select>
         `;
-      }
-
-      // Casos sin unidad
-      else {
+      } else {
         htmlUnidad = `<span style="width:100px;text-align:center;color:#666;">—</span>`;
       }
-
 
       div.innerHTML = `
         <div style="flex:2;display:flex;align-items:center;gap:6px;">
