@@ -339,6 +339,19 @@ En Gadier Sistemas creemos que la tecnología es más que herramientas: es un pu
     y + 5
   );
 
+
+  // ============================================================
+  // 💾 GUARDAR COTIZACIÓN EN HISTORIAL
+  // ============================================================
+  try {
+    const cot = window.obtenerCotizacionActual();
+    window.guardarCotizacion(cot);
+    console.log("💾 Cotización guardada desde PDF:", cot);
+  } catch (e) {
+    console.warn("⚠ No se pudo guardar la cotización:", e);
+  }
+
+
   // ============================================================
   // ✒ FIRMA + CIERRE
   // ============================================================

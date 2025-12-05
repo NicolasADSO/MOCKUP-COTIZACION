@@ -292,12 +292,21 @@
         📋 Datos del Cliente
       </h2>
 
-      <!-- Cliente existente -->
+      <!-- ⭐ CLIENTES FAVORITOS -->
       <div class="form-group">
-        <label for="clienteExistenteSelect">Cliente guardado</label>
+        <label for="clienteExistenteSelect">Clientes guardados ⭐</label>
+
         <select id="clienteExistenteSelect">
-          <option value="">Cliente nuevo</option>
+          <option value="">— Cliente nuevo —</option>
         </select>
+
+        <!-- BOTÓN PARA MARCAR COMO FAVORITO -->
+        <div style="margin-top:6px;">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+            <input type="checkbox" id="guardarFavorito">
+            ⭐ Guardar este cliente como favorito
+          </label>
+        </div>
       </div>
 
 
@@ -493,13 +502,46 @@
 
     // Abrir modal universal
     function abrirModalDatosCliente(modo) {
+      document.getElementById("guardarFavorito").checked = false;
       modoActual = modo;
-      document.getElementById("modalDatosCliente").style.display = "flex";
 
-      // 🟦 Cargar clientes guardados
-      cargarClientesGuardadosEnSelect();
-      activarAutocompletarCliente();
+      const modal = document.getElementById("modalDatosCliente");
+      modal.style.display = "flex";
+
+      const selectFav = document.getElementById("clienteExistenteSelect");
+      const favoritos = window.obtenerFavoritos();
+
+      // Llenar select
+      selectFav.innerHTML = `<option value="">— Cliente nuevo —</option>`;
+      favoritos.forEach((f, idx) => {
+        selectFav.innerHTML += `<option value="${idx}">${f.nombre}</option>`;
+      });
+
+      // Cuando seleccionan un favorito → autocompletar
+      selectFav.onchange = () => {
+        const idx = selectFav.value;
+        if (idx === "") {
+          modalNombreCliente.value = "";
+          modalCorreoCliente.value = "";
+          modalTelefonoCliente.value = "";
+          modalDestinatario.value = "";
+          modalNumeroIdent.value = "";
+          return;
+        }
+
+        const fav = favoritos[idx];
+
+        modalNombreCliente.value = fav.nombre || "";
+        modalCorreoCliente.value = fav.correo || "";
+        modalTelefonoCliente.value = fav.telefono || "";
+        modalDestinatario.value = fav.destinatario || "";
+        modalNumeroIdent.value = fav.numeroIdent || "";
+
+        if (fav.tipoIdent === "RUNT") identRUNT.checked = true;
+        else if (fav.tipoIdent === "Documento") identCC.checked = true;
+      };
     }
+
 
 
 
@@ -538,7 +580,12 @@
         tipoIdent,
         numeroIdent
       };
-      guardarClienteEnMemoria(window.datosClienteGlobal);
+
+      // ⭐ Guardar como favorito SOLO si el usuario lo marcó
+      const esFavorito = document.getElementById("guardarFavorito").checked;
+      if (esFavorito) {
+        window.guardarFavorito(window.datosClienteGlobal);
+      }
 
       document.getElementById("modalDatosCliente").style.display = "none";
 

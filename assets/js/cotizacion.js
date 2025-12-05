@@ -3,6 +3,13 @@
 // Procesos + Subprocesos, integrados con tabla_resumen y módulos extra
 // ============================================================
 
+// ============================================================
+// 🔎 VARIABLES PARA COTIZACIONES QUE VIENEN DESDE OTRA PÁGINA
+// ============================================================
+const cotizacionAbrir = localStorage.getItem("cotizacion_a_abrir");
+const cotComb = localStorage.getItem("cotizacion_combinada");
+
+
 document.addEventListener("DOMContentLoaded", () => {
   console.log(
     "%c🚀 Inicializando módulo de Cotización - Gadier Sistemas (Mock9)",
@@ -847,4 +854,141 @@ document.addEventListener("DOMContentLoaded", () => {
       selectServicioAliado.innerHTML = `<option value="">Seleccione servicio...</option>`;
     });
   }
+
+  // ============================================================
+  // 🔄 CARGAR UNA COTIZACIÓN GUARDADA EN LA TABLA RESUMEN
+  // ============================================================
+  window.cargarCotizacionEnEditor = function (cot) {
+    if (!cot) return;
+
+    // 1️⃣ Vaciar resumen actual
+    window.resumen = [];
+
+    // 2️⃣ Cargar cada item al resumen
+    cot.items.forEach(item => {
+      window.resumen.push({
+        area: item.area,
+        proceso: item.proceso,
+        subprocesos: item.subprocesos || [],
+        unidad: item.unidad,
+        cantidad: item.cantidad,
+        valor: item.valor,
+        costo: item.costo,
+        tiempo: item.tiempo,
+        visible: true
+      });
+    });
+
+    // 3️⃣ Renderizar tabla resumen
+    if (typeof window.renderTabla === "function") {
+      window.renderTabla();
+    }
+
+    // 4️⃣ Cargar datos del cliente en el modal universal
+    window.datosClienteGlobal = { ...cot.cliente };
+
+    alert("✔ Cotización cargada para edición.");
+  };
+
+
+  // ============================================================
+  // 📦 OBTENER COTIZACIÓN ACTUAL (Para guardar PDF / PPT)
+  // ============================================================
+  window.obtenerCotizacionActual = function () {
+
+    if (!window.resumen || window.resumen.length === 0) return null;
+
+    const visibles = window.resumen.filter(r => r.visible !== false);
+
+    // --- Datos del cliente ---
+    const d = window.datosClienteGlobal || {};
+
+    // --- Gastos, IVA, Descuento ---
+    const gastos = parseFloat(document.getElementById("gastosInput")?.dataset.real || 0) || 0;
+    const descuento = parseFloat(document.getElementById("descuentoInput")?.value || 0) || 0;
+    const aplicarIVA = document.getElementById("chkIVA")?.checked || false;
+
+    // --- Totales ---
+    let subtotal = 0;
+    visibles.forEach(r => {
+      const base = r.costo ?? (r.cantidad * (r.valor || 0));
+      subtotal += base;
+    });
+
+    const descValor = subtotal * (descuento / 100);
+    const subDesc = subtotal - descValor;
+    const iva = aplicarIVA ? subDesc * 0.19 : 0;
+    const totalFinal = subDesc + iva + gastos;
+
+    return {
+      id: "COT-" + Date.now(),
+      fecha: new Date().toLocaleString("es-CO"),
+      cliente: {
+        nombre: d.nombre || "",
+        correo: d.correo || "",
+        telefono: d.telefono || "",
+        destinatario: d.destinatario || "",
+        tipoIdent: d.tipoIdent || "",
+        numeroIdent: d.numeroIdent || ""
+      },
+      configuracion: {
+        descuento,
+        gastos,
+        aplicarIVA
+      },
+      items: visibles.map(r => ({
+        area: r.area,
+        proceso: r.proceso,
+        subprocesos: r.subprocesos || [],
+        unidad: r.unidad,
+        cantidad: r.cantidad,
+        valor: r.valor,
+        costo: r.costo ?? (r.cantidad * r.valor),
+        tiempo: r.tiempo
+      })),
+      subtotal,
+      descValor,
+      iva,
+      totalFinal
+    };
+  };
+
+  // ============================================================
+  // 💾 GUARDAR COTIZACIÓN EN HISTORIAL
+  // ============================================================
+  window.guardarCotizacion = function (cotizacion) {
+
+    if (!cotizacion) return;
+
+    const guardadas = JSON.parse(localStorage.getItem("cotizaciones_guardadas")) || [];
+
+    guardadas.push(cotizacion);
+
+    localStorage.setItem("cotizaciones_guardadas", JSON.stringify(guardadas));
+
+    console.log("💾 Cotización guardada:", cotizacion.id);
+  };
+
+
+
+  // ============================================================
+  // 🟦 PROCESAR COTIZACIÓN INDIVIDUAL
+  // ============================================================
+  if (cotizacionAbrir) {
+    const cot = JSON.parse(cotizacionAbrir);
+    localStorage.removeItem("cotizacion_a_abrir");
+    window.cargarCotizacionEnEditor(cot);
+  }
+
+  // ============================================================
+  // 🟩 PROCESAR COTIZACIÓN COMBINADA
+  // ============================================================
+  if (cotComb) {
+    const cot = JSON.parse(cotComb);
+    localStorage.removeItem("cotizacion_combinada");
+    window.cargarCotizacionEnEditor(cot);
+  }
+
+
+
 });

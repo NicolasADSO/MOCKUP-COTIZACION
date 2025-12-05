@@ -14,6 +14,24 @@ window.nombreSubprocesoEstandar = {
   "especializados": "Especializados",
 };
 
+// ===========================
+// ⭐ MANEJO DE CLIENTES FAVORITOS
+// ===========================
+window.obtenerFavoritos = function () {
+  return JSON.parse(localStorage.getItem("clientesFavoritos") || "[]");
+};
+
+window.guardarFavorito = function (cliente) {
+  let favs = window.obtenerFavoritos();
+
+  // evitar duplicados por nombre
+  if (!favs.some(f => f.nombre === cliente.nombre)) {
+    favs.push(cliente);
+    localStorage.setItem("clientesFavoritos", JSON.stringify(favs));
+  }
+};
+
+
 // ============= UTILIDADES GLOBALES ==========================
 document.addEventListener("DOMContentLoaded", () => {
   console.log("🧾 [PropuestaValor] Inicializado correctamente");
@@ -105,6 +123,54 @@ if (!window.abrirModalDatosCliente) {
     const radioCC = modal.querySelector("#identCC");
     const inputNumeroIdent = modal.querySelector("#modalNumeroIdent");
 
+    // ====== SELECT DE FAVORITOS ======
+    const selectFav = modal.querySelector("#clienteExistenteSelect");
+    const favoritos = window.obtenerFavoritos();
+
+    // Rellenar el select
+    if (selectFav) {
+      selectFav.innerHTML = `<option value="">— Cliente nuevo —</option>`;
+
+      favoritos.forEach((f, idx) => {
+        selectFav.innerHTML += `<option value="${idx}">${f.nombre} (${f.correo || "sin correo"})</option>`;
+      });
+
+      // Al seleccionar un favorito → cargarlo al formulario
+      selectFav.onchange = () => {
+        const idx = selectFav.value;
+
+        if (idx === "") {
+          // Limpia porque eligieron cliente nuevo
+          inputNombre.value = "";
+          inputCorreo.value = "";
+          inputTelefono.value = "";
+          inputDestinatario.value = "";
+          radioRUNT.checked = false;
+          radioCC.checked = false;
+          inputNumeroIdent.style.display = "none";
+          inputNumeroIdent.value = "";
+          return;
+        }
+
+        const fav = favoritos[idx];
+
+        inputNombre.value = fav.nombre || "";
+        inputCorreo.value = fav.correo || "";
+        inputTelefono.value = fav.telefono || "";
+        inputDestinatario.value = fav.destinatario || "";
+
+        if (fav.tipoIdent === "RUNT") radioRUNT.checked = true;
+        else if (fav.tipoIdent === "Documento") radioCC.checked = true;
+
+        if (fav.numeroIdent) {
+          inputNumeroIdent.style.display = "block";
+          inputNumeroIdent.value = fav.numeroIdent;
+        }
+      };
+    }
+
+
+
     const btnCancelar = modal.querySelector("#btnModalCancelar");
     const btnContinuar = modal.querySelector("#btnModalContinuar");
 
@@ -180,6 +246,13 @@ if (!window.abrirModalDatosCliente) {
         tipoIdent,
         numeroIdent
       };
+
+      // ⭐ Guardar como favorito
+      const chkFav = modal.querySelector("#guardarFavorito");
+      if (chkFav && chkFav.checked) {
+        window.guardarFavorito(datos);
+      }
+
       window.datosClienteGlobal = datos;
       try {
         sessionStorage.setItem("datosClienteGadier", JSON.stringify(datos));
@@ -666,6 +739,18 @@ window.generarPPTConDatos = async function () {
     x: 0.8, y: 4.7, w: 8.4,
     fontSize: 15, color: "990f0c", align: "center"
   });
+
+  // ============================================================
+  // 💾 GUARDAR COTIZACIÓN EN HISTORIAL (Versión PPT)
+  // ============================================================
+  try {
+    const cot = window.obtenerCotizacionActual();
+    window.guardarCotizacion(cot);
+    console.log("💾 Cotización guardada desde PPT:", cot);
+  } catch (e) {
+    console.warn("⚠ No se pudo guardar la cotización desde PPT:", e);
+  }
+
 
   // ============================================================
   // 💾 GUARDAR ARCHIVO
