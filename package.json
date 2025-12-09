@@ -1,0 +1,23 @@
+{
+  "name": "mockup-cotizacion",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NicolasADSO/MOCKUP-COTIZACION.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NicolasADSO/MOCKUP-COTIZACION/issues"
+  },
+  "homepage": "https://github.com/NicolasADSO/MOCKUP-COTIZACION#readme",
+  "dependencies": {
+    "puppeteer": "^24.32.1"
+  }
+}

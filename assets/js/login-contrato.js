@@ -111,4 +111,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 2000);
   });
 
+  // ============================================================
+  // 👁️ VER CONTRASEÑA
+  // ============================================================
+  const togglePassword = document.getElementById("togglePassword");
+  if (togglePassword) {
+    togglePassword.addEventListener("click", () => {
+      const tipo = password.getAttribute("type") === "password" ? "text" : "password";
+      password.setAttribute("type", tipo);
+
+      // Cambiar icono
+      togglePassword.classList.toggle("fa-eye");
+      togglePassword.classList.toggle("fa-eye-slash");
+    });
+  }
+
 });

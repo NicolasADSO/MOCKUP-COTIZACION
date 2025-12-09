@@ -11,6 +11,13 @@
 
 <body class="sidebar-collapsed">
 
+    <!-- Auth Check -->
+    <script>
+        if (!localStorage.getItem("usuario_logueado")) {
+            window.location.href = "login.html";
+        }
+    </script>
+
     <!-- Sidebar (se carga dinámicamente) -->
     <div id="sidebar-placeholder"></div>
 

@@ -17,6 +17,12 @@
 
 <body>
 
+  <script>
+    if (!localStorage.getItem("usuario_logueado")) {
+      window.location.href = "login.html";
+    }
+  </script>
+
   <!-- ========== SIDEBAR DINÁMICO ========== -->
   <div id="sidebar"></div>
 

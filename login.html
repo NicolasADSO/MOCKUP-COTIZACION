@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Contrato - Gadier Sistemas</title>
 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="./assets/css/login-contrato.css">
 </head>
 
@@ -61,7 +62,11 @@
         <!-- Contraseña -->
         <div class="grupo">
           <label>Con contraseña</label>
-          <input type="password" id="password" placeholder="••••••••••">
+          <div style="position:relative; width: 100%;">
+            <input type="password" id="password" placeholder="••••••••••" style="width: 100%; padding-right: 40px;">
+            <i id="togglePassword" class="fa-solid fa-eye"
+              style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #333; z-index: 10; font-size: 18px;"></i>
+          </div>
         </div>
 
         <!-- Botón -->
