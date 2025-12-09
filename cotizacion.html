@@ -376,6 +376,7 @@
   <script src="./assets/js/propuesta_valor.js"></script>
   <script src="./assets/js/pdf_gadier.js"></script>
   <script src="./assets/js/cotizacion.js"></script>
+  <script src="./assets/js/cotizacion_editor.js"></script>
 
 
   <!-- ============================================================
@@ -588,6 +589,22 @@
       }
 
       document.getElementById("modalDatosCliente").style.display = "none";
+
+      // ============================================================
+      // 💾 AUTOGUARDADO AL GENERAR (SOLUCIÓN HISTORIAL VACÍO)
+      // ============================================================
+      if (window.guardarCotizacion && window.obtenerCotizacionActual) {
+        const payload = window.obtenerCotizacionActual();
+
+        if (payload) {
+          // Si estamos editando, pasar el ID para que update.php funcione
+          // Si es nueva, el ID será generado por save.php
+          if (window.cotizacionEditando && window.cotizacionEditando.id) {
+            // Ya lo maneja cotizacion_editor.js via modoEdicion
+          }
+          window.guardarCotizacion(payload);
+        }
+      }
 
       // Llamar flujo según modo
       if (modoActual === "PDF") generarPDFConDatos();

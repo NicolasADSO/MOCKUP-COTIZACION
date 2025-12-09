@@ -1,0 +1,39 @@
+# Tareas: Historial de Cotizaciones
+
+## 📋 Fase 1: Backend API
+- [ ] Crear endpoint `api/cotizaciones/index.php` para listar cotizaciones
+- [ ] Implementar filtros (fecha, cliente, estado, usuario)
+- [ ] Crear endpoint `api/cotizaciones/get.php?id=X` para obtener una cotización específica
+- [ ] Crear endpoint `api/cotizaciones/update.php` para actualizar estado
+
+## 🎨 Fase 2: Interfaz de Usuario
+- [ ] Crear `historial.html` con estructura base
+- [ ] Diseñar tabla responsiva para mostrar cotizaciones
+- [ ] Implementar filtros en UI (fecha, cliente, estado)
+- [ ] Agregar buscador de texto
+- [ ] Crear botones de acción (Ver, Editar, PDF, Eliminar)
+
+## 🔌 Fase 3: JavaScript del Historial
+- [ ] Crear `assets/js/historial.js`
+- [ ] Implementar carga inicial de cotizaciones
+- [ ] Implementar filtros dinámicos
+- [ ] Crear función para abrir cotización en editor
+- [ ] Implementar regeneración de PDF desde historial
+
+## 🔗 Fase 4: Integración con Cotizador
+- [ ] Modificar [cotizacion.js](file:///c:/xampp/htdocs/GADIER-PRODUCCION/assets/js/cotizacion.js) para recibir parámetro de cotización a cargar
+- [ ] Crear función `cargarCotizacionDesdeHistorial(id)`
+- [ ] Implementar modo "Edición" vs "Nueva"
+- [ ] Agregar botón "Guardar cambios" para cotizaciones existentes
+
+## 📤 Fase 5: Características Adicionales
+- [ ] Implementar exportación a Excel
+- [ ] Agregar paginación (opcional si hay muchas cotizaciones)
+- [ ] Implementar ordenamiento por columnas
+- [ ] Agregar confirmación antes de eliminar
+
+## ✅ Fase 6: Verificación
+- [ ] Probar flujo completo: crear → guardar → ver en historial → editar → guardar
+- [ ] Verificar filtros funcionan correctamente
+- [ ] Probar regeneración de PDF
+- [ ] Verificar que los cambios se persisten en DB
